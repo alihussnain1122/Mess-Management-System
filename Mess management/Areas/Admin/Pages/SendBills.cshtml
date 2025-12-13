@@ -1,226 +1,227 @@
 @page
 @model MessManagement.Areas.Admin.Pages.SendBillsModel
 @{
-    ViewData["Title"] = "Send Monthly Bills";
-    Layout = "_AdminLayout";
+    ViewData["Title"] = "Send Bills";
 }
 
-<div class="space-y-6">
-    <!-- Page Header -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900">Send Monthly Bills</h1>
-                <p class="text-gray-500 mt-1">Email monthly bills with PDF attachments to members</p>
-            </div>
-            <div class="flex items-center gap-3">
-                <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
-                    <i class="fas fa-bolt mr-1"></i>Concurrent Sending
-                </span>
-                <span class="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">
-                    <i class="fas fa-utensils mr-1"></i>Menu-Based Pricing
-                </span>
-                <div class="p-3 bg-blue-100 rounded-lg">
-                    <i class="fas fa-file-pdf text-2xl text-blue-600"></i>
-                </div>
-            </div>
-        </div>
+<!-- Header -->
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <h1 class="text-2xl font-bold text-white">Send Monthly Bills</h1>
+        <p class="text-white/60">Email bills with PDF attachments to members</p>
     </div>
-
-    <!-- Configuration Card -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">
-            <i class="fas fa-cog mr-2 text-indigo-500"></i>Bill Configuration
-        </h2>
-        
-        <form method="post" id="sendBillsForm">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Month Selection -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Select Month</label>
-                    <select asp-for="SelectedMonth" class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                        @for (int m = 1; m <= 12; m++)
-                        {
-                            <option value="@m" selected="@(m == DateTime.Now.Month)">
-                                @(new DateTime(2000, m, 1).ToString("MMMM"))
-                            </option>
-                        }
-                    </select>
-                </div>
-
-                <!-- Year Selection -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Select Year</label>
-                    <select asp-for="SelectedYear" class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                        @for (int y = DateTime.Now.Year; y >= DateTime.Now.Year - 2; y--)
-                        {
-                            <option value="@y" selected="@(y == DateTime.Now.Year)">@y</option>
-                        }
-                    </select>
-                </div>
-            </div>
-
-            <!-- Menu-Based Pricing Info -->
-            <div class="mt-4 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-200">
-                <div class="flex items-center gap-2 mb-3">
-                    <i class="fas fa-utensils text-purple-600"></i>
-                    <span class="font-medium text-gray-700">Pricing Based on Weekly Menu</span>
-                </div>
-                <p class="text-sm text-gray-600 mb-3">
-                    Bills are calculated using the actual menu prices for each day. Each meal's price is taken from the weekly menu based on what day the member ate.
-                </p>
-                @if (Model.WeeklyMenus.Any())
-                {
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-                        <div class="bg-white/60 rounded-lg p-3">
-                            <div class="flex items-center gap-2 text-amber-600 font-medium mb-2">
-                                <i class="fas fa-sun"></i> Breakfast Prices
-                            </div>
-                            @foreach (var menu in Model.WeeklyMenus.Where(m => m.MealType == MessManagement.Models.MealType.Breakfast).Take(3))
-                            {
-                                <div class="text-gray-600 text-xs">@menu.DayOfWeek: Rs.@menu.Price.ToString("N0")</div>
-                            }
-                            @if (Model.WeeklyMenus.Count(m => m.MealType == MessManagement.Models.MealType.Breakfast) > 3)
-                            {
-                                <div class="text-gray-400 text-xs">+ more...</div>
-                            }
-                        </div>
-                        <div class="bg-white/60 rounded-lg p-3">
-                            <div class="flex items-center gap-2 text-blue-600 font-medium mb-2">
-                                <i class="fas fa-cloud-sun"></i> Lunch Prices
-                            </div>
-                            @foreach (var menu in Model.WeeklyMenus.Where(m => m.MealType == MessManagement.Models.MealType.Lunch).Take(3))
-                            {
-                                <div class="text-gray-600 text-xs">@menu.DayOfWeek: Rs.@menu.Price.ToString("N0")</div>
-                            }
-                            @if (Model.WeeklyMenus.Count(m => m.MealType == MessManagement.Models.MealType.Lunch) > 3)
-                            {
-                                <div class="text-gray-400 text-xs">+ more...</div>
-                            }
-                        </div>
-                        <div class="bg-white/60 rounded-lg p-3">
-                            <div class="flex items-center gap-2 text-purple-600 font-medium mb-2">
-                                <i class="fas fa-moon"></i> Dinner Prices
-                            </div>
-                            @foreach (var menu in Model.WeeklyMenus.Where(m => m.MealType == MessManagement.Models.MealType.Dinner).Take(3))
-                            {
-                                <div class="text-gray-600 text-xs">@menu.DayOfWeek: Rs.@menu.Price.ToString("N0")</div>
-                            }
-                            @if (Model.WeeklyMenus.Count(m => m.MealType == MessManagement.Models.MealType.Dinner) > 3)
-                            {
-                                <div class="text-gray-400 text-xs">+ more...</div>
-                            }
-                        </div>
-                    </div>
-                }
-                else
-                {
-                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-yellow-700 text-sm">
-                        <i class="fas fa-exclamation-triangle mr-2"></i>
-                        No menu prices configured. Please set up the weekly menu first.
-                    </div>
-                }
-            </div>
-
-            <!-- Auto-Included Info -->
-            <div class="mt-4 p-4 bg-gradient-to-r from-cyan-50 to-amber-50 rounded-lg border border-cyan-200">
-                <div class="flex items-center gap-2 mb-2">
-                    <i class="fas fa-info-circle text-cyan-600"></i>
-                    <span class="font-medium text-gray-700">Auto-Included with Every Meal</span>
-                </div>
-                <div class="flex gap-6 text-sm">
-                    <span class="flex items-center gap-2">
-                        <i class="fas fa-tint text-cyan-500"></i>
-                        <span class="text-gray-600">Water: <strong class="text-green-600">FREE</strong></span>
-                    </span>
-                    <span class="flex items-center gap-2">
-                        <i class="fas fa-mug-hot text-amber-500"></i>
-                        <span class="text-gray-600">Tea/Coffee: <strong class="text-amber-600">Rs.100/meal</strong></span>
-                    </span>
-                </div>
-            </div>
-
-            <!-- Member Selection -->
-            <div class="mt-6">
-                <div class="flex items-center justify-between mb-3">
-                    <label class="block text-sm font-medium text-gray-700">Select Members</label>
-                    <div class="flex items-center gap-4">
-                        <span id="selectedCount" class="text-sm text-gray-500">0 selected</span>
-                        <label class="flex items-center">
-                            <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                            <span class="ml-2 text-sm text-gray-600">Select All</span>
-                        </label>
-                    </div>
-                </div>
-                
-                <div class="bg-gray-50 rounded-lg border border-gray-200 max-h-64 overflow-y-auto p-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                        @foreach (var member in Model.Members)
-                        {
-                            <label class="flex items-center p-2 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors">
-                                <input type="checkbox" name="SelectedMemberIds" value="@member.MemberId" 
-                                       class="member-checkbox rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                                       @(string.IsNullOrEmpty(member.User?.Email) ? "disabled" : "")>
-                                <div class="ml-3">
-                                    <p class="text-sm font-medium text-gray-900">@member.FullName</p>
-                                    <p class="text-xs text-gray-500">
-                                        Room @member.RoomNumber
-                                        @if (string.IsNullOrEmpty(member.User?.Email))
-                                        {
-                                            <span class="text-red-500"> (No email)</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-gray-400">| @member.User.Email</span>
-                                        }
-                                    </p>
-                                </div>
-                            </label>
-                        }
-                    </div>
-                </div>
-                <p class="mt-2 text-sm text-gray-500">
-                    <i class="fas fa-info-circle mr-1"></i>
-                    Members without email addresses are disabled
-                </p>
-            </div>
-
-            <!-- Actions -->
-            <div class="mt-6 flex items-center gap-4">
-                <button type="submit" id="sendBtn" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium py-2.5 px-6 rounded-lg transition duration-150 flex items-center">
-                    <i class="fas fa-paper-plane mr-2"></i>
-                    Send Bills with PDF
-                </button>
-                <a href="/Admin/Members" class="text-gray-600 hover:text-gray-800 font-medium">
-                    Cancel
-                </a>
-            </div>
-        </form>
-    </div>
-
-    <!-- Features Box -->
-    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4">
-        <div class="flex">
-            <i class="fas fa-rocket text-blue-500 mt-0.5 mr-3"></i>
-            <div>
-                <h3 class="text-sm font-medium text-blue-800">Features</h3>
-                <ul class="text-sm text-blue-600 mt-1 list-disc list-inside space-y-1">
-                    <li><strong>PDF Attachment:</strong> Each member receives their bill as a downloadable PDF</li>
-                    <li><strong>Concurrent Sending:</strong> Bills are sent in parallel for faster processing</li>
-                    <li><strong>Meal-wise Breakdown:</strong> Detailed charges for Breakfast, Lunch, Dinner, Water & Tea</li>
-                    <li><strong>Payment Summary:</strong> Shows amount paid and balance due</li>
-                </ul>
-            </div>
-        </div>
+    <div class="flex items-center gap-2">
+        <span class="px-3 py-1.5 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-medium rounded-full">
+            <i class="fas fa-bolt mr-1"></i>Concurrent
+        </span>
+        <span class="px-3 py-1.5 bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-medium rounded-full">
+            <i class="fas fa-file-pdf mr-1"></i>PDF
+        </span>
+        <span class="px-3 py-1.5 bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-medium rounded-full">
+            <i class="fas fa-utensils mr-1"></i>Menu Prices
+        </span>
     </div>
 </div>
 
+<form method="post" id="sendBillsForm">
+    <!-- Billing Period -->
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6 mb-6">
+        <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <i class="fas fa-calendar-alt text-emerald-400"></i>
+            Billing Period
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-white/70 text-sm mb-2">Month</label>
+                <select asp-for="SelectedMonth" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    @for (int m = 1; m <= 12; m++)
+                    {
+                        <option value="@m" class="bg-gray-800">@(new DateTime(2000, m, 1).ToString("MMMM"))</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label class="block text-white/70 text-sm mb-2">Year</label>
+                <select asp-for="SelectedYear" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    @for (int y = DateTime.Now.Year; y >= DateTime.Now.Year - 2; y--)
+                    {
+                        <option value="@y" class="bg-gray-800">@y</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <!-- Menu Pricing Info -->
+        <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-5">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 bg-purple-500/30 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-utensils text-purple-400"></i>
+                </div>
+                <h3 class="text-white font-medium">Menu-Based Pricing</h3>
+            </div>
+            <p class="text-white/60 text-sm">
+                Bills are calculated using actual menu prices for each day the member ate.
+            </p>
+        </div>
+
+        <!-- Auto-Included Info -->
+        <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-5">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 bg-cyan-500/30 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-plus-circle text-cyan-400"></i>
+                </div>
+                <h3 class="text-white font-medium">Auto-Included</h3>
+            </div>
+            <div class="flex gap-4 text-sm">
+                <span class="text-white/60">
+                    <i class="fas fa-tint text-cyan-400 mr-1"></i>Water: <span class="text-emerald-400 font-medium">FREE</span>
+                </span>
+                <span class="text-white/60">
+                    <i class="fas fa-mug-hot text-amber-400 mr-1"></i>Tea: <span class="text-amber-400 font-medium">Rs.100</span>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Member Selection -->
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6 mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                <i class="fas fa-users text-emerald-400"></i>
+                Select Members
+            </h2>
+            <div class="flex items-center gap-4">
+                <span id="selectedCount" class="text-emerald-400 text-sm font-medium">0 selected</span>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" id="selectAll" class="w-4 h-4 rounded border-white/30 bg-white/10 text-emerald-500 focus:ring-emerald-500">
+                    <span class="text-white/70 text-sm">Select All</span>
+                </label>
+            </div>
+        </div>
+        
+        <div class="bg-white/5 rounded-xl p-4 max-h-80 overflow-y-auto">
+            @if (Model.Members.Any())
+            {
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    @foreach (var member in Model.Members)
+                    {
+                        var hasEmail = !string.IsNullOrEmpty(member.User?.Email);
+                        <label class="member-card flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl cursor-pointer hover:bg-white/10 transition-all @(!hasEmail ? "opacity-50" : "")">
+                            <input type="checkbox" name="SelectedMemberIds" value="@member.MemberId" 
+                                   class="member-checkbox w-4 h-4 rounded border-white/30 bg-white/10 text-emerald-500 focus:ring-emerald-500"
+                                   @(!hasEmail ? "disabled" : "")>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-white font-medium text-sm truncate">@member.FullName</p>
+                                <p class="text-white/50 text-xs truncate">
+                                    Room @member.RoomNumber
+                                    @if (!hasEmail)
+                                    {
+                                        <span class="text-red-400 ml-1">(No email)</span>
+                                    }
+                                </p>
+                            </div>
+                            @if (hasEmail)
+                            {
+                                <i class="fas fa-envelope text-white/30 text-xs"></i>
+                            }
+                        </label>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-8">
+                    <i class="fas fa-users-slash text-white/30 text-4xl mb-3"></i>
+                    <p class="text-white/50">No active members found</p>
+                </div>
+            }
+        </div>
+        <p class="mt-3 text-white/40 text-xs flex items-center gap-1">
+            <i class="fas fa-info-circle"></i>
+            Members without email addresses cannot receive bills
+        </p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex items-center justify-between">
+        <a href="/Admin/Dashboard" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-6 py-3 rounded-xl font-medium transition-all">
+            Cancel
+        </a>
+        <button type="submit" id="sendBtn" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-8 py-3 rounded-xl font-medium flex items-center gap-2 transition-all shadow-lg">
+            <i class="fas fa-paper-plane"></i>
+            Send Bills with PDF
+        </button>
+    </div>
+</form>
+
+<!-- Features List -->
+@* <div class="mt-6 bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+    <h3 class="text-white font-medium mb-4 flex items-center gap-2">
+        <i class="fas fa-rocket text-emerald-400"></i>
+        What happens when you send?
+    </h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="flex items-start gap-3">
+            <div class="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-file-pdf text-emerald-400 text-sm"></i>
+            </div>
+            <div>
+                <p class="text-white text-sm font-medium">PDF Bill</p>
+                <p class="text-white/50 text-xs">Attached to email</p>
+            </div>
+        </div>
+        <div class="flex items-start gap-3">
+            <div class="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-bolt text-blue-400 text-sm"></i>
+            </div>
+            <div>
+                <p class="text-white text-sm font-medium">Concurrent</p>
+                <p class="text-white/50 text-xs">Sent in parallel</p>
+            </div>
+        </div>
+        <div class="flex items-start gap-3">
+            <div class="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-utensils text-purple-400 text-sm"></i>
+            </div>
+            <div>
+                <p class="text-white text-sm font-medium">Menu Prices</p>
+                <p class="text-white/50 text-xs">Actual menu rates</p>
+            </div>
+        </div>
+        <div class="flex items-start gap-3">
+            <div class="w-8 h-8 bg-amber-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-chart-pie text-amber-400 text-sm"></i>
+            </div>
+            <div>
+                <p class="text-white text-sm font-medium">Breakdown</p>
+                <p class="text-white/50 text-xs">B/L/D + extras</p>
+            </div>
+        </div>
+    </div>
+</div> *@
+
 @section Scripts {
     <script>
-        // Update selected count
+        // Update selected count and card styling
         function updateSelectedCount() {
-            const selected = document.querySelectorAll('.member-checkbox:checked').length;
-            document.getElementById('selectedCount').textContent = selected + ' selected';
+            const checkboxes = document.querySelectorAll('.member-checkbox:checked');
+            const count = checkboxes.length;
+            document.getElementById('selectedCount').textContent = count + ' selected';
+            
+            // Update card styling
+            document.querySelectorAll('.member-card').forEach(card => {
+                const checkbox = card.querySelector('.member-checkbox');
+                if (checkbox && checkbox.checked) {
+                    card.classList.add('bg-emerald-500/20', 'border-emerald-500/50');
+                    card.classList.remove('bg-white/5', 'border-white/10');
+                } else {
+                    card.classList.remove('bg-emerald-500/20', 'border-emerald-500/50');
+                    card.classList.add('bg-white/5', 'border-white/10');
+                }
+            });
         }
 
         // Select all functionality
@@ -244,7 +245,9 @@
                     icon: 'warning',
                     title: 'No Members Selected',
                     text: 'Please select at least one member to send bills.',
-                    confirmButtonColor: '#4F46E5'
+                    confirmButtonColor: '#10b981',
+                    background: '#1f2937',
+                    color: '#fff'
                 });
                 return;
             }
@@ -252,6 +255,7 @@
             const btn = document.getElementById('sendBtn');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending ' + selected + ' bill(s)...';
             btn.disabled = true;
+            btn.classList.add('opacity-75');
         });
     </script>
 }

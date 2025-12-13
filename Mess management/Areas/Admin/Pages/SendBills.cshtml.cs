@@ -33,7 +33,6 @@ public class SendBillsModel : PageModel
     }
 
     public List<Member> Members { get; set; } = new();
-    public List<WeeklyMenu> WeeklyMenus { get; set; } = new();
 
     [BindProperty]
     public int SelectedMonth { get; set; } = DateTime.Now.Month;
@@ -54,12 +53,6 @@ public class SendBillsModel : PageModel
             .Where(m => m.IsActive)
             .Include(m => m.User)
             .OrderBy(m => m.FullName)
-            .ToListAsync();
-
-        // Load weekly menu for display
-        WeeklyMenus = await _context.WeeklyMenus
-            .OrderBy(m => m.DayOfWeek)
-            .ThenBy(m => m.MealType)
             .ToListAsync();
     }
 
