@@ -2,176 +2,214 @@
 @model MessManagement.Areas.Admin.Pages.ExportsModel
 @{
     ViewData["Title"] = "Data Exports";
-    Layout = "_AdminLayout";
 }
 
-<div class="space-y-6">
-    <!-- Page Header -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900">Data Exports</h1>
-                <p class="text-gray-500 mt-1">Export your data to Excel spreadsheets</p>
+<!-- Header -->
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <h1 class="text-2xl font-bold text-white">Data Exports</h1>
+        <p class="text-white/60">Export your data to Excel spreadsheets</p>
+    </div>
+    <div class="flex items-center gap-2">
+        <span class="px-3 py-1.5 bg-green-500/20 border border-green-500/30 text-green-300 text-xs font-medium rounded-full">
+            <i class="fas fa-file-excel mr-1"></i>.xlsx
+        </span>
+        <span class="px-3 py-1.5 bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-medium rounded-full">
+            <i class="fas fa-table mr-1"></i>Formatted
+        </span>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Members Export -->
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6 hover:bg-white/20 transition-all">
+        <div class="flex items-center gap-4 mb-4">
+            <div class="w-12 h-12 bg-blue-500/30 rounded-xl flex items-center justify-center">
+                <i class="fas fa-users text-blue-400 text-xl"></i>
             </div>
-            <div class="p-3 bg-indigo-100 rounded-lg">
-                <i class="fas fa-file-excel text-2xl text-indigo-600"></i>
+            <div>
+                <h2 class="text-lg font-semibold text-white">Members Export</h2>
+                <p class="text-white/60 text-sm">Export all member information</p>
             </div>
         </div>
+        <p class="text-white/50 text-sm mb-4">
+            Includes member details, room numbers, contact information, join dates, and status.
+        </p>
+        <form method="post" asp-page-handler="ExportMembers">
+            <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg">
+                <i class="fas fa-download"></i>
+                Download Members Excel
+            </button>
+        </form>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Members Export -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <div class="flex items-center mb-4">
-                <div class="p-3 bg-blue-100 rounded-lg mr-4">
-                    <i class="fas fa-users text-xl text-blue-600"></i>
+    <!-- Payments Export -->
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6 hover:bg-white/20 transition-all">
+        <div class="flex items-center gap-4 mb-4">
+            <div class="w-12 h-12 bg-emerald-500/30 rounded-xl flex items-center justify-center">
+                <i class="fas fa-money-bill-wave text-emerald-400 text-xl"></i>
+            </div>
+            <div>
+                <h2 class="text-lg font-semibold text-white">Payments Export</h2>
+                <p class="text-white/60 text-sm">Export payment records</p>
+            </div>
+        </div>
+        <form method="post" asp-page-handler="ExportPayments" class="space-y-4">
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-white/70 text-sm mb-2">Start Date</label>
+                    <input type="date" name="startDate" asp-for="PaymentStartDate" 
+                           class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
                 </div>
                 <div>
-                    <h2 class="text-lg font-semibold text-gray-900">Members Export</h2>
-                    <p class="text-sm text-gray-500">Export all member information</p>
+                    <label class="block text-white/70 text-sm mb-2">End Date</label>
+                    <input type="date" name="endDate" asp-for="PaymentEndDate"
+                           class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
                 </div>
             </div>
-            <p class="text-gray-600 text-sm mb-4">
-                Includes member details, room numbers, contact information, join dates, and status.
+            <p class="text-white/40 text-xs flex items-center gap-1">
+                <i class="fas fa-info-circle"></i>
+                Leave dates empty to export all payments
             </p>
-            <form method="post" asp-page-handler="ExportMembers">
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg transition duration-150 flex items-center justify-center">
-                    <i class="fas fa-download mr-2"></i>
-                    Download Members Excel
-                </button>
-            </form>
-        </div>
-
-        <!-- Payments Export -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <div class="flex items-center mb-4">
-                <div class="p-3 bg-green-100 rounded-lg mr-4">
-                    <i class="fas fa-money-bill-wave text-xl text-green-600"></i>
-                </div>
-                <div>
-                    <h2 class="text-lg font-semibold text-gray-900">Payments Export</h2>
-                    <p class="text-sm text-gray-500">Export payment records</p>
-                </div>
-            </div>
-            <form method="post" asp-page-handler="ExportPayments" class="space-y-4">
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-                        <input type="date" name="startDate" asp-for="PaymentStartDate" 
-                               class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-                        <input type="date" name="endDate" asp-for="PaymentEndDate"
-                               class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
-                    </div>
-                </div>
-                <p class="text-xs text-gray-500">Leave dates empty to export all payments</p>
-                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 px-4 rounded-lg transition duration-150 flex items-center justify-center">
-                    <i class="fas fa-download mr-2"></i>
-                    Download Payments Excel
-                </button>
-            </form>
-        </div>
-
-        <!-- Attendance Export -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <div class="flex items-center mb-4">
-                <div class="p-3 bg-purple-100 rounded-lg mr-4">
-                    <i class="fas fa-calendar-check text-xl text-purple-600"></i>
-                </div>
-                <div>
-                    <h2 class="text-lg font-semibold text-gray-900">Attendance Export</h2>
-                    <p class="text-sm text-gray-500">Export monthly attendance records</p>
-                </div>
-            </div>
-            <form method="post" asp-page-handler="ExportAttendance" class="space-y-4">
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Month</label>
-                        <select name="attendanceMonth" asp-for="AttendanceMonth"
-                                class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
-                            @for (int m = 1; m <= 12; m++)
-                            {
-                                <option value="@m" selected="@(m == DateTime.Now.Month)">
-                                    @(new DateTime(2000, m, 1).ToString("MMMM"))
-                                </option>
-                            }
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Year</label>
-                        <select name="attendanceYear" asp-for="AttendanceYear"
-                                class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
-                            @for (int y = DateTime.Now.Year; y >= DateTime.Now.Year - 3; y--)
-                            {
-                                <option value="@y" selected="@(y == DateTime.Now.Year)">@y</option>
-                            }
-                        </select>
-                    </div>
-                </div>
-                <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2.5 px-4 rounded-lg transition duration-150 flex items-center justify-center">
-                    <i class="fas fa-download mr-2"></i>
-                    Download Attendance Excel
-                </button>
-            </form>
-        </div>
-
-        <!-- Monthly Report Export -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <div class="flex items-center mb-4">
-                <div class="p-3 bg-amber-100 rounded-lg mr-4">
-                    <i class="fas fa-chart-bar text-xl text-amber-600"></i>
-                </div>
-                <div>
-                    <h2 class="text-lg font-semibold text-gray-900">Monthly Report Export</h2>
-                    <p class="text-sm text-gray-500">Comprehensive monthly summary</p>
-                </div>
-            </div>
-            <form method="post" asp-page-handler="ExportMonthlyReport" class="space-y-4">
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Month</label>
-                        <select name="reportMonth" asp-for="ReportMonth"
-                                class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
-                            @for (int m = 1; m <= 12; m++)
-                            {
-                                <option value="@m" selected="@(m == DateTime.Now.Month)">
-                                    @(new DateTime(2000, m, 1).ToString("MMMM"))
-                                </option>
-                            }
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Year</label>
-                        <select name="reportYear" asp-for="ReportYear"
-                                class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
-                            @for (int y = DateTime.Now.Year; y >= DateTime.Now.Year - 3; y--)
-                            {
-                                <option value="@y" selected="@(y == DateTime.Now.Year)">@y</option>
-                            }
-                        </select>
-                    </div>
-                </div>
-                <p class="text-xs text-gray-500">Includes attendance, charges, payments, and balance for all members</p>
-                <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-medium py-2.5 px-4 rounded-lg transition duration-150 flex items-center justify-center">
-                    <i class="fas fa-download mr-2"></i>
-                    Download Monthly Report Excel
-                </button>
-            </form>
-        </div>
+            <button type="submit" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-medium py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg">
+                <i class="fas fa-download"></i>
+                Download Payments Excel
+            </button>
+        </form>
     </div>
 
-    <!-- Export Info -->
-    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
-        <div class="flex">
-            <i class="fas fa-info-circle text-blue-500 mt-0.5 mr-3"></i>
+    <!-- Attendance Export -->
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6 hover:bg-white/20 transition-all">
+        <div class="flex items-center gap-4 mb-4">
+            <div class="w-12 h-12 bg-purple-500/30 rounded-xl flex items-center justify-center">
+                <i class="fas fa-calendar-check text-purple-400 text-xl"></i>
+            </div>
             <div>
-                <h3 class="text-sm font-medium text-blue-800">About Excel Exports</h3>
-                <p class="text-sm text-blue-600 mt-1">
-                    All exports are generated as .xlsx files compatible with Microsoft Excel, Google Sheets, and other spreadsheet applications.
-                    The files include formatted headers, data validation, and summary calculations where applicable.
-                </p>
+                <h2 class="text-lg font-semibold text-white">Attendance Export</h2>
+                <p class="text-white/60 text-sm">Export monthly attendance records</p>
+            </div>
+        </div>
+        <form method="post" asp-page-handler="ExportAttendance" class="space-y-4">
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-white/70 text-sm mb-2">Month</label>
+                    <select name="attendanceMonth" asp-for="AttendanceMonth"
+                            class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
+                        @for (int m = 1; m <= 12; m++)
+                        {
+                            <option value="@m" class="bg-gray-800" selected="@(m == DateTime.Now.Month)">
+                                @(new DateTime(2000, m, 1).ToString("MMMM"))
+                            </option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-white/70 text-sm mb-2">Year</label>
+                    <select name="attendanceYear" asp-for="AttendanceYear"
+                            class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
+                        @for (int y = DateTime.Now.Year; y >= DateTime.Now.Year - 3; y--)
+                        {
+                            <option value="@y" class="bg-gray-800" selected="@(y == DateTime.Now.Year)">@y</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-medium py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg">
+                <i class="fas fa-download"></i>
+                Download Attendance Excel
+            </button>
+        </form>
+    </div>
+
+    <!-- Monthly Report Export -->
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6 hover:bg-white/20 transition-all">
+        <div class="flex items-center gap-4 mb-4">
+            <div class="w-12 h-12 bg-amber-500/30 rounded-xl flex items-center justify-center">
+                <i class="fas fa-chart-bar text-amber-400 text-xl"></i>
+            </div>
+            <div>
+                <h2 class="text-lg font-semibold text-white">Monthly Report</h2>
+                <p class="text-white/60 text-sm">Comprehensive monthly summary</p>
+            </div>
+        </div>
+        <form method="post" asp-page-handler="ExportMonthlyReport" class="space-y-4">
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-white/70 text-sm mb-2">Month</label>
+                    <select name="reportMonth" asp-for="ReportMonth"
+                            class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm">
+                        @for (int m = 1; m <= 12; m++)
+                        {
+                            <option value="@m" class="bg-gray-800" selected="@(m == DateTime.Now.Month)">
+                                @(new DateTime(2000, m, 1).ToString("MMMM"))
+                            </option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-white/70 text-sm mb-2">Year</label>
+                    <select name="reportYear" asp-for="ReportYear"
+                            class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm">
+                        @for (int y = DateTime.Now.Year; y >= DateTime.Now.Year - 3; y--)
+                        {
+                            <option value="@y" class="bg-gray-800" selected="@(y == DateTime.Now.Year)">@y</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <p class="text-white/40 text-xs flex items-center gap-1">
+                <i class="fas fa-info-circle"></i>
+                Includes attendance, charges, payments, and balance for all members
+            </p>
+            <button type="submit" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-medium py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg">
+                <i class="fas fa-download"></i>
+                Download Monthly Report
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Export Info -->
+<div class="mt-6 bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+    <h3 class="text-white font-medium mb-4 flex items-center gap-2">
+        <i class="fas fa-info-circle text-blue-400"></i>
+        About Excel Exports
+    </h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="flex items-start gap-3">
+            <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-file-excel text-green-400 text-sm"></i>
+            </div>
+            <div>
+                <p class="text-white text-sm font-medium">.xlsx Format</p>
+                <p class="text-white/50 text-xs">Excel compatible</p>
+            </div>
+        </div>
+        <div class="flex items-start gap-3">
+            <div class="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-table text-blue-400 text-sm"></i>
+            </div>
+            <div>
+                <p class="text-white text-sm font-medium">Formatted Headers</p>
+                <p class="text-white/50 text-xs">Clean layout</p>
+            </div>
+        </div>
+        <div class="flex items-start gap-3">
+            <div class="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-check-circle text-purple-400 text-sm"></i>
+            </div>
+            <div>
+                <p class="text-white text-sm font-medium">Data Validation</p>
+                <p class="text-white/50 text-xs">Verified data</p>
+            </div>
+        </div>
+        <div class="flex items-start gap-3">
+            <div class="w-8 h-8 bg-amber-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-calculator text-amber-400 text-sm"></i>
+            </div>
+            <div>
+                <p class="text-white text-sm font-medium">Calculations</p>
+                <p class="text-white/50 text-xs">Summary totals</p>
             </div>
         </div>
     </div>
