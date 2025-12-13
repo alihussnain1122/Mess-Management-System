@@ -1,0 +1,55 @@
+@page
+@model MessManagement.Areas.Admin.Pages.Members.AddModel
+@{
+    ViewData["Title"] = "Add Member";
+}
+
+<div class="max-w-2xl mx-auto">
+    <div class="mb-6">
+        <a href="/Admin/Members" class="text-emerald-400 hover:text-emerald-300 flex items-center transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Back to Members
+        </a>
+    </div>
+
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+        <h2 class="text-xl font-semibold text-white mb-6">Add New Member</h2>
+
+        <form method="post">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-white/70 mb-1">Full Name</label>
+                <input type="text" asp-for="Input.FullName" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-emerald-500/50 focus:bg-white/15" placeholder="Enter full name" />
+                <span asp-validation-for="Input.FullName" class="text-red-400 text-sm"></span>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-white/70 mb-1">Room Number</label>
+                <input type="text" asp-for="Input.RoomNumber" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-emerald-500/50 focus:bg-white/15" placeholder="Enter room number" />
+                <span asp-validation-for="Input.RoomNumber" class="text-red-400 text-sm"></span>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-white/70 mb-1">Username</label>
+                <input type="text" asp-for="Input.Username" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-emerald-500/50 focus:bg-white/15" placeholder="Enter username" />
+                <span asp-validation-for="Input.Username" class="text-red-400 text-sm"></span>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-white/70 mb-1">Email <span class="text-white/40">(Optional - for notifications)</span></label>
+                <input type="email" asp-for="Input.Email" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-emerald-500/50 focus:bg-white/15" placeholder="Enter email address" />
+                <span asp-validation-for="Input.Email" class="text-red-400 text-sm"></span>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-white/70 mb-1">Password</label>
+                <input type="password" asp-for="Input.Password" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-emerald-500/50 focus:bg-white/15" placeholder="Enter password" />
+                <span asp-validation-for="Input.Password" class="text-red-400 text-sm"></span>
+            </div>
+
+            <button type="submit" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white py-3 rounded-xl font-semibold transition-all shadow-lg">
+                <i class="fas fa-plus mr-2"></i>
+                Add Member
+            </button>
+        </form>
+    </div>
+</div>

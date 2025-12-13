@@ -1,0 +1,48 @@
+@page
+@model MessManagement.Areas.User.Pages.Menu.WeeklyModel
+@{
+    ViewData["Title"] = "Weekly Menu";
+}
+
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-white">Weekly Menu</h1>
+    <p class="text-white/60">View the menu for this week</p>
+</div>
+
+<div class="space-y-6">
+    @foreach (var day in Model.WeeklyMenuData)
+    {
+        var isToday = day.Key.Date == DateTime.Today;
+        <div class="bg-white/15 backdrop-blur-xl rounded-2xl border @(isToday ? "border-emerald-500/50 ring-2 ring-emerald-500/30" : "border-white/20") overflow-hidden">
+            <div class="bg-white/10 px-6 py-3 border-b border-white/20 flex justify-between items-center">
+                <div>
+                    <span class="font-semibold text-white">@day.Key.ToString("dddd")</span>
+                    <span class="text-sm text-white/60 ml-2">@day.Key.ToString("MMM dd, yyyy")</span>
+                </div>
+                @if (isToday)
+                {
+                    <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full text-xs font-medium">Today</span>
+                }
+            </div>
+            <div class="p-6">
+                @if (day.Value.Any())
+                {
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        @foreach (var item in day.Value.OrderBy(m => m.MealType))
+                        {
+                            <div class="bg-white/10 border border-white/20 rounded-xl p-4 hover:bg-white/15 transition-all">
+                                <span class="text-xs font-medium text-emerald-400 uppercase">@item.MealType</span>
+                                <h4 class="font-medium text-white mt-1">@item.DishName</h4>
+                                <p class="text-lg font-semibold text-emerald-400 mt-2">Rs.@item.Price.ToString("N2")</p>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-white/50 text-center py-4">No menu items for this day</p>
+                }
+            </div>
+        </div>
+    }
+</div>

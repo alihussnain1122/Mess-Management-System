@@ -1,0 +1,121 @@
+@page
+@model MessManagement.Areas.Admin.Pages.Members.IndexModel
+@{
+    ViewData["Title"] = "Members";
+}
+
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <h1 class="text-2xl font-bold text-white">Members Management</h1>
+        <p class="text-white/60">Manage all mess members</p>
+    </div>
+    <a href="/Admin/Members/Add" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-4 py-2 rounded-xl flex items-center transition-all shadow-lg">
+        <i class="fas fa-plus mr-2"></i>
+        Add Member
+    </a>
+</div>
+
+<!-- Search Bar -->
+<div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-4 mb-6">
+    <form method="get" class="flex items-center gap-4">
+        <div class="flex-1 relative">
+            <span class="absolute left-3 top-2.5 text-white/50"><i class="fas fa-search"></i></span>
+            <input type="text" name="search" value="@Model.SearchQuery" placeholder="Search by name, room, or phone..." 
+                   class="w-full bg-white/10 border border-white/20 rounded-xl pl-10 pr-3 py-2 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+        <button type="submit" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-6 py-2 rounded-xl transition-all shadow-lg">
+            Search
+        </button>
+        @if (!string.IsNullOrEmpty(Model.SearchQuery))
+        {
+            <a href="/Admin/Members" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-4 py-2 rounded-xl transition-all">
+                Clear
+            </a>
+        }
+    </form>
+</div>
+
+<div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden">
+    <table class="w-full">
+        <thead class="bg-white/10 border-b border-white/20">
+            <tr>
+                <th class="px-6 py-4 text-left text-xs font-medium text-white/70 uppercase">Name</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-white/70 uppercase">Room</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-white/70 uppercase">Join Date</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-white/70 uppercase">Status</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-white/70 uppercase">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-white/10">
+            @if (Model.Members != null && Model.Members.Any())
+            {
+                @foreach (var member in Model.Members)
+                {
+                    <tr class="hover:bg-white/5 transition-colors">
+                        <td class="px-6 py-4 font-medium text-white">@member.FullName</td>
+                        <td class="px-6 py-4 text-white/70">@member.RoomNumber</td>
+                        <td class="px-6 py-4 text-white/70">@member.JoinDate.ToString("dd MMM yyyy")</td>
+                        <td class="px-6 py-4">
+                            <span class="px-3 py-1 text-xs font-medium @(member.IsActive ? "bg-emerald-500/30 text-emerald-300 border border-emerald-500/50" : "bg-red-500/30 text-red-300 border border-red-500/50") rounded-full">
+                                @(member.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <a href="/Admin/Members/Bill/@member.MemberId" class="text-emerald-400 hover:text-emerald-300 mr-3 transition-colors" title="Generate Bill">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                            </a>
+                            <a href="/Admin/Members/Edit/@member.MemberId" class="text-blue-400 hover:text-blue-300 mr-3 transition-colors" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="/Admin/Members/Disable/@member.MemberId" class="text-red-400 hover:text-red-300 transition-colors" title="Disable">
+                                <i class="fas fa-ban"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="5" class="px-6 py-8 text-center text-white/50">No members found</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+@if (Model.Members != null && Model.Members.TotalPages > 1)
+{
+    <div class="flex justify-center items-center mt-6 gap-2">
+        @if (Model.Members.HasPreviousPage)
+        {
+            <a href="/Admin/Members?pageIndex=@(Model.Members.PageIndex - 1)&search=@Model.SearchQuery" 
+               class="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-4 py-2 rounded-xl transition-all">
+                <i class="fas fa-chevron-left mr-1"></i> Previous
+            </a>
+        }
+        
+        <div class="flex items-center gap-1">
+            @for (int i = 1; i <= Model.Members.TotalPages; i++)
+            {
+                var isActive = i == Model.Members.PageIndex;
+                <a href="/Admin/Members?pageIndex=@i&search=@Model.SearchQuery" 
+                   class="@(isActive ? "bg-emerald-500 text-white" : "bg-white/10 hover:bg-white/20 text-white") border border-white/20 px-4 py-2 rounded-xl transition-all">
+                    @i
+                </a>
+            }
+        </div>
+        
+        @if (Model.Members.HasNextPage)
+        {
+            <a href="/Admin/Members?pageIndex=@(Model.Members.PageIndex + 1)&search=@Model.SearchQuery" 
+               class="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-4 py-2 rounded-xl transition-all">
+                Next <i class="fas fa-chevron-right ml-1"></i>
+            </a>
+        }
+    </div>
+    <p class="text-center text-white/50 mt-2 text-sm">
+        Showing @((Model.Members.PageIndex - 1) * 10 + 1) - @((Model.Members.PageIndex - 1) * 10 + Model.Members.Count) of @Model.Members.TotalItems members
+    </p>
+}

@@ -1,0 +1,164 @@
+@inherits Microsoft.AspNetCore.Mvc.Razor.RazorPage<dynamic>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - User Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        select option {
+            background-color: #1f2937;
+            color: white;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Full Background -->
+    <div class="fixed inset-0 z-0">
+        <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80" 
+             class="w-full h-full object-cover" alt="Background">
+        <div class="absolute inset-0 bg-black/50"></div>
+    </div>
+
+    <!-- Content -->
+    <div class="relative z-10 min-h-screen flex flex-col">
+        <!-- Navigation -->
+        <nav class="bg-black/30 backdrop-blur-xl border-b border-white/10">
+            <div class="container mx-auto px-4">
+                <div class="flex justify-between items-center h-16">
+                    <a href="/User" class="text-xl font-bold text-white">
+                        <i class="fas fa-utensils mr-2 text-emerald-400"></i>Mess Portal
+                    </a>
+                    <div class="flex items-center space-x-2">
+                        <a href="/User" class="text-white/80 hover:text-white hover:bg-white/10 px-3 py-2 rounded-xl transition-all">
+                            <i class="fas fa-home mr-1 text-blue-400"></i>Dashboard
+                        </a>
+                        <a href="/User/MyBill" class="text-white/80 hover:text-white hover:bg-white/10 px-3 py-2 rounded-xl transition-all">
+                            <i class="fas fa-file-invoice-dollar mr-1 text-green-400"></i>My Bill
+                        </a>
+                        <a href="/User/Attendance/View" class="text-white/80 hover:text-white hover:bg-white/10 px-3 py-2 rounded-xl transition-all">
+                            <i class="fas fa-calendar-check mr-1 text-purple-400"></i>Attendance
+                        </a>
+                        <a href="/User/Menu/Weekly" class="text-white/80 hover:text-white hover:bg-white/10 px-3 py-2 rounded-xl transition-all">
+                            <i class="fas fa-utensils mr-1 text-orange-400"></i>Menu
+                        </a>
+                        <a href="/User/Payments/History" class="text-white/80 hover:text-white hover:bg-white/10 px-3 py-2 rounded-xl transition-all">
+                            <i class="fas fa-credit-card mr-1 text-emerald-400"></i>Payments
+                        </a>
+                        <div class="border-l border-white/20 h-8 mx-2"></div>
+                        <span class="text-white/70 text-sm">@User.Identity?.Name</span>
+                        <a href="/Account/ChangePassword" class="text-white/80 hover:text-white hover:bg-white/10 px-3 py-2 rounded-xl transition-all">
+                            <i class="fas fa-key mr-1 text-yellow-400"></i>
+                        </a>
+                        <a href="/Account/Logout" class="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-400 px-3 py-2 rounded-xl transition-all">
+                            <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 container mx-auto px-4 py-6">
+            @RenderBody()
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-black/30 backdrop-blur-xl border-t border-white/10 py-4">
+            <div class="container mx-auto px-4 text-center">
+                <p class="text-white/50">&copy; @DateTime.Now.Year Mess Management System. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Toast Notification Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @if (TempData["ToastSuccess"] != null)
+            {
+                <text>
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: '@TempData["ToastSuccess"]',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    background: 'rgba(16, 185, 129, 0.95)',
+                    color: '#fff',
+                    customClass: {
+                        popup: 'rounded-xl'
+                    }
+                });
+                </text>
+            }
+            @if (TempData["ToastError"] != null)
+            {
+                <text>
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'error',
+                    title: '@TempData["ToastError"]',
+                    showConfirmButton: false,
+                    timer: 4000,
+                    timerProgressBar: true,
+                    background: 'rgba(239, 68, 68, 0.95)',
+                    color: '#fff',
+                    customClass: {
+                        popup: 'rounded-xl'
+                    }
+                });
+                </text>
+            }
+            @if (TempData["ToastInfo"] != null)
+            {
+                <text>
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'info',
+                    title: '@TempData["ToastInfo"]',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    background: 'rgba(59, 130, 246, 0.95)',
+                    color: '#fff',
+                    customClass: {
+                        popup: 'rounded-xl'
+                    }
+                });
+                </text>
+            }
+            @if (TempData["ToastWarning"] != null)
+            {
+                <text>
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'warning',
+                    title: '@TempData["ToastWarning"]',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    background: 'rgba(245, 158, 11, 0.95)',
+                    color: '#fff',
+                    customClass: {
+                        popup: 'rounded-xl'
+                    }
+                });
+                </text>
+            }
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

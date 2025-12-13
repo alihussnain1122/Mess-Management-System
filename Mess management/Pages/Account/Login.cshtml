@@ -1,0 +1,132 @@
+@page
+@model MessManagement.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Mess Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        html, body { height: 100%; overflow: hidden; }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.5);
+        }
+        
+        .input-glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .input-glass:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(16, 185, 129, 0.5);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+        }
+        
+        .input-glass::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="h-screen overflow-hidden">
+    <!-- Full Screen Background Image -->
+    <div class="fixed inset-0 z-0">
+        <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1920&h=1080&fit=crop" 
+             alt="Background" class="w-full h-full object-cover" />
+        <div class="absolute inset-0 bg-black/50"></div>
+    </div>
+
+    <!-- Content -->
+    <div class="relative z-10 h-screen flex flex-col items-center justify-center p-6">
+        <!-- Logo -->
+        <div class="flex items-center space-x-3 mb-8">
+            <div class="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <i class="fas fa-utensils text-white text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold text-white">MessManager</h1>
+                <p class="text-sm text-white/60">Enterprise System</p>
+            </div>
+        </div>
+
+        <!-- Welcome -->
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-white mb-2">Sign In</h2>
+            <p class="text-white/70">Access your management portal</p>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="bg-red-500/20 border border-red-400/50 text-red-200 px-6 py-3 rounded-xl mb-6 backdrop-blur-sm">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                @Model.ErrorMessage
+            </div>
+        }
+
+        <!-- Login Form -->
+        <form method="post" class="w-full max-w-sm">
+            <div class="mb-4">
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-white/50">
+                        <i class="fas fa-user"></i>
+                    </span>
+                    <input type="text" asp-for="Input.Username" 
+                           class="input-glass w-full text-white rounded-xl pl-12 pr-4 py-4 focus:outline-none"
+                           placeholder="Username" />
+                </div>
+                <span asp-validation-for="Input.Username" class="text-red-400 text-sm mt-1 block"></span>
+            </div>
+
+            <div class="mb-6">
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-white/50">
+                        <i class="fas fa-lock"></i>
+                    </span>
+                    <input type="password" asp-for="Input.Password" 
+                           class="input-glass w-full text-white rounded-xl pl-12 pr-4 py-4 focus:outline-none"
+                           placeholder="Password" />
+                </div>
+                <span asp-validation-for="Input.Password" class="text-red-400 text-sm mt-1 block"></span>
+            </div>
+
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center">
+                    <input type="checkbox" asp-for="Input.RememberMe" class="w-4 h-4 bg-transparent border-2 border-white/30 rounded focus:ring-emerald-500 text-emerald-500" />
+                    <label asp-for="Input.RememberMe" class="ml-2 text-sm text-white/70">Remember me</label>
+                </div>
+                <a href="/Account/ForgotPassword" class="text-sm text-emerald-400 hover:text-emerald-300 transition-colors">
+                    Forgot Password?
+                </a>
+            </div>
+
+            <button type="submit" class="btn-primary w-full text-white py-4 rounded-xl font-semibold text-lg shadow-xl mb-4">
+                <i class="fas fa-arrow-right-to-bracket mr-2"></i>Sign In
+            </button>
+
+            <a href="/" class="block text-center text-white/50 hover:text-white/80 transition-colors text-sm">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Home
+            </a>
+        </form>
+
+        <!-- Footer -->
+        
+    </div>
+</body>
+</html>

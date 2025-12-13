@@ -1,0 +1,130 @@
+@page
+@model MessManagement.Areas.Admin.Pages.Payments.IndexModel
+@{
+    ViewData["Title"] = "Payments";
+}
+
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <h1 class="text-2xl font-bold text-white">Payments Management</h1>
+        <p class="text-white/60">View and manage all payments</p>
+    </div>
+    <a href="/Admin/Payments/Add" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-4 py-2 rounded-xl flex items-center transition-all shadow-lg">
+        <i class="fas fa-plus mr-2"></i>
+        Add Payment
+    </a>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+        <p class="text-sm text-white/60">Total Collected</p>
+        <p class="text-2xl font-bold text-emerald-400">Rs.@Model.TotalCollected.ToString("N2")</p>
+    </div>
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+        <p class="text-sm text-white/60">Cash</p>
+        <p class="text-2xl font-bold text-blue-400">Rs.@Model.CashTotal.ToString("N2")</p>
+    </div>
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+        <p class="text-sm text-white/60">Online</p>
+        <p class="text-2xl font-bold text-purple-400">Rs.@Model.OnlineTotal.ToString("N2")</p>
+    </div>
+</div>
+
+<!-- Search Bar -->
+<div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-4 mb-6">
+    <form method="get" class="flex items-center gap-4">
+        <div class="flex-1 relative">
+            <span class="absolute left-3 top-2.5 text-white/50"><i class="fas fa-search"></i></span>
+            <input type="text" name="search" value="@Model.SearchQuery" placeholder="Search by member name, amount, mode, or status..." 
+                   class="w-full bg-white/10 border border-white/20 rounded-xl pl-10 pr-3 py-2 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+        <button type="submit" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-6 py-2 rounded-xl transition-all shadow-lg">
+            Search
+        </button>
+        @if (!string.IsNullOrEmpty(Model.SearchQuery))
+        {
+            <a href="/Admin/Payments" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-4 py-2 rounded-xl transition-all">
+                Clear
+            </a>
+        }
+    </form>
+</div>
+
+<div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden">
+    <table class="w-full">
+        <thead class="bg-white/10 border-b border-white/20">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-emerald-400 uppercase">Date</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-emerald-400 uppercase">Member</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-emerald-400 uppercase">Amount</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-emerald-400 uppercase">Mode</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-emerald-400 uppercase">Status</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-white/10">
+            @if (Model.Payments != null && Model.Payments.Any())
+            {
+                @foreach (var payment in Model.Payments)
+                {
+                    <tr class="hover:bg-white/5">
+                        <td class="px-6 py-4 text-white">@payment.Date.ToString("dd MMM yyyy")</td>
+                        <td class="px-6 py-4 font-medium text-white">@payment.Member?.FullName</td>
+                        <td class="px-6 py-4 font-semibold text-emerald-400">Rs.@payment.Amount.ToString("N2")</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-1 text-xs font-medium @(payment.PaymentMode == MessManagement.Models.PaymentMode.Cash ? "bg-blue-500/20 text-blue-400 border border-blue-500/30" : "bg-purple-500/20 text-purple-400 border border-purple-500/30") rounded-full">
+                                @payment.PaymentMode
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-1 text-xs font-medium @(payment.Status == MessManagement.Models.PaymentStatus.Completed ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30") rounded-full">
+                                @payment.Status
+                            </span>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="5" class="px-6 py-8 text-center text-white/50">No payments found</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+@if (Model.Payments != null && Model.Payments.TotalPages > 1)
+{
+    <div class="flex justify-center items-center mt-6 gap-2">
+        @if (Model.Payments.HasPreviousPage)
+        {
+            <a href="/Admin/Payments?pageIndex=@(Model.Payments.PageIndex - 1)&search=@Model.SearchQuery" 
+               class="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-4 py-2 rounded-xl transition-all">
+                <i class="fas fa-chevron-left mr-1"></i> Previous
+            </a>
+        }
+        
+        <div class="flex items-center gap-1">
+            @for (int i = 1; i <= Model.Payments.TotalPages; i++)
+            {
+                var isActive = i == Model.Payments.PageIndex;
+                <a href="/Admin/Payments?pageIndex=@i&search=@Model.SearchQuery" 
+                   class="@(isActive ? "bg-emerald-500 text-white" : "bg-white/10 hover:bg-white/20 text-white") border border-white/20 px-4 py-2 rounded-xl transition-all">
+                    @i
+                </a>
+            }
+        </div>
+        
+        @if (Model.Payments.HasNextPage)
+        {
+            <a href="/Admin/Payments?pageIndex=@(Model.Payments.PageIndex + 1)&search=@Model.SearchQuery" 
+               class="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-4 py-2 rounded-xl transition-all">
+                Next <i class="fas fa-chevron-right ml-1"></i>
+            </a>
+        }
+    </div>
+    <p class="text-center text-white/50 mt-2 text-sm">
+        Showing @((Model.Payments.PageIndex - 1) * 10 + 1) - @((Model.Payments.PageIndex - 1) * 10 + Model.Payments.Count) of @Model.Payments.TotalItems payments
+    </p>
+}

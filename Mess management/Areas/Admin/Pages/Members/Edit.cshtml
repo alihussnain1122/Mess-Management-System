@@ -1,0 +1,46 @@
+@page "{id:int}"
+@model MessManagement.Areas.Admin.Pages.Members.EditModel
+@{
+    ViewData["Title"] = "Edit Member";
+}
+
+<div class="max-w-2xl mx-auto">
+    <div class="mb-6">
+        <a href="/Admin/Members" class="text-emerald-400 hover:text-emerald-300 flex items-center transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Back to Members
+        </a>
+    </div>
+
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+        <h2 class="text-xl font-semibold text-white mb-6">Edit Member</h2>
+
+        <form method="post">
+            <input type="hidden" asp-for="Input.MemberId" />
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-white/70 mb-1">Full Name</label>
+                <input type="text" asp-for="Input.FullName" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-emerald-500/50 focus:bg-white/15" />
+                <span asp-validation-for="Input.FullName" class="text-red-400 text-sm"></span>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-white/70 mb-1">Room Number</label>
+                <input type="text" asp-for="Input.RoomNumber" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-emerald-500/50 focus:bg-white/15" />
+                <span asp-validation-for="Input.RoomNumber" class="text-red-400 text-sm"></span>
+            </div>
+
+            <div class="mb-6">
+                <label class="flex items-center cursor-pointer">
+                    <input type="checkbox" asp-for="Input.IsActive" class="w-5 h-5 bg-white/10 border-white/20 rounded focus:ring-emerald-500 text-emerald-500" />
+                    <span class="ml-3 text-white/70">Active</span>
+                </label>
+            </div>
+
+            <button type="submit" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white py-3 rounded-xl font-semibold transition-all shadow-lg">
+                <i class="fas fa-save mr-2"></i>
+                Save Changes
+            </button>
+        </form>
+    </div>
+</div>

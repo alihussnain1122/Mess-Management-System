@@ -1,0 +1,211 @@
+@page
+@model MessManagement.Areas.Admin.Pages.Attendance.MarkModel
+@{
+    ViewData["Title"] = "Mark Attendance";
+}
+
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <h1 class="text-2xl font-bold text-white">Mark Attendance</h1>
+        <p class="text-white/60">Mark daily attendance for Breakfast, Lunch & Dinner</p>
+    </div>
+    <a href="/Admin/Attendance/History" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-4 py-2 rounded-xl flex items-center transition-all">
+        <i class="fas fa-history mr-2"></i>
+        View History
+    </a>
+</div>
+
+<!-- Date Selection -->
+<div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6 mb-6">
+    <form method="get" class="flex items-end gap-4 flex-wrap">
+        <div>
+            <label class="block text-sm text-emerald-400 mb-1">Select Date</label>
+            <input type="date" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" class="bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+        <button type="submit" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-6 py-2 rounded-xl transition-all shadow-lg">
+            <i class="fas fa-search mr-2"></i>Load Date
+        </button>
+    </form>
+</div>
+
+<!-- Quick Actions -->
+<div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-4 mb-6">
+    <div class="flex flex-wrap gap-3 items-center">
+        <span class="text-white/70 text-sm mr-2">Quick Actions:</span>
+        <form method="post" asp-page-handler="MarkAll" class="inline">
+            <input type="hidden" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+            <input type="hidden" name="mealType" value="all" />
+            <button type="submit" class="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-sm transition-all">
+                <i class="fas fa-check-double mr-1"></i>Mark All Present
+            </button>
+        </form>
+        <form method="post" asp-page-handler="MarkAll" class="inline">
+            <input type="hidden" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+            <input type="hidden" name="mealType" value="breakfast" />
+            <button type="submit" class="bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/30 px-3 py-1.5 rounded-lg text-sm transition-all">
+                <i class="fas fa-sun mr-1"></i>All Breakfast
+            </button>
+        </form>
+        <form method="post" asp-page-handler="MarkAll" class="inline">
+            <input type="hidden" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+            <input type="hidden" name="mealType" value="lunch" />
+            <button type="submit" class="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/30 px-3 py-1.5 rounded-lg text-sm transition-all">
+                <i class="fas fa-cloud-sun mr-1"></i>All Lunch
+            </button>
+        </form>
+        <form method="post" asp-page-handler="MarkAll" class="inline">
+            <input type="hidden" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+            <input type="hidden" name="mealType" value="dinner" />
+            <button type="submit" class="bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 border border-purple-500/30 px-3 py-1.5 rounded-lg text-sm transition-all">
+                <i class="fas fa-moon mr-1"></i>All Dinner
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Attendance Table -->
+<form method="post">
+    <input type="hidden" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+    
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden">
+        <div class="p-4 bg-white/5 border-b border-white/10">
+            <h2 class="text-lg font-semibold text-white">
+                <i class="fas fa-calendar-day mr-2 text-emerald-400"></i>
+                Attendance for @Model.SelectedDate.ToString("dddd, dd MMMM yyyy")
+            </h2>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-white/10 border-b border-white/20">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-emerald-400 uppercase tracking-wider">Member</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-emerald-400 uppercase tracking-wider">Room</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-amber-400 uppercase tracking-wider">
+                            <i class="fas fa-sun mr-1"></i>Breakfast
+                        </th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-blue-400 uppercase tracking-wider">
+                            <i class="fas fa-cloud-sun mr-1"></i>Lunch
+                        </th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-purple-400 uppercase tracking-wider">
+                            <i class="fas fa-moon mr-1"></i>Dinner
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/10">
+                    @if (Model.AttendanceList != null && Model.AttendanceList.Any())
+                    {
+                        @foreach (var item in Model.AttendanceList)
+                        {
+                            <tr class="hover:bg-white/5 transition-colors">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center mr-3">
+                                            <span class="text-white text-sm font-medium">@item.MemberName[0]</span>
+                                        </div>
+                                        <span class="font-medium text-white">@item.MemberName</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-white/70">
+                                    <span class="bg-white/10 px-2 py-1 rounded text-sm">@item.RoomNumber</span>
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="breakfast_@item.MemberId" @(item.BreakfastPresent ? "checked" : "") class="sr-only peer" />
+                                        <div class="w-11 h-6 bg-white/20 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-amber-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-white/20 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                                    </label>
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="lunch_@item.MemberId" @(item.LunchPresent ? "checked" : "") class="sr-only peer" />
+                                        <div class="w-11 h-6 bg-white/20 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-white/20 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                                    </label>
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="dinner_@item.MemberId" @(item.DinnerPresent ? "checked" : "") class="sr-only peer" />
+                                        <div class="w-11 h-6 bg-white/20 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-purple-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-white/20 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-500"></div>
+                                    </label>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center text-white/60">
+                                <i class="fas fa-users text-4xl mb-3 block"></i>
+                                No active members found.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @if (Model.AttendanceList != null && Model.AttendanceList.Any())
+    {
+        <div class="mt-6 flex justify-between items-center">
+            <div class="text-white/60 text-sm">
+                <i class="fas fa-info-circle mr-1"></i>
+                Toggle switches to mark presence for each meal
+            </div>
+            <button type="submit" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-8 py-3 rounded-xl font-semibold transition-all shadow-lg transform hover:scale-105">
+                <i class="fas fa-save mr-2"></i>
+                Save Attendance
+            </button>
+        </div>
+    }
+</form>
+
+<!-- Summary Stats -->
+@if (Model.AttendanceList != null && Model.AttendanceList.Any())
+{
+    <div class="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-white/15 backdrop-blur-xl rounded-xl border border-white/20 p-4">
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center mr-3">
+                    <i class="fas fa-users text-emerald-400"></i>
+                </div>
+                <div>
+                    <p class="text-white/60 text-sm">Total Members</p>
+                    <p class="text-2xl font-bold text-white">@Model.AttendanceList.Count</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white/15 backdrop-blur-xl rounded-xl border border-white/20 p-4">
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center mr-3">
+                    <i class="fas fa-sun text-amber-400"></i>
+                </div>
+                <div>
+                    <p class="text-white/60 text-sm">Breakfast</p>
+                    <p class="text-2xl font-bold text-white">@Model.AttendanceList.Count(x => x.BreakfastPresent)</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white/15 backdrop-blur-xl rounded-xl border border-white/20 p-4">
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center mr-3">
+                    <i class="fas fa-cloud-sun text-blue-400"></i>
+                </div>
+                <div>
+                    <p class="text-white/60 text-sm">Lunch</p>
+                    <p class="text-2xl font-bold text-white">@Model.AttendanceList.Count(x => x.LunchPresent)</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white/15 backdrop-blur-xl rounded-xl border border-white/20 p-4">
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center mr-3">
+                    <i class="fas fa-moon text-purple-400"></i>
+                </div>
+                <div>
+                    <p class="text-white/60 text-sm">Dinner</p>
+                    <p class="text-2xl font-bold text-white">@Model.AttendanceList.Count(x => x.DinnerPresent)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}

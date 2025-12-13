@@ -1,0 +1,211 @@
+@page
+@model MessManagement.Areas.User.Pages.MyBillModel
+@{
+    ViewData["Title"] = "My Bills";
+}
+
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-white">My Monthly Bills</h1>
+    <p class="text-white/60">View your monthly charges and payment summary</p>
+</div>
+
+<!-- Month/Year Selection -->
+<div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-4 mb-6">
+    <form method="get" class="flex flex-wrap items-end gap-4">
+        <div>
+            <label class="block text-sm text-emerald-400 mb-1">Month</label>
+            <select name="month" class="bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                @for (int i = 1; i <= 12; i++)
+                {
+                    <option value="@i" selected="@(Model.SelectedMonth == i)">@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i)</option>
+                }
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm text-emerald-400 mb-1">Year</label>
+            <select name="year" class="bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                @for (int y = DateTime.Now.Year; y >= DateTime.Now.Year - 2; y--)
+                {
+                    <option value="@y" selected="@(Model.SelectedYear == y)">@y</option>
+                }
+            </select>
+        </div>
+        <button type="submit" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-4 py-2 rounded-xl transition-all shadow-lg">
+            <i class="fas fa-search mr-2"></i>View Bill
+        </button>
+    </form>
+</div>
+
+<!-- Bill Summary Card -->
+<div class="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl p-6 mb-6 shadow-xl">
+    <div class="flex justify-between items-start mb-4">
+        <div>
+            <h2 class="text-white/80 text-sm">Bill Statement</h2>
+            <p class="text-2xl font-bold text-white">@Model.MonthName @Model.SelectedYear</p>
+        </div>
+        <div class="text-right">
+            <p class="text-white/80 text-sm">Member</p>
+            <p class="text-white font-semibold">@Model.MemberName</p>
+            <p class="text-white/60 text-sm">Room: @Model.RoomNumber</p>
+        </div>
+    </div>
+    <div class="border-t border-white/20 pt-4">
+        <div class="flex justify-between items-center">
+            <span class="text-white/80">Total Amount Due</span>
+            <span class="text-3xl font-bold text-white">Rs. @Model.GrandTotal.ToString("N2")</span>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Grid -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-4 text-center">
+        <p class="text-white/60 text-sm">Present Days</p>
+        <p class="text-2xl font-bold text-emerald-400">@Model.PresentDays</p>
+    </div>
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-4 text-center">
+        <p class="text-white/60 text-sm">Absent Days</p>
+        <p class="text-2xl font-bold text-red-400">@Model.AbsentDays</p>
+    </div>
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-4 text-center">
+        <p class="text-white/60 text-sm">Water Bottles</p>
+        <p class="text-2xl font-bold text-blue-400">@Model.WaterCount</p>
+    </div>
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-4 text-center">
+        <p class="text-white/60 text-sm">Tea Cups</p>
+        <p class="text-2xl font-bold text-amber-400">@Model.TeaCount</p>
+    </div>
+</div>
+
+<!-- Charges Breakdown -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <!-- Charges Table -->
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden">
+        <div class="bg-white/10 px-6 py-4 border-b border-white/20">
+            <h3 class="font-semibold text-white">
+                <i class="fas fa-receipt mr-2 text-emerald-400"></i>Charges Breakdown
+            </h3>
+        </div>
+        <div class="p-6">
+            <table class="w-full">
+                <tbody class="divide-y divide-white/10">
+                    <tr>
+                        <td class="py-3 text-white/80">Meal Charges</td>
+                        <td class="py-3 text-right text-white/60">@Model.PresentDays days × Rs.@Model.MealRate</td>
+                        <td class="py-3 text-right font-semibold text-white">Rs.@Model.MealCharges.ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td class="py-3 text-white/80">Water Charges</td>
+                        <td class="py-3 text-right text-white/60">@Model.WaterCount × Rs.@Model.WaterRate</td>
+                        <td class="py-3 text-right font-semibold text-white">Rs.@Model.WaterCharges.ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td class="py-3 text-white/80">Tea Charges</td>
+                        <td class="py-3 text-right text-white/60">@Model.TeaCount × Rs.@Model.TeaRate</td>
+                        <td class="py-3 text-right font-semibold text-white">Rs.@Model.TeaCharges.ToString("N2")</td>
+                    </tr>
+                    <tr class="bg-white/5">
+                        <td colspan="2" class="py-3 font-semibold text-white">Total Charges</td>
+                        <td class="py-3 text-right font-bold text-lg text-emerald-400">Rs.@Model.GrandTotal.ToString("N2")</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Payment Summary -->
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden">
+        <div class="bg-white/10 px-6 py-4 border-b border-white/20">
+            <h3 class="font-semibold text-white">
+                <i class="fas fa-wallet mr-2 text-blue-400"></i>Payment Summary
+            </h3>
+        </div>
+        <div class="p-6">
+            <table class="w-full">
+                <tbody class="divide-y divide-white/10">
+                    <tr>
+                        <td class="py-3 text-white/80">Total Charges</td>
+                        <td class="py-3 text-right font-semibold text-white">Rs.@Model.GrandTotal.ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td class="py-3 text-white/80">Amount Paid</td>
+                        <td class="py-3 text-right font-semibold text-emerald-400">Rs.@Model.AmountPaid.ToString("N2")</td>
+                    </tr>
+                    <tr class="bg-white/5">
+                        <td class="py-3 font-semibold text-white">Balance Due</td>
+                        <td class="py-3 text-right font-bold text-lg @(Model.Balance > 0 ? "text-red-400" : "text-emerald-400")">
+                            Rs.@Model.Balance.ToString("N2")
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            @if (Model.Balance > 0)
+            {
+                <div class="mt-4 pt-4 border-t border-white/10">
+                    <a href="/User/Payments/PayNow" class="block w-full text-center bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white py-3 rounded-xl transition-all shadow-lg font-medium">
+                        <i class="fas fa-credit-card mr-2"></i>Pay Now
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="mt-4 pt-4 border-t border-white/10">
+                    <div class="bg-emerald-500/20 border border-emerald-500/30 rounded-xl p-4 text-center">
+                        <i class="fas fa-check-circle text-emerald-400 text-2xl mb-2"></i>
+                        <p class="text-emerald-400 font-medium">All Paid!</p>
+                        <p class="text-white/60 text-sm">You have no pending dues for this month</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Payments This Month -->
+<div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden">
+    <div class="bg-white/10 px-6 py-4 border-b border-white/20 flex justify-between items-center">
+        <h3 class="font-semibold text-white">
+            <i class="fas fa-history mr-2 text-purple-400"></i>Payments This Month
+        </h3>
+        <span class="text-white/60 text-sm">@Model.Payments.Count payment(s)</span>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-white/5 border-b border-white/10">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-emerald-400 uppercase">Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-emerald-400 uppercase">Method</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-emerald-400 uppercase">Reference</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-emerald-400 uppercase">Amount</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-white/10">
+                @if (Model.Payments.Any())
+                {
+                    @foreach (var payment in Model.Payments)
+                    {
+                        <tr class="hover:bg-white/5">
+                            <td class="px-6 py-4 text-white">@payment.Date.ToString("MMM dd, yyyy")</td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 rounded-full text-xs font-medium @(payment.PaymentMode == MessManagement.Models.PaymentMode.Cash ? "bg-green-500/20 text-green-400" : "bg-blue-500/20 text-blue-400") border @(payment.PaymentMode == MessManagement.Models.PaymentMode.Cash ? "border-green-500/30" : "border-blue-500/30")">
+                                    @payment.PaymentMode
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-white/60 font-mono text-sm">@(payment.StripePaymentId ?? "-")</td>
+                            <td class="px-6 py-4 text-right font-semibold text-emerald-400">Rs.@payment.Amount.ToString("N2")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" class="px-6 py-8 text-center text-white/50">
+                            <i class="fas fa-info-circle mr-2"></i>No payments recorded for this month
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

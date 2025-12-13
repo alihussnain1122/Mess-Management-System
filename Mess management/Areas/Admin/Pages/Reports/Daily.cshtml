@@ -1,0 +1,65 @@
+@page
+@model MessManagement.Areas.Admin.Pages.Reports.DailyModel
+@{
+    ViewData["Title"] = "Daily Report";
+}
+
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <h1 class="text-2xl font-bold text-white">Daily Report</h1>
+        <p class="text-white/60">View daily statistics</p>
+    </div>
+    <div class="flex gap-2">
+        <a href="/Admin/Reports/Daily?handler=Download&date=@Model.SelectedDate.ToString("yyyy-MM-dd")" class="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white px-4 py-2 rounded-xl flex items-center transition-all shadow-lg">
+            <i class="fas fa-file-csv mr-2"></i>
+            CSV
+        </a>
+        <a href="/Admin/Reports/Daily?handler=DownloadPdf&date=@Model.SelectedDate.ToString("yyyy-MM-dd")" class="bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white px-4 py-2 rounded-xl flex items-center transition-all shadow-lg">
+            <i class="fas fa-file-pdf mr-2"></i>
+            PDF
+        </a>
+    </div>
+</div>
+
+<div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-4 mb-6">
+    <form method="get" class="flex items-end gap-4">
+        <div>
+            <label class="block text-sm text-emerald-400 mb-1">Date</label>
+            <input type="date" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" class="bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+        <button type="submit" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-4 py-2 rounded-xl transition-all shadow-lg">View</button>
+    </form>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6 text-center">
+        <p class="text-sm text-white/60">Total Members</p>
+        <p class="text-2xl font-bold text-white">@Model.Report.TotalMembers</p>
+    </div>
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6 text-center">
+        <p class="text-sm text-white/60">Present</p>
+        <p class="text-2xl font-bold text-emerald-400">@Model.Report.PresentCount</p>
+    </div>
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6 text-center">
+        <p class="text-sm text-white/60">Absent</p>
+        <p class="text-2xl font-bold text-red-400">@Model.Report.AbsentCount</p>
+    </div>
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6 text-center">
+        <p class="text-sm text-white/60">Payments</p>
+        <p class="text-2xl font-bold text-purple-400">Rs.@Model.Report.TotalPaymentsReceived.ToString("N2")</p>
+    </div>
+</div>
+
+<div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+    <h3 class="text-lg font-semibold text-white mb-4">Today's Menu</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        @foreach (var item in Model.Report.MenuItems)
+        {
+            <div class="bg-white/10 border border-white/20 rounded-xl p-4">
+                <span class="text-xs font-medium text-emerald-400 uppercase">@item.MealType</span>
+                <h4 class="font-medium text-white mt-1">@item.DishName</h4>
+                <p class="text-lg font-semibold text-emerald-400 mt-2">Rs.@item.Price.ToString("N2")</p>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,103 @@
+@page
+@model MessManagement.Areas.User.Pages.Payments.HistoryModel
+@{
+    ViewData["Title"] = "Payment History";
+}
+
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <h1 class="text-2xl font-bold text-white">Payment History</h1>
+        <p class="text-white/60">View all your payment records</p>
+    </div>
+    <a href="/User/Payments/PayNow" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-4 py-2 rounded-xl transition-all shadow-lg">
+        <i class="fas fa-credit-card mr-2"></i>Make Payment
+    </a>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6 text-center">
+        <p class="text-sm text-white/60">Total Paid</p>
+        <p class="text-2xl font-bold text-emerald-400">Rs.@Model.TotalPaid.ToString("N2")</p>
+    </div>
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6 text-center">
+        <p class="text-sm text-white/60">This Month</p>
+        <p class="text-2xl font-bold text-blue-400">Rs.@Model.ThisMonthPaid.ToString("N2")</p>
+    </div>
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6 text-center">
+        <p class="text-sm text-white/60">Transactions</p>
+        <p class="text-2xl font-bold text-white">@Model.TransactionCount</p>
+    </div>
+</div>
+
+<div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden">
+    <table class="w-full">
+        <thead class="bg-white/10 border-b border-white/20">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-emerald-400 uppercase">Date</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-emerald-400 uppercase">Method</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-emerald-400 uppercase">Reference</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-emerald-400 uppercase">Amount</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-white/10">
+            @if (Model.Payments != null && Model.Payments.Any())
+            {
+                @foreach (var payment in Model.Payments)
+                {
+                    <tr class="hover:bg-white/5">
+                        <td class="px-6 py-4 text-white">@payment.Date.ToString("MMM dd, yyyy")</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                                @payment.PaymentMode
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-white/70 font-mono text-sm">@(payment.StripePaymentId ?? "-")</td>
+                        <td class="px-6 py-4 text-right font-semibold text-emerald-400">Rs.@payment.Amount.ToString("N2")</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="4" class="px-6 py-8 text-center text-white/50">No payment records found</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+@if (Model.Payments != null && Model.Payments.TotalPages > 1)
+{
+    <div class="flex justify-center items-center mt-6 gap-2">
+        @if (Model.Payments.HasPreviousPage)
+        {
+            <a href="/User/Payments/History?pageIndex=@(Model.Payments.PageIndex - 1)" 
+               class="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-4 py-2 rounded-xl transition-all">
+                <i class="fas fa-chevron-left mr-1"></i> Previous
+            </a>
+        }
+        
+        <div class="flex items-center gap-1">
+            @for (int i = 1; i <= Model.Payments.TotalPages; i++)
+            {
+                var isActive = i == Model.Payments.PageIndex;
+                <a href="/User/Payments/History?pageIndex=@i" 
+                   class="@(isActive ? "bg-emerald-500 text-white" : "bg-white/10 hover:bg-white/20 text-white") border border-white/20 px-4 py-2 rounded-xl transition-all">
+                    @i
+                </a>
+            }
+        </div>
+        
+        @if (Model.Payments.HasNextPage)
+        {
+            <a href="/User/Payments/History?pageIndex=@(Model.Payments.PageIndex + 1)" 
+               class="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-4 py-2 rounded-xl transition-all">
+                Next <i class="fas fa-chevron-right ml-1"></i>
+            </a>
+        }
+    </div>
+    <p class="text-center text-white/50 mt-2 text-sm">
+        Showing @((Model.Payments.PageIndex - 1) * 10 + 1) - @((Model.Payments.PageIndex - 1) * 10 + Model.Payments.Count) of @Model.Payments.TotalItems transactions
+    </p>
+}

@@ -1,0 +1,64 @@
+@page
+@model MessManagement.Areas.User.Pages.Payments.PayNowModel
+@{
+    ViewData["Title"] = "Make Payment";
+}
+
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-white">Make Payment</h1>
+    <p class="text-white/60">Pay your mess dues</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+        <h3 class="text-lg font-semibold text-white mb-4">Payment Summary</h3>
+        <div class="space-y-3">
+            <div class="flex justify-between items-center p-3 bg-white/10 border border-white/10 rounded-xl">
+                <span class="text-white/70">This Month's Cost</span>
+                <span class="font-semibold text-white">Rs.@Model.MonthCost.ToString("N2")</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-white/10 border border-white/10 rounded-xl">
+                <span class="text-white/70">Already Paid</span>
+                <span class="font-semibold text-emerald-400">Rs.@Model.TotalPaid.ToString("N2")</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/30">
+                <span class="font-semibold text-emerald-400">Balance Due</span>
+                <span class="font-bold text-xl @(Model.BalanceDue > 0 ? "text-red-400" : "text-emerald-400")">Rs.@Model.BalanceDue.ToString("N2")</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+        <h3 class="text-lg font-semibold text-white mb-4">Payment Form</h3>
+        <form method="post">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-emerald-400 mb-1">Amount (Rs.)</label>
+                    <input type="number" name="Amount" step="0.01" min="1" value="@Model.BalanceDue" required 
+                           class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-emerald-400 mb-1">Payment Method</label>
+                    <select name="PaymentMethod" required class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="Cash">Cash</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                        <option value="JazzCash">JazzCash</option>
+                        <option value="Easypaisa">Easypaisa</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-emerald-400 mb-1">Transaction ID (Optional)</label>
+                    <input type="text" name="TransactionId" placeholder="Enter reference number"
+                           class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white py-3 rounded-xl font-semibold transition-all shadow-lg">
+                    <i class="fas fa-check mr-2"></i>Submit Payment Request
+                </button>
+            </div>
+        </form>
+        <p class="text-sm text-white/50 mt-4 text-center">
+            <i class="fas fa-info-circle mr-1"></i>
+            Your payment will be verified by the admin
+        </p>
+    </div>
+</div>

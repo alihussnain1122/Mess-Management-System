@@ -1,0 +1,100 @@
+@page
+@model MessManagement.Areas.User.Pages.DashboardModel
+@{
+    ViewData["Title"] = "My Dashboard";
+}
+
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-white">Welcome, @Model.MemberName</h1>
+    <p class="text-white/60">View your mess details and recent activity</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-white/60">This Month's Cost</p>
+                <p class="text-2xl font-bold text-white">Rs.@Model.MonthCost.ToString("N2")</p>
+            </div>
+            <div class="text-blue-400 text-3xl"><i class="fas fa-coins"></i></div>
+        </div>
+    </div>
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-white/60">Total Paid</p>
+                <p class="text-2xl font-bold text-emerald-400">Rs.@Model.TotalPaid.ToString("N2")</p>
+            </div>
+            <div class="text-emerald-400 text-3xl"><i class="fas fa-check-circle"></i></div>
+        </div>
+    </div>
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-white/60">Balance Due</p>
+                <p class="text-2xl font-bold @(Model.BalanceDue > 0 ? "text-red-400" : "text-emerald-400")">Rs.@Model.BalanceDue.ToString("N2")</p>
+            </div>
+            <div class="@(Model.BalanceDue > 0 ? "text-red-400" : "text-emerald-400") text-3xl"><i class="fas fa-wallet"></i></div>
+        </div>
+    </div>
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-white/60">Present Days</p>
+                <p class="text-2xl font-bold text-purple-400">@Model.PresentDays</p>
+            </div>
+            <div class="text-purple-400 text-3xl"><i class="fas fa-calendar-check"></i></div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+        <h3 class="text-lg font-semibold text-white mb-4">Today's Menu</h3>
+        @if (Model.TodayMenu != null && Model.TodayMenu.Any())
+        {
+            <div class="space-y-3">
+                @foreach (var item in Model.TodayMenu)
+                {
+                    <div class="flex justify-between items-center p-3 bg-white/10 border border-white/10 rounded-xl">
+                        <div>
+                            <span class="text-xs font-medium text-emerald-400 uppercase">@item.MealType</span>
+                            <p class="font-medium text-white">@item.DishName</p>
+                        </div>
+                        <span class="font-semibold text-emerald-400">Rs.@item.Price.ToString("N2")</span>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="text-white/50 text-center py-4">No menu available for today</p>
+        }
+    </div>
+
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+        <h3 class="text-lg font-semibold text-white mb-4">Recent Payments</h3>
+        @if (Model.RecentPayments != null && Model.RecentPayments.Any())
+        {
+            <div class="space-y-3">
+                @foreach (var payment in Model.RecentPayments)
+                {
+                    <div class="flex justify-between items-center p-3 bg-white/10 border border-white/10 rounded-xl">
+                        <div>
+                            <p class="text-sm text-white/70">@payment.Date.ToString("MMM dd, yyyy")</p>
+                            <p class="text-xs text-white/50">@payment.PaymentMode</p>
+                        </div>
+                        <span class="font-semibold text-emerald-400">Rs.@payment.Amount.ToString("N2")</span>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="text-white/50 text-center py-4">No recent payments</p>
+        }
+        <a href="/User/Payments/PayNow" class="block mt-4 text-center bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white py-2 rounded-xl transition-all shadow-lg">
+            <i class="fas fa-credit-card mr-2"></i>Make Payment
+        </a>
+    </div>
+</div>

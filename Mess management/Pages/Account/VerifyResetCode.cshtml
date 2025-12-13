@@ -1,0 +1,104 @@
+@page
+@model MessManagement.Pages.Account.VerifyResetCodeModel
+@{
+    ViewData["Title"] = "Verify Code";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Mess Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .code-input {
+            width: 50px;
+            height: 60px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Full Background -->
+    <div class="fixed inset-0 z-0">
+        <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80" 
+             class="w-full h-full object-cover" alt="Background">
+        <div class="absolute inset-0 bg-black/50"></div>
+    </div>
+
+    <!-- Content -->
+    <div class="relative z-10 min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-md">
+            <!-- Logo -->
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl mb-4 shadow-lg">
+                    <i class="fas fa-utensils text-white text-2xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-white">Mess Management</h1>
+                <p class="text-white/60 mt-1">Verify your identity</p>
+            </div>
+
+            <!-- Card -->
+            <div class="bg-white/15 backdrop-blur-xl rounded-3xl border border-white/20 p-8 shadow-2xl">
+                <div class="text-center mb-6">
+                    <div class="inline-flex items-center justify-center w-12 h-12 bg-blue-500/20 rounded-full mb-3">
+                        <i class="fas fa-shield-alt text-blue-400 text-xl"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold text-white">Enter Verification Code</h2>
+                    <p class="text-white/60 text-sm mt-1">We sent a 6-digit code to</p>
+                    <p class="text-emerald-400 text-sm font-medium">@Model.Email</p>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                {
+                    <div class="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-xl">
+                        <p class="text-red-400 text-sm text-center">@Model.ErrorMessage</p>
+                    </div>
+                }
+
+                <form method="post">
+                    <input type="hidden" asp-for="Email" />
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-white/70 mb-3 text-center">Verification Code</label>
+                        <div class="flex justify-center gap-2">
+                            <input type="text" maxlength="6" asp-for="Input.Code" 
+                                   class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-4 text-white text-center text-2xl font-bold tracking-[0.5em] placeholder-white/40 focus:outline-none focus:border-emerald-500/50 focus:bg-white/15 transition-all" 
+                                   placeholder="000000" />
+                        </div>
+                        <span asp-validation-for="Input.Code" class="text-red-400 text-xs mt-1 block text-center"></span>
+                    </div>
+
+                    <button type="submit" 
+                            class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white py-3 rounded-xl font-semibold transition-all shadow-lg hover:shadow-emerald-500/25">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        Verify Code
+                    </button>
+                </form>
+
+                <div class="mt-6 text-center space-y-2">
+                    <p class="text-white/50 text-sm">Didn't receive the code?</p>
+                    <a href="/Account/ForgotPassword" class="text-emerald-400 hover:text-emerald-300 text-sm transition-colors">
+                        <i class="fas fa-redo mr-1"></i>
+                        Resend Code
+                    </a>
+                </div>
+
+                <div class="mt-4 text-center">
+                    <a href="/Account/Login" class="text-white/50 hover:text-white/70 text-sm transition-colors">
+                        <i class="fas fa-arrow-left mr-1"></i>
+                        Back to Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

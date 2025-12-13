@@ -1,0 +1,190 @@
+@page
+@model MessManagement.Areas.Admin.Pages.DashboardModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-white">Dashboard</h1>
+    <p class="text-white/60">Welcome to the Mess Management Admin Panel</p>
+</div>
+
+<!-- Summary Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-white/60 mb-1">Total Members</p>
+                <p class="text-3xl font-bold text-white">@Model.Summary.TotalMembers</p>
+            </div>
+            <div class="w-12 h-12 bg-blue-500/30 rounded-xl flex items-center justify-center">
+                <i class="fas fa-users text-blue-400 text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-white/60 mb-1">Active Members</p>
+                <p class="text-3xl font-bold text-emerald-400">@Model.Summary.ActiveMembers</p>
+            </div>
+            <div class="w-12 h-12 bg-emerald-500/30 rounded-xl flex items-center justify-center">
+                <i class="fas fa-user-check text-emerald-400 text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-white/60 mb-1">Today Present</p>
+                <p class="text-3xl font-bold text-purple-400">@Model.Summary.TodayPresentCount</p>
+            </div>
+            <div class="w-12 h-12 bg-purple-500/30 rounded-xl flex items-center justify-center">
+                <i class="fas fa-calendar-check text-purple-400 text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-white/60 mb-1">Monthly Revenue</p>
+                <p class="text-3xl font-bold text-amber-400">Rs.@Model.Summary.MonthlyRevenue.ToString("N0")</p>
+            </div>
+            <div class="w-12 h-12 bg-amber-500/30 rounded-xl flex items-center justify-center">
+                <i class="fas fa-coins text-amber-400 text-xl"></i>
+            </div>
+        </div>
+        <p class="text-sm text-white/50 mt-2">
+            Expected: Rs.@Model.Summary.MonthlyExpectedRevenue.ToString("N0")
+        </p>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+        <h3 class="text-lg font-semibold text-white mb-4">Today's Attendance</h3>
+        <canvas id="attendanceChart"></canvas>
+    </div>
+
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+        <h3 class="text-lg font-semibold text-white mb-4">Weekly Attendance Trend</h3>
+        <canvas id="weeklyAttendanceChart"></canvas>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+        <h3 class="text-lg font-semibold text-white mb-4">Weekly Revenue (Rs.)</h3>
+        <canvas id="revenueChart"></canvas>
+    </div>
+
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+        <h3 class="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+        <div class="grid grid-cols-2 gap-4">
+            <a href="/Admin/Attendance/Mark" class="flex flex-col items-center p-4 bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-all hover:scale-105">
+                <i class="fas fa-calendar-check text-emerald-400 text-2xl mb-2"></i>
+                <span class="text-sm text-white/80">Mark Attendance</span>
+            </a>
+            <a href="/Admin/Payments/Add" class="flex flex-col items-center p-4 bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-all hover:scale-105">
+                <i class="fas fa-plus-circle text-blue-400 text-2xl mb-2"></i>
+                <span class="text-sm text-white/80">Add Payment</span>
+            </a>
+            <a href="/Admin/Members/Add" class="flex flex-col items-center p-4 bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-all hover:scale-105">
+                <i class="fas fa-user-plus text-purple-400 text-2xl mb-2"></i>
+                <span class="text-sm text-white/80">Add Member</span>
+            </a>
+            <a href="/Admin/Reports/Daily" class="flex flex-col items-center p-4 bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-all hover:scale-105">
+                <i class="fas fa-chart-line text-amber-400 text-2xl mb-2"></i>
+                <span class="text-sm text-white/80">View Reports</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Chart.js global settings for dark theme
+    Chart.defaults.color = 'rgba(255, 255, 255, 0.7)';
+    Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+
+    // Today's Attendance Doughnut Chart
+    const ctx = document.getElementById('attendanceChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Present', 'Absent'],
+            datasets: [{
+                data: [@Model.Summary.TodayPresentCount, @Model.Summary.TodayAbsentCount],
+                backgroundColor: ['#10b981', '#ef4444'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom', labels: { color: 'rgba(255,255,255,0.7)' } }
+            }
+        }
+    });
+
+    // Weekly Attendance Bar Chart
+    const weeklyCtx = document.getElementById('weeklyAttendanceChart').getContext('2d');
+    new Chart(weeklyCtx, {
+        type: 'bar',
+        data: {
+            labels: [@Html.Raw(string.Join(",", Model.Summary.WeeklyAttendance.Select(w => $"'{w.Day}'")))],
+            datasets: [{
+                label: 'Present',
+                data: [@string.Join(",", Model.Summary.WeeklyAttendance.Select(w => w.Present))],
+                backgroundColor: '#10b981',
+                borderRadius: 4
+            }, {
+                label: 'Absent',
+                data: [@string.Join(",", Model.Summary.WeeklyAttendance.Select(w => w.Absent))],
+                backgroundColor: '#ef4444',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: { 
+                x: { stacked: true, grid: { display: false } }, 
+                y: { stacked: true, beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' } } 
+            },
+            plugins: { legend: { position: 'bottom', labels: { color: 'rgba(255,255,255,0.7)' } } }
+        }
+    });
+
+    // Weekly Revenue Line Chart
+    const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+    new Chart(revenueCtx, {
+        type: 'line',
+        data: {
+            labels: [@Html.Raw(string.Join(",", Model.Summary.WeeklyRevenue.Select(w => $"'{w.Day}'")))],
+            datasets: [{
+                label: 'Revenue',
+                data: [@string.Join(",", Model.Summary.WeeklyRevenue.Select(w => w.Amount))],
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#10b981',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: { 
+                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' } },
+                x: { grid: { display: false } }
+            },
+            plugins: { legend: { position: 'bottom', labels: { color: 'rgba(255,255,255,0.7)' } } }
+        }
+    });
+</script>
+}
