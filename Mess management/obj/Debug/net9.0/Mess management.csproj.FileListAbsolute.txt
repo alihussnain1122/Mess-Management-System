@@ -268,3 +268,4 @@ D:\EAD_Project\Mess management\bin\Debug\net9.0\Irony.dll
 D:\EAD_Project\Mess management\bin\Debug\net9.0\SixLabors.Fonts.dll
 D:\EAD_Project\Mess management\bin\Debug\net9.0\System.IO.Packaging.dll
 D:\EAD_Project\Mess management\bin\Debug\net9.0\XLParser.dll
+D:\EAD_Project\mess management\obj\Debug\net9.0\Mess management.sourcelink.json

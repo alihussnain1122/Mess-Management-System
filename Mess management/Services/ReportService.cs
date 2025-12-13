@@ -106,13 +106,16 @@ public class ReportService : IReportService
         var member = await _memberService.GetMemberByIdAsync(memberId);
         var mealSummary = await _attendanceService.GetMealWiseAttendanceSummaryAsync(memberId, month, year);
         var paymentSummary = await _paymentService.GetPaymentSummaryAsync(memberId, month, year);
-        var waterTeaSummary = await _waterTeaService.GetMonthlySummaryAsync(memberId, month, year);
 
         // Calculate meal costs based on individual meal rates
         var breakfastCost = mealSummary.BreakfastCount * Constants.DefaultBreakfastRate;
         var lunchCost = mealSummary.LunchCount * Constants.DefaultLunchRate;
         var dinnerCost = mealSummary.DinnerCount * Constants.DefaultDinnerRate;
         var totalMealCost = breakfastCost + lunchCost + dinnerCost;
+
+        // Water & Tea are auto-included with every meal
+        var totalMeals = mealSummary.BreakfastCount + mealSummary.LunchCount + mealSummary.DinnerCount;
+        var waterTeaCost = totalMeals * Constants.DefaultTeaCost;  // Water is FREE, Tea is Rs.100 per meal
 
         var presentDays = await _attendanceService.GetPresentCountForMemberAsync(memberId, month, year);
         var absentDays = await _attendanceService.GetAbsentCountForMemberAsync(memberId, month, year);
@@ -133,10 +136,10 @@ public class ReportService : IReportService
             LunchCost = lunchCost,
             DinnerCost = dinnerCost,
             MealCost = totalMealCost,
-            WaterTeaCost = waterTeaSummary.TotalCost,
-            TotalCost = totalMealCost + waterTeaSummary.TotalCost,
+            WaterTeaCost = waterTeaCost,
+            TotalCost = totalMealCost + waterTeaCost,
             TotalPaid = paymentSummary.TotalPaidAmount,
-            BalanceDue = (totalMealCost + waterTeaSummary.TotalCost) - paymentSummary.TotalPaidAmount
+            BalanceDue = (totalMealCost + waterTeaCost) - paymentSummary.TotalPaidAmount
         };
     }
 
@@ -153,16 +156,12 @@ public class ReportService : IReportService
         var allPaymentsTask = _context.Payments
             .Where(p => p.Date >= startDate && p.Date <= endDate && p.Status == Models.PaymentStatus.Completed)
             .ToListAsync();
-        var allWaterTeaTask = _context.WaterTeaRecords
-            .Where(w => w.Date >= startDate && w.Date <= endDate)
-            .ToListAsync();
 
-        await Task.WhenAll(activeMembersTask, allAttendancesTask, allPaymentsTask, allWaterTeaTask);
+        await Task.WhenAll(activeMembersTask, allAttendancesTask, allPaymentsTask);
 
         var activeMembers = await activeMembersTask;
         var allAttendances = await allAttendancesTask;
         var allPayments = await allPaymentsTask;
-        var allWaterTea = await allWaterTeaTask;
 
         var breakdowns = activeMembers.Select(member =>
         {
@@ -172,6 +171,7 @@ public class ReportService : IReportService
             var breakfastCount = memberAttendances.Count(a => a.BreakfastPresent);
             var lunchCount = memberAttendances.Count(a => a.LunchPresent);
             var dinnerCount = memberAttendances.Count(a => a.DinnerPresent);
+            var totalMeals = breakfastCount + lunchCount + dinnerCount;
             
             // Calculate meal costs
             var breakfastCost = breakfastCount * Constants.DefaultBreakfastRate;
@@ -179,9 +179,11 @@ public class ReportService : IReportService
             var dinnerCost = dinnerCount * Constants.DefaultDinnerRate;
             var mealCost = breakfastCost + lunchCost + dinnerCost;
             
+            // Water & Tea are auto-included with every meal
+            var waterTeaCost = totalMeals * Constants.DefaultTeaCost;  // Water FREE, Tea Rs.100 per meal
+            
             var presentDays = memberAttendances.Count(a => a.BreakfastPresent || a.LunchPresent || a.DinnerPresent);
             var absentDays = memberAttendances.Count(a => !a.BreakfastPresent && !a.LunchPresent && !a.DinnerPresent);
-            var waterTeaCost = allWaterTea.Where(w => w.MemberId == member.MemberId).Sum(w => w.Cost);
             var totalPaid = allPayments.Where(p => p.MemberId == member.MemberId).Sum(p => p.Amount);
 
             return new MemberCostBreakdown

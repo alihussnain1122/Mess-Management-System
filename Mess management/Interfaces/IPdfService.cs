@@ -9,6 +9,34 @@ public interface IPdfService
     byte[] GenerateMonthlyReport(MonthlyReportViewModel report);
     byte[] GenerateMemberStatement(string memberName, IEnumerable<PaymentStatementItem> payments, decimal totalAmount);
     byte[] GenerateMemberMonthlyBill(MemberMonthlyBillViewModel bill);
+    byte[] GenerateAttendanceSheet(AttendanceSheetViewModel sheet);
+}
+
+public class AttendanceSheetViewModel
+{
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
+    public string Title { get; set; } = "Attendance Sheet";
+    public List<AttendanceSheetRecord> Records { get; set; } = new();
+    
+    // Summary
+    public int TotalMembers { get; set; }
+    public int TotalBreakfasts { get; set; }
+    public int TotalLunches { get; set; }
+    public int TotalDinners { get; set; }
+    public int TotalMeals { get; set; }
+}
+
+public class AttendanceSheetRecord
+{
+    public DateTime Date { get; set; }
+    public string MemberName { get; set; } = "";
+    public string RoomNumber { get; set; } = "";
+    public bool BreakfastPresent { get; set; }
+    public bool LunchPresent { get; set; }
+    public bool DinnerPresent { get; set; }
+    public int MealsAttended { get; set; }
+    public string MarkedBy { get; set; } = "";
 }
 
 public class PaymentStatementItem

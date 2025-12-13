@@ -514,4 +514,146 @@ public class PdfService : IPdfService
     {
         return container.BorderBottom(1).BorderColor("#e5e7eb").Padding(5);
     }
+
+    public byte[] GenerateAttendanceSheet(AttendanceSheetViewModel sheet)
+    {
+        var document = Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                page.Size(PageSizes.A4.Landscape());
+                page.Margin(30);
+                page.DefaultTextStyle(x => x.FontSize(10));
+
+                page.Header().Element(c => ComposeHeader(c, sheet.Title));
+                
+                page.Content().Column(column =>
+                {
+                    column.Spacing(15);
+
+                    // Date Range Info
+                    column.Item().Row(row =>
+                    {
+                        row.RelativeItem().Background("#f0fdf4").Border(1).BorderColor("#86efac").Padding(10).Column(col =>
+                        {
+                            col.Item().Text("📅 Date Range").FontSize(11).Bold().FontColor("#166534");
+                            col.Item().Text($"{sheet.StartDate:dd MMM yyyy} - {sheet.EndDate:dd MMM yyyy}").FontSize(12).FontColor("#15803d");
+                        });
+                        row.ConstantItem(15);
+                        row.RelativeItem().Background("#eff6ff").Border(1).BorderColor("#93c5fd").Padding(10).Column(col =>
+                        {
+                            col.Item().Text("👥 Total Members").FontSize(11).Bold().FontColor("#1e40af");
+                            col.Item().Text(sheet.TotalMembers.ToString()).FontSize(12).FontColor("#1d4ed8");
+                        });
+                        row.ConstantItem(15);
+                        row.RelativeItem().Background("#fef3c7").Border(1).BorderColor("#fcd34d").Padding(10).Column(col =>
+                        {
+                            col.Item().Text("☀️ Breakfasts").FontSize(11).Bold().FontColor("#92400e");
+                            col.Item().Text(sheet.TotalBreakfasts.ToString()).FontSize(12).FontColor("#b45309");
+                        });
+                        row.ConstantItem(15);
+                        row.RelativeItem().Background("#dbeafe").Border(1).BorderColor("#60a5fa").Padding(10).Column(col =>
+                        {
+                            col.Item().Text("🌤️ Lunches").FontSize(11).Bold().FontColor("#1e40af");
+                            col.Item().Text(sheet.TotalLunches.ToString()).FontSize(12).FontColor("#1d4ed8");
+                        });
+                        row.ConstantItem(15);
+                        row.RelativeItem().Background("#e9d5ff").Border(1).BorderColor("#c084fc").Padding(10).Column(col =>
+                        {
+                            col.Item().Text("🌙 Dinners").FontSize(11).Bold().FontColor("#6b21a8");
+                            col.Item().Text(sheet.TotalDinners.ToString()).FontSize(12).FontColor("#7c3aed");
+                        });
+                        row.ConstantItem(15);
+                        row.RelativeItem().Background("#d1fae5").Border(1).BorderColor("#34d399").Padding(10).Column(col =>
+                        {
+                            col.Item().Text("🍽️ Total Meals").FontSize(11).Bold().FontColor("#065f46");
+                            col.Item().Text(sheet.TotalMeals.ToString()).FontSize(12).FontColor("#059669");
+                        });
+                    });
+
+                    // Attendance Table
+                    if (sheet.Records.Any())
+                    {
+                        column.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn(2);   // Date
+                                columns.RelativeColumn(3);   // Member
+                                columns.RelativeColumn(1.5f); // Room
+                                columns.RelativeColumn(1.5f); // Breakfast
+                                columns.RelativeColumn(1.5f); // Lunch
+                                columns.RelativeColumn(1.5f); // Dinner
+                                columns.RelativeColumn(1.5f); // Total Meals
+                                columns.RelativeColumn(2);   // Marked By
+                            });
+
+                            // Header
+                            table.Header(header =>
+                            {
+                                header.Cell().Background("#1e40af").Padding(8).Text("Date").Bold().FontColor(Colors.White).FontSize(9);
+                                header.Cell().Background("#1e40af").Padding(8).Text("Member Name").Bold().FontColor(Colors.White).FontSize(9);
+                                header.Cell().Background("#1e40af").Padding(8).Text("Room").Bold().FontColor(Colors.White).FontSize(9);
+                                header.Cell().Background("#b45309").Padding(8).Text("☀️ B'fast").Bold().FontColor(Colors.White).FontSize(9);
+                                header.Cell().Background("#1d4ed8").Padding(8).Text("🌤️ Lunch").Bold().FontColor(Colors.White).FontSize(9);
+                                header.Cell().Background("#7c3aed").Padding(8).Text("🌙 Dinner").Bold().FontColor(Colors.White).FontSize(9);
+                                header.Cell().Background("#059669").Padding(8).Text("Meals").Bold().FontColor(Colors.White).FontSize(9);
+                                header.Cell().Background("#1e40af").Padding(8).Text("Marked By").Bold().FontColor(Colors.White).FontSize(9);
+                            });
+
+                            // Data rows
+                            var rowIndex = 0;
+                            foreach (var record in sheet.Records)
+                            {
+                                var bgColor = rowIndex % 2 == 0 ? "#ffffff" : "#f9fafb";
+                                
+                                table.Cell().Background(bgColor).BorderBottom(1).BorderColor("#e5e7eb").Padding(6)
+                                    .Text(record.Date.ToString("dd MMM")).FontSize(9);
+                                table.Cell().Background(bgColor).BorderBottom(1).BorderColor("#e5e7eb").Padding(6)
+                                    .Text(record.MemberName).FontSize(9);
+                                table.Cell().Background(bgColor).BorderBottom(1).BorderColor("#e5e7eb").Padding(6)
+                                    .Text(record.RoomNumber).FontSize(9);
+                                
+                                // Breakfast
+                                table.Cell().Background(record.BreakfastPresent ? "#fef3c7" : "#fee2e2").BorderBottom(1).BorderColor("#e5e7eb").Padding(6)
+                                    .AlignCenter().Text(record.BreakfastPresent ? "✓" : "✗")
+                                    .FontColor(record.BreakfastPresent ? "#b45309" : "#dc2626").FontSize(10);
+                                
+                                // Lunch
+                                table.Cell().Background(record.LunchPresent ? "#dbeafe" : "#fee2e2").BorderBottom(1).BorderColor("#e5e7eb").Padding(6)
+                                    .AlignCenter().Text(record.LunchPresent ? "✓" : "✗")
+                                    .FontColor(record.LunchPresent ? "#1d4ed8" : "#dc2626").FontSize(10);
+                                
+                                // Dinner
+                                table.Cell().Background(record.DinnerPresent ? "#e9d5ff" : "#fee2e2").BorderBottom(1).BorderColor("#e5e7eb").Padding(6)
+                                    .AlignCenter().Text(record.DinnerPresent ? "✓" : "✗")
+                                    .FontColor(record.DinnerPresent ? "#7c3aed" : "#dc2626").FontSize(10);
+                                
+                                // Total Meals
+                                var mealsBg = record.MealsAttended == 3 ? "#d1fae5" : record.MealsAttended > 0 ? "#fef3c7" : "#fee2e2";
+                                var mealsColor = record.MealsAttended == 3 ? "#059669" : record.MealsAttended > 0 ? "#b45309" : "#dc2626";
+                                table.Cell().Background(mealsBg).BorderBottom(1).BorderColor("#e5e7eb").Padding(6)
+                                    .AlignCenter().Text($"{record.MealsAttended}/3").Bold().FontColor(mealsColor).FontSize(9);
+                                
+                                table.Cell().Background(bgColor).BorderBottom(1).BorderColor("#e5e7eb").Padding(6)
+                                    .Text(record.MarkedBy).FontSize(8).FontColor("#6b7280");
+                                
+                                rowIndex++;
+                            }
+                        });
+                    }
+                    else
+                    {
+                        column.Item().Background("#fef2f2").Border(1).BorderColor("#fecaca").Padding(20)
+                            .AlignCenter().Text("No attendance records found for the selected date range.")
+                            .FontColor("#dc2626");
+                    }
+                });
+
+                page.Footer().Element(ComposeFooter);
+            });
+        });
+
+        return document.GeneratePdf();
+    }
 }

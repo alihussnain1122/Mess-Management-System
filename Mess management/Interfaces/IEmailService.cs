@@ -8,6 +8,7 @@ public interface IEmailService
     Task SendWelcomeEmailAsync(string toEmail, string memberName, string username);
     Task SendPasswordResetCodeAsync(string toEmail, string userName, string code);
     Task SendMonthlyBillAsync(string toEmail, string memberName, MonthlyBillEmailModel bill);
+    Task<bool> SendMonthlyBillWithPdfAsync(string toEmail, string memberName, MonthlyBillEmailModel bill, byte[] pdfAttachment, string fileName);
 }
 
 public class MonthlyBillEmailModel

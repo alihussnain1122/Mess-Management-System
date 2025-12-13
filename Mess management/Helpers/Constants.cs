@@ -2,9 +2,9 @@ namespace MessManagement.Helpers;
 
 public static class Constants
 {
-    // Pricing
-    public const decimal DefaultWaterCost = 5.00m;
-    public const decimal DefaultTeaCost = 10.00m;
+    // Pricing - Water is FREE, Tea is Rs.100 (included with every meal)
+    public const decimal DefaultWaterCost = 0.00m;  // Water is FREE with every meal
+    public const decimal DefaultTeaCost = 100.00m;   // Tea Rs.100 per meal (auto-included)
     
     // Meal Rates (per meal)
     public const decimal DefaultBreakfastRate = 50.00m;

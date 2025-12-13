@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using MessManagement.Data;
 using MessManagement.Models;
+using MessManagement.Helpers;
 using System.Security.Claims;
 using System.Globalization;
 
@@ -25,20 +26,29 @@ public class MyBillModel : PageModel
     public int SelectedYear { get; set; }
     public string MonthName { get; set; } = "";
 
-    // Attendance
+    // Attendance - Meal-wise
+    public int BreakfastCount { get; set; }
+    public int LunchCount { get; set; }
+    public int DinnerCount { get; set; }
+    public int TotalMeals { get; set; }
     public int PresentDays { get; set; }
     public int AbsentDays { get; set; }
 
-    // Consumption
-    public int WaterCount { get; set; }
-    public int TeaCount { get; set; }
+    // Auto-included Water & Tea
+    public int WaterCount { get; set; }  // = TotalMeals
+    public int TeaCount { get; set; }    // = TotalMeals
 
     // Rates
-    public decimal MealRate { get; set; } = 250;
-    public decimal WaterRate { get; set; } = 50;
-    public decimal TeaRate { get; set; } = 30;
+    public decimal BreakfastRate { get; set; } = Constants.DefaultBreakfastRate;
+    public decimal LunchRate { get; set; } = Constants.DefaultLunchRate;
+    public decimal DinnerRate { get; set; } = Constants.DefaultDinnerRate;
+    public decimal WaterRate { get; set; } = Constants.DefaultWaterCost;  // FREE
+    public decimal TeaRate { get; set; } = Constants.DefaultTeaCost;       // Rs.100
 
     // Charges
+    public decimal BreakfastCharges { get; set; }
+    public decimal LunchCharges { get; set; }
+    public decimal DinnerCharges { get; set; }
     public decimal MealCharges { get; set; }
     public decimal WaterCharges { get; set; }
     public decimal TeaCharges { get; set; }
@@ -76,21 +86,25 @@ public class MyBillModel : PageModel
             .Where(a => a.MemberId == member.MemberId && a.Date >= startDate && a.Date <= endDate)
             .ToListAsync();
 
-        PresentDays = attendance.Count(a => a.Status == AttendanceStatus.Present);
-        AbsentDays = attendance.Count(a => a.Status == AttendanceStatus.Absent);
+        // Meal-wise counts
+        BreakfastCount = attendance.Count(a => a.BreakfastPresent);
+        LunchCount = attendance.Count(a => a.LunchPresent);
+        DinnerCount = attendance.Count(a => a.DinnerPresent);
+        TotalMeals = BreakfastCount + LunchCount + DinnerCount;
+        PresentDays = attendance.Count(a => a.BreakfastPresent || a.LunchPresent || a.DinnerPresent);
+        AbsentDays = attendance.Count(a => !a.BreakfastPresent && !a.LunchPresent && !a.DinnerPresent);
 
-        // Get water/tea consumption
-        var waterTea = await _context.WaterTeaRecords
-            .Where(w => w.MemberId == member.MemberId && w.Date >= startDate && w.Date <= endDate)
-            .ToListAsync();
-
-        WaterCount = waterTea.Sum(w => w.WaterCount);
-        TeaCount = waterTea.Sum(w => w.TeaCount);
+        // Water & Tea are auto-included with every meal
+        WaterCount = TotalMeals;  // FREE with every meal
+        TeaCount = TotalMeals;    // Rs.100 per meal
 
         // Calculate charges
-        MealCharges = PresentDays * MealRate;
-        WaterCharges = WaterCount * WaterRate;
-        TeaCharges = TeaCount * TeaRate;
+        BreakfastCharges = BreakfastCount * BreakfastRate;
+        LunchCharges = LunchCount * LunchRate;
+        DinnerCharges = DinnerCount * DinnerRate;
+        MealCharges = BreakfastCharges + LunchCharges + DinnerCharges;
+        WaterCharges = WaterCount * WaterRate;  // Rs.0 (FREE)
+        TeaCharges = TeaCount * TeaRate;        // Rs.100 per meal
         GrandTotal = MealCharges + WaterCharges + TeaCharges;
 
         // Get payments for this month

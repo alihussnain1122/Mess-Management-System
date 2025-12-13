@@ -11,10 +11,18 @@
         <div class="flex items-center justify-between">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900">Send Monthly Bills</h1>
-                <p class="text-gray-500 mt-1">Email monthly bills to all members at once</p>
+                <p class="text-gray-500 mt-1">Email monthly bills with PDF attachments to members</p>
             </div>
-            <div class="p-3 bg-blue-100 rounded-lg">
-                <i class="fas fa-paper-plane text-2xl text-blue-600"></i>
+            <div class="flex items-center gap-3">
+                <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                    <i class="fas fa-bolt mr-1"></i>Concurrent Sending
+                </span>
+                <span class="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">
+                    <i class="fas fa-utensils mr-1"></i>Menu-Based Pricing
+                </span>
+                <div class="p-3 bg-blue-100 rounded-lg">
+                    <i class="fas fa-file-pdf text-2xl text-blue-600"></i>
+                </div>
             </div>
         </div>
     </div>
@@ -26,7 +34,7 @@
         </h2>
         
         <form method="post" id="sendBillsForm">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Month Selection -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Select Month</label>
@@ -50,35 +58,85 @@
                         }
                     </select>
                 </div>
+            </div>
 
-                <!-- Meal Rate -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Meal Rate (per day)</label>
-                    <div class="relative">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">Rs.</span>
-                        <input type="number" asp-for="MealRate" step="0.01" 
-                               class="w-full pl-10 rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500" />
-                    </div>
+            <!-- Menu-Based Pricing Info -->
+            <div class="mt-4 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-200">
+                <div class="flex items-center gap-2 mb-3">
+                    <i class="fas fa-utensils text-purple-600"></i>
+                    <span class="font-medium text-gray-700">Pricing Based on Weekly Menu</span>
                 </div>
-
-                <!-- Water Rate -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Water Rate (per bottle)</label>
-                    <div class="relative">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">Rs.</span>
-                        <input type="number" asp-for="WaterRate" step="0.01" 
-                               class="w-full pl-10 rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500" />
+                <p class="text-sm text-gray-600 mb-3">
+                    Bills are calculated using the actual menu prices for each day. Each meal's price is taken from the weekly menu based on what day the member ate.
+                </p>
+                @if (Model.WeeklyMenus.Any())
+                {
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                        <div class="bg-white/60 rounded-lg p-3">
+                            <div class="flex items-center gap-2 text-amber-600 font-medium mb-2">
+                                <i class="fas fa-sun"></i> Breakfast Prices
+                            </div>
+                            @foreach (var menu in Model.WeeklyMenus.Where(m => m.MealType == MessManagement.Models.MealType.Breakfast).Take(3))
+                            {
+                                <div class="text-gray-600 text-xs">@menu.DayOfWeek: Rs.@menu.Price.ToString("N0")</div>
+                            }
+                            @if (Model.WeeklyMenus.Count(m => m.MealType == MessManagement.Models.MealType.Breakfast) > 3)
+                            {
+                                <div class="text-gray-400 text-xs">+ more...</div>
+                            }
+                        </div>
+                        <div class="bg-white/60 rounded-lg p-3">
+                            <div class="flex items-center gap-2 text-blue-600 font-medium mb-2">
+                                <i class="fas fa-cloud-sun"></i> Lunch Prices
+                            </div>
+                            @foreach (var menu in Model.WeeklyMenus.Where(m => m.MealType == MessManagement.Models.MealType.Lunch).Take(3))
+                            {
+                                <div class="text-gray-600 text-xs">@menu.DayOfWeek: Rs.@menu.Price.ToString("N0")</div>
+                            }
+                            @if (Model.WeeklyMenus.Count(m => m.MealType == MessManagement.Models.MealType.Lunch) > 3)
+                            {
+                                <div class="text-gray-400 text-xs">+ more...</div>
+                            }
+                        </div>
+                        <div class="bg-white/60 rounded-lg p-3">
+                            <div class="flex items-center gap-2 text-purple-600 font-medium mb-2">
+                                <i class="fas fa-moon"></i> Dinner Prices
+                            </div>
+                            @foreach (var menu in Model.WeeklyMenus.Where(m => m.MealType == MessManagement.Models.MealType.Dinner).Take(3))
+                            {
+                                <div class="text-gray-600 text-xs">@menu.DayOfWeek: Rs.@menu.Price.ToString("N0")</div>
+                            }
+                            @if (Model.WeeklyMenus.Count(m => m.MealType == MessManagement.Models.MealType.Dinner) > 3)
+                            {
+                                <div class="text-gray-400 text-xs">+ more...</div>
+                            }
+                        </div>
                     </div>
+                }
+                else
+                {
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-yellow-700 text-sm">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        No menu prices configured. Please set up the weekly menu first.
+                    </div>
+                }
+            </div>
+
+            <!-- Auto-Included Info -->
+            <div class="mt-4 p-4 bg-gradient-to-r from-cyan-50 to-amber-50 rounded-lg border border-cyan-200">
+                <div class="flex items-center gap-2 mb-2">
+                    <i class="fas fa-info-circle text-cyan-600"></i>
+                    <span class="font-medium text-gray-700">Auto-Included with Every Meal</span>
                 </div>
-
-                <!-- Tea Rate -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Tea Rate (per cup)</label>
-                    <div class="relative">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">Rs.</span>
-                        <input type="number" asp-for="TeaRate" step="0.01" 
-                               class="w-full pl-10 rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500" />
-                    </div>
+                <div class="flex gap-6 text-sm">
+                    <span class="flex items-center gap-2">
+                        <i class="fas fa-tint text-cyan-500"></i>
+                        <span class="text-gray-600">Water: <strong class="text-green-600">FREE</strong></span>
+                    </span>
+                    <span class="flex items-center gap-2">
+                        <i class="fas fa-mug-hot text-amber-500"></i>
+                        <span class="text-gray-600">Tea/Coffee: <strong class="text-amber-600">Rs.100/meal</strong></span>
+                    </span>
                 </div>
             </div>
 
@@ -86,17 +144,20 @@
             <div class="mt-6">
                 <div class="flex items-center justify-between mb-3">
                     <label class="block text-sm font-medium text-gray-700">Select Members</label>
-                    <label class="flex items-center">
-                        <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                        <span class="ml-2 text-sm text-gray-600">Select All</span>
-                    </label>
+                    <div class="flex items-center gap-4">
+                        <span id="selectedCount" class="text-sm text-gray-500">0 selected</span>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                            <span class="ml-2 text-sm text-gray-600">Select All</span>
+                        </label>
+                    </div>
                 </div>
                 
                 <div class="bg-gray-50 rounded-lg border border-gray-200 max-h-64 overflow-y-auto p-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                         @foreach (var member in Model.Members)
                         {
-                            <label class="flex items-center p-2 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer">
+                            <label class="flex items-center p-2 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors">
                                 <input type="checkbox" name="SelectedMemberIds" value="@member.MemberId" 
                                        class="member-checkbox rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                        @(string.IsNullOrEmpty(member.User?.Email) ? "disabled" : "")>
@@ -128,7 +189,7 @@
             <div class="mt-6 flex items-center gap-4">
                 <button type="submit" id="sendBtn" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium py-2.5 px-6 rounded-lg transition duration-150 flex items-center">
                     <i class="fas fa-paper-plane mr-2"></i>
-                    Send Bills to Selected Members
+                    Send Bills with PDF
                 </button>
                 <a href="/Admin/Members" class="text-gray-600 hover:text-gray-800 font-medium">
                     Cancel
@@ -137,17 +198,17 @@
         </form>
     </div>
 
-    <!-- Info Box -->
-    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+    <!-- Features Box -->
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4">
         <div class="flex">
-            <i class="fas fa-lightbulb text-blue-500 mt-0.5 mr-3"></i>
+            <i class="fas fa-rocket text-blue-500 mt-0.5 mr-3"></i>
             <div>
-                <h3 class="text-sm font-medium text-blue-800">How it works</h3>
+                <h3 class="text-sm font-medium text-blue-800">Features</h3>
                 <ul class="text-sm text-blue-600 mt-1 list-disc list-inside space-y-1">
-                    <li>Select the month and year for the bill period</li>
-                    <li>Configure the rates (meal, water, tea)</li>
-                    <li>Select members to send bills to</li>
-                    <li>Each member will receive a detailed bill email with their attendance, charges, and balance</li>
+                    <li><strong>PDF Attachment:</strong> Each member receives their bill as a downloadable PDF</li>
+                    <li><strong>Concurrent Sending:</strong> Bills are sent in parallel for faster processing</li>
+                    <li><strong>Meal-wise Breakdown:</strong> Detailed charges for Breakfast, Lunch, Dinner, Water & Tea</li>
+                    <li><strong>Payment Summary:</strong> Shows amount paid and balance due</li>
                 </ul>
             </div>
         </div>
@@ -156,11 +217,25 @@
 
 @section Scripts {
     <script>
+        // Update selected count
+        function updateSelectedCount() {
+            const selected = document.querySelectorAll('.member-checkbox:checked').length;
+            document.getElementById('selectedCount').textContent = selected + ' selected';
+        }
+
+        // Select all functionality
         document.getElementById('selectAll').addEventListener('change', function() {
             const checkboxes = document.querySelectorAll('.member-checkbox:not(:disabled)');
             checkboxes.forEach(cb => cb.checked = this.checked);
+            updateSelectedCount();
         });
 
+        // Individual checkbox change
+        document.querySelectorAll('.member-checkbox').forEach(cb => {
+            cb.addEventListener('change', updateSelectedCount);
+        });
+
+        // Form submission
         document.getElementById('sendBillsForm').addEventListener('submit', function(e) {
             const selected = document.querySelectorAll('.member-checkbox:checked').length;
             if (selected === 0) {
@@ -175,7 +250,7 @@
             }
             
             const btn = document.getElementById('sendBtn');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending ' + selected + ' bill(s)...';
             btn.disabled = true;
         });
     </script>

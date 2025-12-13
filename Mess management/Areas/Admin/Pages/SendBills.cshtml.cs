@@ -5,7 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using MessManagement.Data;
 using MessManagement.Interfaces;
 using MessManagement.Models;
+using MessManagement.Helpers;
+using MessManagement.ViewModels;
 using System.Globalization;
+using System.Collections.Concurrent;
 
 namespace MessManagement.Areas.Admin.Pages;
 
@@ -14,14 +17,23 @@ public class SendBillsModel : PageModel
 {
     private readonly MessDbContext _context;
     private readonly IEmailService _emailService;
+    private readonly IPdfService _pdfService;
+    private readonly ILogger<SendBillsModel> _logger;
 
-    public SendBillsModel(MessDbContext context, IEmailService emailService)
+    public SendBillsModel(
+        MessDbContext context, 
+        IEmailService emailService, 
+        IPdfService pdfService,
+        ILogger<SendBillsModel> logger)
     {
         _context = context;
         _emailService = emailService;
+        _pdfService = pdfService;
+        _logger = logger;
     }
 
     public List<Member> Members { get; set; } = new();
+    public List<WeeklyMenu> WeeklyMenus { get; set; } = new();
 
     [BindProperty]
     public int SelectedMonth { get; set; } = DateTime.Now.Month;
@@ -29,14 +41,9 @@ public class SendBillsModel : PageModel
     [BindProperty]
     public int SelectedYear { get; set; } = DateTime.Now.Year;
 
-    [BindProperty]
-    public decimal MealRate { get; set; } = 250;
-
-    [BindProperty]
-    public decimal WaterRate { get; set; } = 50;
-
-    [BindProperty]
-    public decimal TeaRate { get; set; } = 30;
+    // Water & Tea rates (auto-included)
+    public decimal WaterRate { get; set; } = Constants.DefaultWaterCost;  // FREE
+    public decimal TeaRate { get; set; } = Constants.DefaultTeaCost;       // Rs.100
 
     [BindProperty]
     public List<int> SelectedMemberIds { get; set; } = new();
@@ -48,6 +55,19 @@ public class SendBillsModel : PageModel
             .Include(m => m.User)
             .OrderBy(m => m.FullName)
             .ToListAsync();
+
+        // Load weekly menu for display
+        WeeklyMenus = await _context.WeeklyMenus
+            .OrderBy(m => m.DayOfWeek)
+            .ThenBy(m => m.MealType)
+            .ToListAsync();
+    }
+
+    // Get menu price for a specific day and meal type
+    private decimal GetMenuPrice(List<WeeklyMenu> menus, DayOfWeek dayOfWeek, MealType mealType)
+    {
+        var menu = menus.FirstOrDefault(m => m.DayOfWeek == dayOfWeek && m.MealType == mealType);
+        return menu?.Price ?? 0;
     }
 
     public async Task<IActionResult> OnPostAsync()
@@ -61,6 +81,7 @@ public class SendBillsModel : PageModel
         var startDate = new DateTime(SelectedYear, SelectedMonth, 1);
         var endDate = startDate.AddMonths(1).AddDays(-1);
         var monthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(SelectedMonth);
+        var totalDaysInMonth = DateTime.DaysInMonth(SelectedYear, SelectedMonth);
 
         var members = await _context.Members
             .Where(m => SelectedMemberIds.Contains(m.MemberId))
@@ -71,86 +92,201 @@ public class SendBillsModel : PageModel
             .Where(a => SelectedMemberIds.Contains(a.MemberId) && a.Date >= startDate && a.Date <= endDate)
             .ToListAsync();
 
-        var waterTeas = await _context.WaterTeaRecords
-            .Where(w => SelectedMemberIds.Contains(w.MemberId) && w.Date >= startDate && w.Date <= endDate)
-            .ToListAsync();
-
         var payments = await _context.Payments
             .Where(p => SelectedMemberIds.Contains(p.MemberId) && p.Date >= startDate && p.Date <= endDate)
             .ToListAsync();
 
-        int successCount = 0;
-        int failCount = 0;
+        // Load weekly menus for price lookup
+        var weeklyMenus = await _context.WeeklyMenus.ToListAsync();
 
-        foreach (var member in members)
+        // Use concurrent collections for thread safety
+        var successCount = new ConcurrentBag<string>();
+        var failedMembers = new ConcurrentBag<string>();
+
+        // Prepare bill data for each member
+        var billTasks = members.Select(async member =>
         {
             var email = member.User?.Email;
             if (string.IsNullOrEmpty(email))
             {
-                failCount++;
-                continue;
+                failedMembers.Add($"{member.FullName} (No email)");
+                return;
             }
-
-            var memberAttendance = attendances.Where(a => a.MemberId == member.MemberId).ToList();
-            var presentDays = memberAttendance.Count(a => a.Status == AttendanceStatus.Present);
-            var absentDays = memberAttendance.Count(a => a.Status == AttendanceStatus.Absent);
-
-            var memberWaterTea = waterTeas.Where(w => w.MemberId == member.MemberId).ToList();
-            var waterCount = memberWaterTea.Sum(w => w.WaterCount);
-            var teaCount = memberWaterTea.Sum(w => w.TeaCount);
-
-            var mealCharges = presentDays * MealRate;
-            var waterCharges = waterCount * WaterRate;
-            var teaCharges = teaCount * TeaRate;
-            var grandTotal = mealCharges + waterCharges + teaCharges;
-
-            var memberPayments = payments.Where(p => p.MemberId == member.MemberId).Sum(p => p.Amount);
-            var balance = grandTotal - memberPayments;
-
-            var billModel = new MonthlyBillEmailModel
-            {
-                MemberName = member.FullName,
-                RoomNumber = member.RoomNumber,
-                Month = SelectedMonth,
-                Year = SelectedYear,
-                MonthName = monthName,
-                PresentDays = presentDays,
-                AbsentDays = absentDays,
-                MealRate = MealRate,
-                MealCharges = mealCharges,
-                WaterCount = waterCount,
-                WaterRate = WaterRate,
-                WaterCharges = waterCharges,
-                TeaCount = teaCount,
-                TeaRate = TeaRate,
-                TeaCharges = teaCharges,
-                GrandTotal = grandTotal,
-                AmountPaid = memberPayments,
-                Balance = balance
-            };
 
             try
             {
-                await _emailService.SendMonthlyBillAsync(email, member.FullName, billModel);
-                successCount++;
-            }
-            catch
-            {
-                failCount++;
-            }
-        }
+                var memberAttendance = attendances.Where(a => a.MemberId == member.MemberId).ToList();
+                
+                // Meal-wise counts
+                var breakfastCount = memberAttendance.Count(a => a.BreakfastPresent);
+                var lunchCount = memberAttendance.Count(a => a.LunchPresent);
+                var dinnerCount = memberAttendance.Count(a => a.DinnerPresent);
+                var totalMeals = breakfastCount + lunchCount + dinnerCount;
+                var presentDays = memberAttendance.Count(a => a.BreakfastPresent || a.LunchPresent || a.DinnerPresent);
+                var absentDays = totalDaysInMonth - presentDays;
 
-        if (successCount > 0 && failCount == 0)
+                // Water & Tea are auto-included with every meal
+                var waterCount = totalMeals;  // FREE
+                var teaCount = totalMeals;    // Rs.100 per meal
+
+                // Calculate charges based on menu prices for each day
+                decimal breakfastCharges = 0;
+                decimal lunchCharges = 0;
+                decimal dinnerCharges = 0;
+
+                foreach (var att in memberAttendance)
+                {
+                    var dayOfWeek = att.Date.DayOfWeek;
+                    if (att.BreakfastPresent)
+                        breakfastCharges += GetMenuPrice(weeklyMenus, dayOfWeek, MealType.Breakfast);
+                    if (att.LunchPresent)
+                        lunchCharges += GetMenuPrice(weeklyMenus, dayOfWeek, MealType.Lunch);
+                    if (att.DinnerPresent)
+                        dinnerCharges += GetMenuPrice(weeklyMenus, dayOfWeek, MealType.Dinner);
+                }
+
+                var mealCharges = breakfastCharges + lunchCharges + dinnerCharges;
+                var waterCharges = waterCount * WaterRate;  // Rs.0
+                var teaCharges = teaCount * TeaRate;        // Rs.100 per meal
+                var grandTotal = mealCharges + waterCharges + teaCharges;
+
+                // Calculate average rates for display
+                var avgBreakfastRate = breakfastCount > 0 ? breakfastCharges / breakfastCount : 0;
+                var avgLunchRate = lunchCount > 0 ? lunchCharges / lunchCount : 0;
+                var avgDinnerRate = dinnerCount > 0 ? dinnerCharges / dinnerCount : 0;
+
+                var memberPayments = payments.Where(p => p.MemberId == member.MemberId).ToList();
+                var amountPaid = memberPayments.Sum(p => p.Amount);
+                var balance = grandTotal - amountPaid;
+
+                // Daily attendance for PDF
+                var dailyAttendance = memberAttendance.Select(a => new DailyAttendanceItem
+                {
+                    Date = a.Date,
+                    Breakfast = a.BreakfastPresent,
+                    Lunch = a.LunchPresent,
+                    Dinner = a.DinnerPresent,
+                    Status = (a.BreakfastPresent || a.LunchPresent || a.DinnerPresent) ? "Present" : "Absent"
+                }).OrderBy(d => d.Date).ToList();
+
+                // Payment history for PDF
+                var paymentHistory = memberPayments.Select(p => new PaymentStatementItem
+                {
+                    Date = p.Date,
+                    Description = p.PaymentMode.ToString(),
+                    Amount = p.Amount,
+                    Status = "Paid"
+                }).OrderBy(p => p.Date).ToList();
+
+                // Generate PDF bill
+                var pdfBillModel = new MemberMonthlyBillViewModel
+                {
+                    MemberName = member.FullName,
+                    RoomNumber = member.RoomNumber,
+                    Email = email,
+                    Phone = "",
+                    Month = SelectedMonth,
+                    Year = SelectedYear,
+                    MonthName = monthName,
+                    TotalDays = totalDaysInMonth,
+                    PresentDays = presentDays,
+                    AbsentDays = absentDays,
+                    BreakfastCount = breakfastCount,
+                    LunchCount = lunchCount,
+                    DinnerCount = dinnerCount,
+                    BreakfastRate = avgBreakfastRate,
+                    LunchRate = avgLunchRate,
+                    DinnerRate = avgDinnerRate,
+                    BreakfastCharges = breakfastCharges,
+                    LunchCharges = lunchCharges,
+                    DinnerCharges = dinnerCharges,
+                    MealRate = avgBreakfastRate + avgLunchRate + avgDinnerRate,
+                    TotalMealCharges = mealCharges,
+                    WaterCount = waterCount,
+                    WaterRate = WaterRate,
+                    WaterCharges = waterCharges,
+                    TeaCount = teaCount,
+                    TeaRate = TeaRate,
+                    TeaCharges = teaCharges,
+                    GrandTotal = grandTotal,
+                    AmountPaid = amountPaid,
+                    Balance = balance,
+                    DailyAttendance = dailyAttendance,
+                    Payments = paymentHistory
+                };
+
+                var pdfBytes = _pdfService.GenerateMemberMonthlyBill(pdfBillModel);
+                var fileName = $"Bill_{member.FullName.Replace(" ", "_")}_{monthName}_{SelectedYear}.pdf";
+
+                // Email model
+                var emailBillModel = new MonthlyBillEmailModel
+                {
+                    MemberName = member.FullName,
+                    RoomNumber = member.RoomNumber,
+                    Month = SelectedMonth,
+                    Year = SelectedYear,
+                    MonthName = monthName,
+                    PresentDays = presentDays,
+                    AbsentDays = absentDays,
+                    BreakfastCount = breakfastCount,
+                    LunchCount = lunchCount,
+                    DinnerCount = dinnerCount,
+                    BreakfastRate = avgBreakfastRate,
+                    LunchRate = avgLunchRate,
+                    DinnerRate = avgDinnerRate,
+                    BreakfastCharges = breakfastCharges,
+                    LunchCharges = lunchCharges,
+                    DinnerCharges = dinnerCharges,
+                    MealRate = avgBreakfastRate + avgLunchRate + avgDinnerRate,
+                    MealCharges = mealCharges,
+                    WaterCount = waterCount,
+                    WaterRate = WaterRate,
+                    WaterCharges = waterCharges,
+                    TeaCount = teaCount,
+                    TeaRate = TeaRate,
+                    TeaCharges = teaCharges,
+                    GrandTotal = grandTotal,
+                    AmountPaid = amountPaid,
+                    Balance = balance
+                };
+
+                // Send email with PDF attachment
+                var success = await _emailService.SendMonthlyBillWithPdfAsync(email, member.FullName, emailBillModel, pdfBytes, fileName);
+                
+                if (success)
+                {
+                    successCount.Add(member.FullName);
+                    _logger.LogInformation("Bill sent successfully to {MemberName} ({Email})", member.FullName, email);
+                }
+                else
+                {
+                    failedMembers.Add($"{member.FullName} (Email failed)");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send bill to {MemberName}", member.FullName);
+                failedMembers.Add($"{member.FullName} (Error)");
+            }
+        });
+
+        // Execute all email tasks concurrently
+        await Task.WhenAll(billTasks);
+
+        var successTotal = successCount.Count;
+        var failTotal = failedMembers.Count;
+
+        if (successTotal > 0 && failTotal == 0)
         {
-            TempData["ToastSuccess"] = $"Bills sent successfully to {successCount} member(s)!";
+            TempData["ToastSuccess"] = $"✅ Bills with PDF sent successfully to {successTotal} member(s)!";
         }
-        else if (successCount > 0 && failCount > 0)
+        else if (successTotal > 0 && failTotal > 0)
         {
-            TempData["ToastInfo"] = $"Bills sent to {successCount} member(s). {failCount} failed.";
+            TempData["ToastInfo"] = $"📧 Bills sent to {successTotal} member(s). {failTotal} failed: {string.Join(", ", failedMembers.Take(3))}";
         }
         else
         {
-            TempData["ToastError"] = "Failed to send bills. Please check email configuration.";
+            TempData["ToastError"] = $"❌ Failed to send bills. {string.Join(", ", failedMembers.Take(5))}";
         }
 
         return RedirectToPage();

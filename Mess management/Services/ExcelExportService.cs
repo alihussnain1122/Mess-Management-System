@@ -1,5 +1,6 @@
 using ClosedXML.Excel;
 using MessManagement.Data;
+using MessManagement.Helpers;
 using MessManagement.Interfaces;
 using MessManagement.Models;
 using Microsoft.EntityFrameworkCore;
@@ -295,10 +296,6 @@ public class ExcelExportService : IExcelExportService
             .Where(a => a.Date >= startDate && a.Date <= endDate)
             .ToListAsync();
 
-        var waterTeas = await _context.WaterTeaRecords
-            .Where(w => w.Date >= startDate && w.Date <= endDate)
-            .ToListAsync();
-
         var payments = await _context.Payments
             .Where(p => p.Date >= startDate && p.Date <= endDate)
             .ToListAsync();
@@ -308,15 +305,15 @@ public class ExcelExportService : IExcelExportService
 
         // Title
         worksheet.Cell("A1").Value = $"Monthly Report - {startDate:MMMM yyyy}";
-        worksheet.Range("A1:K1").Merge();
+        worksheet.Range("A1:M1").Merge();
         worksheet.Cell("A1").Style.Font.Bold = true;
         worksheet.Cell("A1").Style.Font.FontSize = 16;
         worksheet.Cell("A1").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
         worksheet.Cell("A1").Style.Fill.BackgroundColor = XLColor.FromHtml("#1E40AF");
         worksheet.Cell("A1").Style.Font.FontColor = XLColor.White;
 
-        // Headers
-        var headers = new[] { "Member", "Room", "Present", "Absent", "Meal Charges", "Water", "Tea", "Total Charges", "Paid", "Balance", "Status" };
+        // Headers (meal-wise)
+        var headers = new[] { "Member", "Room", "Breakfast", "Lunch", "Dinner", "Total Meals", "Meal Charges", "Water", "Tea Charges", "Total Charges", "Paid", "Balance", "Status" };
         for (int i = 0; i < headers.Length; i++)
         {
             worksheet.Cell(3, i + 1).Value = headers[i];
@@ -328,10 +325,12 @@ public class ExcelExportService : IExcelExportService
         headerRange.Style.Font.FontColor = XLColor.White;
         headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
-        // Rates (configurable)
-        decimal mealRate = 250;
-        decimal waterRate = 50;
-        decimal teaRate = 30;
+        // Rates from Constants
+        decimal breakfastRate = Constants.DefaultBreakfastRate;
+        decimal lunchRate = Constants.DefaultLunchRate;
+        decimal dinnerRate = Constants.DefaultDinnerRate;
+        decimal waterRate = Constants.DefaultWaterCost;  // FREE
+        decimal teaRate = Constants.DefaultTeaCost;       // Rs.100 per meal
 
         // Data
         int row = 4;
@@ -341,16 +340,23 @@ public class ExcelExportService : IExcelExportService
         foreach (var member in members)
         {
             var memberAttendances = attendances.Where(a => a.MemberId == member.MemberId).ToList();
-            var presentDays = memberAttendances.Count(a => a.Status == AttendanceStatus.Present);
-            var absentDays = memberAttendances.Count(a => a.Status == AttendanceStatus.Absent);
             
-            var memberWaterTea = waterTeas.Where(w => w.MemberId == member.MemberId).ToList();
-            var waterCount = memberWaterTea.Sum(w => w.WaterCount);
-            var teaCount = memberWaterTea.Sum(w => w.TeaCount);
+            // Meal-wise counts
+            var breakfastCount = memberAttendances.Count(a => a.BreakfastPresent);
+            var lunchCount = memberAttendances.Count(a => a.LunchPresent);
+            var dinnerCount = memberAttendances.Count(a => a.DinnerPresent);
+            var totalMeals = breakfastCount + lunchCount + dinnerCount;
+
+            // Water & Tea are auto-included with every meal
+            var waterCount = totalMeals;  // FREE
+            var teaCount = totalMeals;    // Rs.100 per meal
             
-            var mealCharges = presentDays * mealRate;
-            var waterCharges = waterCount * waterRate;
-            var teaCharges = teaCount * teaRate;
+            var breakfastCharges = breakfastCount * breakfastRate;
+            var lunchCharges = lunchCount * lunchRate;
+            var dinnerCharges = dinnerCount * dinnerRate;
+            var mealCharges = breakfastCharges + lunchCharges + dinnerCharges;
+            var waterCharges = waterCount * waterRate;  // Rs.0
+            var teaCharges = teaCount * teaRate;        // Rs.100 per meal
             var totalCharges = mealCharges + waterCharges + teaCharges;
             
             var memberPayments = payments.Where(p => p.MemberId == member.MemberId).Sum(p => p.Amount);
@@ -358,29 +364,33 @@ public class ExcelExportService : IExcelExportService
             
             worksheet.Cell(row, 1).Value = member.FullName;
             worksheet.Cell(row, 2).Value = member.RoomNumber;
-            worksheet.Cell(row, 3).Value = presentDays;
-            worksheet.Cell(row, 4).Value = absentDays;
-            worksheet.Cell(row, 5).Value = mealCharges;
-            worksheet.Cell(row, 5).Style.NumberFormat.Format = "#,##0.00";
-            worksheet.Cell(row, 6).Value = waterCount;
-            worksheet.Cell(row, 7).Value = teaCount;
-            worksheet.Cell(row, 8).Value = totalCharges;
-            worksheet.Cell(row, 8).Style.NumberFormat.Format = "#,##0.00";
-            worksheet.Cell(row, 9).Value = memberPayments;
+            worksheet.Cell(row, 3).Value = breakfastCount;
+            worksheet.Cell(row, 4).Value = lunchCount;
+            worksheet.Cell(row, 5).Value = dinnerCount;
+            worksheet.Cell(row, 6).Value = totalMeals;
+            worksheet.Cell(row, 7).Value = mealCharges;
+            worksheet.Cell(row, 7).Style.NumberFormat.Format = "#,##0.00";
+            worksheet.Cell(row, 8).Value = "FREE";
+            worksheet.Cell(row, 8).Style.Font.FontColor = XLColor.FromHtml("#059669");
+            worksheet.Cell(row, 9).Value = teaCharges;
             worksheet.Cell(row, 9).Style.NumberFormat.Format = "#,##0.00";
-            worksheet.Cell(row, 10).Value = balance;
+            worksheet.Cell(row, 10).Value = totalCharges;
             worksheet.Cell(row, 10).Style.NumberFormat.Format = "#,##0.00";
+            worksheet.Cell(row, 11).Value = memberPayments;
+            worksheet.Cell(row, 11).Style.NumberFormat.Format = "#,##0.00";
+            worksheet.Cell(row, 12).Value = balance;
+            worksheet.Cell(row, 12).Style.NumberFormat.Format = "#,##0.00";
             
             // Status based on balance
             if (balance <= 0)
             {
-                worksheet.Cell(row, 11).Value = "Paid";
-                worksheet.Cell(row, 11).Style.Font.FontColor = XLColor.FromHtml("#059669");
+                worksheet.Cell(row, 13).Value = "Paid";
+                worksheet.Cell(row, 13).Style.Font.FontColor = XLColor.FromHtml("#059669");
             }
             else
             {
-                worksheet.Cell(row, 11).Value = "Due";
-                worksheet.Cell(row, 11).Style.Font.FontColor = XLColor.FromHtml("#DC2626");
+                worksheet.Cell(row, 13).Value = "Due";
+                worksheet.Cell(row, 13).Style.Font.FontColor = XLColor.FromHtml("#DC2626");
             }
             
             grandTotalCharges += totalCharges;
@@ -396,17 +406,17 @@ public class ExcelExportService : IExcelExportService
         }
 
         // Total row
-        worksheet.Cell(row, 7).Value = "Grand Total:";
-        worksheet.Cell(row, 7).Style.Font.Bold = true;
-        worksheet.Cell(row, 8).Value = grandTotalCharges;
-        worksheet.Cell(row, 8).Style.NumberFormat.Format = "#,##0.00";
-        worksheet.Cell(row, 8).Style.Font.Bold = true;
-        worksheet.Cell(row, 9).Value = grandTotalPaid;
-        worksheet.Cell(row, 9).Style.NumberFormat.Format = "#,##0.00";
+        worksheet.Cell(row, 9).Value = "Grand Total:";
         worksheet.Cell(row, 9).Style.Font.Bold = true;
-        worksheet.Cell(row, 10).Value = grandTotalCharges - grandTotalPaid;
+        worksheet.Cell(row, 10).Value = grandTotalCharges;
         worksheet.Cell(row, 10).Style.NumberFormat.Format = "#,##0.00";
         worksheet.Cell(row, 10).Style.Font.Bold = true;
+        worksheet.Cell(row, 11).Value = grandTotalPaid;
+        worksheet.Cell(row, 11).Style.NumberFormat.Format = "#,##0.00";
+        worksheet.Cell(row, 11).Style.Font.Bold = true;
+        worksheet.Cell(row, 12).Value = grandTotalCharges - grandTotalPaid;
+        worksheet.Cell(row, 12).Style.NumberFormat.Format = "#,##0.00";
+        worksheet.Cell(row, 12).Style.Font.Bold = true;
         worksheet.Range(row, 1, row, headers.Length).Style.Fill.BackgroundColor = XLColor.FromHtml("#FEF3C7");
 
         // Auto-fit columns

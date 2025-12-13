@@ -133,6 +133,9 @@ public class EmailService : IEmailService
         var statusBg = bill.Balance > 0 ? "#fef2f2" : "#d1fae5";
         var statusText = bill.Balance > 0 ? "Balance Due" : "Fully Paid";
         
+        // Calculate total meals for display
+        var totalMeals = bill.BreakfastCount + bill.LunchCount + bill.DinnerCount;
+        
         var body = GetEmailTemplate($"Monthly Bill - {bill.MonthName} {bill.Year}", $@"
             <p>Dear <strong>{memberName}</strong>,</p>
             <p>Here is your monthly bill statement for <strong>{bill.MonthName} {bill.Year}</strong>.</p>
@@ -162,6 +165,13 @@ public class EmailService : IEmailService
                 </tr>
             </table>
 
+            <!-- Auto-Included Note -->
+            <div style='margin: 15px 0; padding: 12px; background: linear-gradient(90deg, #ecfeff, #fef3c7); border-radius: 8px; border: 1px dashed #06b6d4;'>
+                <p style='margin: 0; color: #0e7490; font-size: 13px;'>
+                    <strong>ℹ️ Included with every meal:</strong> 💧 Water (FREE) + ☕ Tea/Coffee (Rs.100)
+                </p>
+            </div>
+
             <!-- Charges Breakdown -->
             <h3 style='color: #374151; margin-top: 25px;'>💰 Charges Breakdown</h3>
             <table style='width: 100%; border-collapse: collapse; margin: 10px 0;'>
@@ -180,19 +190,14 @@ public class EmailService : IEmailService
                     <td style='padding: 12px; border: 1px solid #e5e7eb; text-align: right; color: #6b7280;'>{bill.DinnerCount} × Rs.{bill.DinnerRate}</td>
                     <td style='padding: 12px; border: 1px solid #e5e7eb; text-align: right; font-weight: bold;'>Rs.{bill.DinnerCharges:N2}</td>
                 </tr>
-                <tr style='background: #f9fafb;'>
-                    <td style='padding: 12px; border: 1px solid #e5e7eb;'><strong>Total Meal Charges</strong></td>
-                    <td style='padding: 12px; border: 1px solid #e5e7eb;'></td>
-                    <td style='padding: 12px; border: 1px solid #e5e7eb; text-align: right; font-weight: bold;'>Rs.{bill.MealCharges:N2}</td>
+                <tr style='background: #ecfeff;'>
+                    <td style='padding: 12px; border: 1px solid #e5e7eb;'>💧 Water</td>
+                    <td style='padding: 12px; border: 1px solid #e5e7eb; text-align: right; color: #6b7280;'>{totalMeals} meals</td>
+                    <td style='padding: 12px; border: 1px solid #e5e7eb; text-align: right; font-weight: bold; color: #10b981;'>FREE</td>
                 </tr>
-                <tr>
-                    <td style='padding: 12px; border: 1px solid #e5e7eb;'>💧 Water Charges</td>
-                    <td style='padding: 12px; border: 1px solid #e5e7eb; text-align: right; color: #6b7280;'>{bill.WaterCount} × Rs.{bill.WaterRate}</td>
-                    <td style='padding: 12px; border: 1px solid #e5e7eb; text-align: right; font-weight: bold;'>Rs.{bill.WaterCharges:N2}</td>
-                </tr>
-                <tr style='background: #f9fafb;'>
-                    <td style='padding: 12px; border: 1px solid #e5e7eb;'>☕ Tea/Coffee Charges</td>
-                    <td style='padding: 12px; border: 1px solid #e5e7eb; text-align: right; color: #6b7280;'>{bill.TeaCount} × Rs.{bill.TeaRate}</td>
+                <tr style='background: #fff7ed;'>
+                    <td style='padding: 12px; border: 1px solid #e5e7eb;'>☕ Tea/Coffee</td>
+                    <td style='padding: 12px; border: 1px solid #e5e7eb; text-align: right; color: #6b7280;'>{totalMeals} meals × Rs.100</td>
                     <td style='padding: 12px; border: 1px solid #e5e7eb; text-align: right; font-weight: bold;'>Rs.{bill.TeaCharges:N2}</td>
                 </tr>
                 <tr style='background: #10b981; color: white;'>
@@ -235,6 +240,103 @@ public class EmailService : IEmailService
         ");
 
         await SendEmailAsync(toEmail, subject, body);
+    }
+
+    public async Task<bool> SendMonthlyBillWithPdfAsync(string toEmail, string memberName, MonthlyBillEmailModel bill, byte[] pdfAttachment, string fileName)
+    {
+        try
+        {
+            var smtpHost = _configuration["Email:SmtpHost"] ?? "smtp.gmail.com";
+            var smtpPort = int.Parse(_configuration["Email:SmtpPort"] ?? "587");
+            var smtpUser = _configuration["Email:Username"] ?? "";
+            var smtpPass = _configuration["Email:Password"] ?? "";
+            var fromEmail = _configuration["Email:FromEmail"] ?? smtpUser;
+            var fromName = _configuration["Email:FromName"] ?? "Mess Management System";
+
+            if (string.IsNullOrEmpty(smtpUser) || string.IsNullOrEmpty(smtpPass))
+            {
+                _logger.LogWarning("Email not configured. Skipping email to {Email}", toEmail);
+                return false;
+            }
+
+            var subject = $"Monthly Bill - {bill.MonthName} {bill.Year} | Mess Management";
+            
+            var statusColor = bill.Balance > 0 ? "#dc2626" : "#10b981";
+            var statusBg = bill.Balance > 0 ? "#fef2f2" : "#d1fae5";
+            var statusText = bill.Balance > 0 ? "Balance Due" : "Fully Paid";
+            var totalMeals = bill.BreakfastCount + bill.LunchCount + bill.DinnerCount;
+            
+            var body = GetEmailTemplate($"Monthly Bill - {bill.MonthName} {bill.Year}", $@"
+                <p>Dear <strong>{memberName}</strong>,</p>
+                <p>Please find attached your monthly bill for <strong>{bill.MonthName} {bill.Year}</strong>.</p>
+                
+                <!-- Quick Summary -->
+                <div style='margin: 20px 0; padding: 20px; background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-radius: 12px; border: 1px solid #86efac;'>
+                    <h3 style='margin: 0 0 15px 0; color: #166534;'>📊 Quick Summary</h3>
+                    <table style='width: 100%;'>
+                        <tr>
+                            <td style='padding: 5px 0; color: #374151;'>Total Meals:</td>
+                            <td style='padding: 5px 0; text-align: right; font-weight: bold;'>{totalMeals} meals</td>
+                        </tr>
+                        <tr>
+                            <td style='padding: 5px 0; color: #374151;'>Grand Total:</td>
+                            <td style='padding: 5px 0; text-align: right; font-weight: bold; color: #059669;'>Rs.{bill.GrandTotal:N2}</td>
+                        </tr>
+                        <tr>
+                            <td style='padding: 5px 0; color: #374151;'>Amount Paid:</td>
+                            <td style='padding: 5px 0; text-align: right; font-weight: bold; color: #10b981;'>Rs.{bill.AmountPaid:N2}</td>
+                        </tr>
+                        <tr style='border-top: 1px solid #86efac;'>
+                            <td style='padding: 10px 0 5px 0; color: #374151; font-weight: bold;'>{statusText}:</td>
+                            <td style='padding: 10px 0 5px 0; text-align: right; font-weight: bold; font-size: 20px; color: {statusColor};'>Rs.{bill.Balance:N2}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                {(bill.Balance > 0 ? @"
+                <div style='margin: 20px 0; padding: 15px; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;'>
+                    <p style='margin: 0; color: #92400e;'><strong>⚠️ Payment Reminder:</strong></p>
+                    <p style='margin: 5px 0 0 0; color: #92400e;'>Please clear your dues at your earliest convenience.</p>
+                </div>
+                " : @"
+                <div style='margin: 20px 0; padding: 15px; background: #d1fae5; border-radius: 8px; border-left: 4px solid #10b981;'>
+                    <p style='margin: 0; color: #065f46;'><strong>✅ Thank you!</strong> Your account is fully paid for this month.</p>
+                </div>
+                ")}
+
+                <p style='color: #6b7280; font-size: 14px;'>📎 <em>Detailed bill is attached as PDF for your records.</em></p>
+                <p>Best regards,<br>Mess Management Team</p>
+            ");
+
+            using var smtpClient = new SmtpClient(smtpHost, smtpPort)
+            {
+                Credentials = new NetworkCredential(smtpUser, smtpPass),
+                EnableSsl = true
+            };
+
+            var mailMessage = new MailMessage
+            {
+                From = new MailAddress(fromEmail, fromName),
+                Subject = subject,
+                Body = body,
+                IsBodyHtml = true
+            };
+            mailMessage.To.Add(toEmail);
+
+            // Attach PDF
+            using var pdfStream = new MemoryStream(pdfAttachment);
+            var attachment = new Attachment(pdfStream, fileName, "application/pdf");
+            mailMessage.Attachments.Add(attachment);
+
+            await smtpClient.SendMailAsync(mailMessage);
+            _logger.LogInformation("Bill email with PDF sent successfully to {Email}", toEmail);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send bill email with PDF to {Email}", toEmail);
+            return false;
+        }
     }
 
     private string GetEmailTemplate(string title, string content)

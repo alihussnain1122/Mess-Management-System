@@ -60,20 +60,48 @@
 <!-- Stats Grid -->
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
     <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-4 text-center">
-        <p class="text-white/60 text-sm">Present Days</p>
-        <p class="text-2xl font-bold text-emerald-400">@Model.PresentDays</p>
+        <p class="text-white/60 text-sm">🍳 Breakfast</p>
+        <p class="text-2xl font-bold text-amber-400">@Model.BreakfastCount</p>
     </div>
     <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-4 text-center">
-        <p class="text-white/60 text-sm">Absent Days</p>
-        <p class="text-2xl font-bold text-red-400">@Model.AbsentDays</p>
+        <p class="text-white/60 text-sm">🍛 Lunch</p>
+        <p class="text-2xl font-bold text-blue-400">@Model.LunchCount</p>
     </div>
     <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-4 text-center">
-        <p class="text-white/60 text-sm">Water Bottles</p>
-        <p class="text-2xl font-bold text-blue-400">@Model.WaterCount</p>
+        <p class="text-white/60 text-sm">🍽️ Dinner</p>
+        <p class="text-2xl font-bold text-purple-400">@Model.DinnerCount</p>
     </div>
     <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-4 text-center">
-        <p class="text-white/60 text-sm">Tea Cups</p>
-        <p class="text-2xl font-bold text-amber-400">@Model.TeaCount</p>
+        <p class="text-white/60 text-sm">📊 Total Meals</p>
+        <p class="text-2xl font-bold text-emerald-400">@Model.TotalMeals</p>
+    </div>
+</div>
+
+<!-- Auto-included Info -->
+<div class="bg-gradient-to-r from-cyan-500/10 to-amber-500/10 rounded-2xl border border-white/20 p-4 mb-6">
+    <div class="flex items-center gap-2 mb-3">
+        <i class="fas fa-info-circle text-cyan-400"></i>
+        <span class="text-white font-medium">Included with Every Meal</span>
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+        <div class="flex items-center gap-3 bg-white/5 rounded-lg p-3">
+            <div class="w-10 h-10 bg-cyan-500/20 rounded-full flex items-center justify-center">
+                <i class="fas fa-tint text-cyan-400"></i>
+            </div>
+            <div>
+                <p class="text-white font-medium">Water</p>
+                <p class="text-emerald-400 text-sm">FREE</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3 bg-white/5 rounded-lg p-3">
+            <div class="w-10 h-10 bg-amber-500/20 rounded-full flex items-center justify-center">
+                <i class="fas fa-mug-hot text-amber-400"></i>
+            </div>
+            <div>
+                <p class="text-white font-medium">Tea/Coffee</p>
+                <p class="text-amber-400 text-sm">Rs.100/meal</p>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -90,19 +118,29 @@
             <table class="w-full">
                 <tbody class="divide-y divide-white/10">
                     <tr>
-                        <td class="py-3 text-white/80">Meal Charges</td>
-                        <td class="py-3 text-right text-white/60">@Model.PresentDays days × Rs.@Model.MealRate</td>
-                        <td class="py-3 text-right font-semibold text-white">Rs.@Model.MealCharges.ToString("N2")</td>
+                        <td class="py-3 text-white/80">🍳 Breakfast</td>
+                        <td class="py-3 text-right text-white/60">@Model.BreakfastCount × Rs.@Model.BreakfastRate</td>
+                        <td class="py-3 text-right font-semibold text-amber-400">Rs.@Model.BreakfastCharges.ToString("N2")</td>
                     </tr>
                     <tr>
-                        <td class="py-3 text-white/80">Water Charges</td>
-                        <td class="py-3 text-right text-white/60">@Model.WaterCount × Rs.@Model.WaterRate</td>
-                        <td class="py-3 text-right font-semibold text-white">Rs.@Model.WaterCharges.ToString("N2")</td>
+                        <td class="py-3 text-white/80">🍛 Lunch</td>
+                        <td class="py-3 text-right text-white/60">@Model.LunchCount × Rs.@Model.LunchRate</td>
+                        <td class="py-3 text-right font-semibold text-blue-400">Rs.@Model.LunchCharges.ToString("N2")</td>
                     </tr>
                     <tr>
-                        <td class="py-3 text-white/80">Tea Charges</td>
-                        <td class="py-3 text-right text-white/60">@Model.TeaCount × Rs.@Model.TeaRate</td>
-                        <td class="py-3 text-right font-semibold text-white">Rs.@Model.TeaCharges.ToString("N2")</td>
+                        <td class="py-3 text-white/80">🍽️ Dinner</td>
+                        <td class="py-3 text-right text-white/60">@Model.DinnerCount × Rs.@Model.DinnerRate</td>
+                        <td class="py-3 text-right font-semibold text-purple-400">Rs.@Model.DinnerCharges.ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td class="py-3 text-white/80">💧 Water</td>
+                        <td class="py-3 text-right text-white/60">@Model.WaterCount meals × Rs.0</td>
+                        <td class="py-3 text-right font-semibold text-emerald-400">FREE</td>
+                    </tr>
+                    <tr>
+                        <td class="py-3 text-white/80">☕ Tea/Coffee</td>
+                        <td class="py-3 text-right text-white/60">@Model.TeaCount meals × Rs.@Model.TeaRate</td>
+                        <td class="py-3 text-right font-semibold text-amber-400">Rs.@Model.TeaCharges.ToString("N2")</td>
                     </tr>
                     <tr class="bg-white/5">
                         <td colspan="2" class="py-3 font-semibold text-white">Total Charges</td>
