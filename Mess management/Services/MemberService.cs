@@ -112,4 +112,30 @@ public class MemberService : IMemberService
     {
         return await _context.Members.CountAsync(m => m.IsActive);
     }
+
+    public async Task<bool> DeleteMemberAsync(int memberId)
+    {
+        var member = await _context.Members
+            .Include(m => m.User)
+            .FirstOrDefaultAsync(m => m.MemberId == memberId);
+        
+        if (member == null)
+            return false;
+
+        // Store user reference before deleting member
+        var user = member.User;
+
+        // Delete member first (since it has FK to User)
+        _context.Members.Remove(member);
+        await _context.SaveChangesAsync();
+
+        // Then delete associated user account if exists
+        if (user != null)
+        {
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+        }
+        
+        return true;
+    }
 }

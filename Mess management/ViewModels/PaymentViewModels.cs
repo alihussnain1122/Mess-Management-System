@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using MessManagement.Models;
 
 namespace MessManagement.ViewModels;
@@ -36,9 +37,18 @@ public class InvoiceViewModel
 
 public class AddPaymentViewModel
 {
+    [Required(ErrorMessage = "Please select a member")]
+    [Range(1, int.MaxValue, ErrorMessage = "Please select a valid member")]
     public int MemberId { get; set; }
+
+    [Required(ErrorMessage = "Amount is required")]
+    [Range(1, 100000, ErrorMessage = "Amount must be between Rs.1 and Rs.100,000")]
     public decimal Amount { get; set; }
+
+    [Required(ErrorMessage = "Payment mode is required")]
     public PaymentMode PaymentMode { get; set; }
+
+    [StringLength(500, ErrorMessage = "Notes cannot exceed 500 characters")]
     public string? Notes { get; set; }
 }
 

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using MessManagement.Data;
 using MessManagement.Helpers;
+using MessManagement.Interfaces;
 using System.ComponentModel.DataAnnotations;
 
 namespace MessManagement.Pages.Account
@@ -10,10 +11,12 @@ namespace MessManagement.Pages.Account
     public class ResetPasswordModel : PageModel
     {
         private readonly MessDbContext _context;
+        private readonly IUserService _userService;
 
-        public ResetPasswordModel(MessDbContext context)
+        public ResetPasswordModel(MessDbContext context, IUserService userService)
         {
             _context = context;
+            _userService = userService;
         }
 
         [BindProperty]
@@ -74,6 +77,23 @@ namespace MessManagement.Pages.Account
                 ErrorMessage = "Invalid request. Please try again.";
                 return Page();
             }
+
+            // Check if new password was used before
+            if (await _userService.IsPasswordInHistoryAsync(user.Id, Input.NewPassword))
+            {
+                ErrorMessage = "You cannot reuse a previous password. Please choose a different password.";
+                return Page();
+            }
+
+            // Save current password to history before changing
+            var passwordHistory = new MessManagement.Models.PasswordHistory
+            {
+                UserId = user.Id,
+                PasswordHash = user.PasswordHash,
+                PasswordSalt = user.PasswordSalt,
+                CreatedAt = DateTime.UtcNow
+            };
+            _context.PasswordHistories.Add(passwordHistory);
 
             // Update password
             var (hash, salt) = PasswordHelper.HashPassword(Input.NewPassword);

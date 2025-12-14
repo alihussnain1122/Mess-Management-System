@@ -18,4 +18,8 @@ public interface IPaymentService
     Task<IEnumerable<Payment>> GetPaymentsByDateRangeAsync(DateTime startDate, DateTime endDate);
     Task<IEnumerable<Payment>> GetPaymentsForDateAsync(DateTime date);
     Task<decimal> GetTotalRevenueAsync(int month, int year);
+    Task<IEnumerable<Payment>> GetPendingPaymentsAsync();
+    Task<int> GetPendingPaymentsCountAsync();
+    Task<bool> VerifyPaymentAsync(int id);
+    Task<bool> RejectPaymentAsync(int id, string? reason = null);
 }

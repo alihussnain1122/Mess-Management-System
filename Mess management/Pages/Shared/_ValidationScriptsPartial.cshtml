@@ -1,3 +1,126 @@
-Rs.<Rs.sRs.cRs.rRs.iRs.pRs.tRs. Rs.sRs.rRs.cRs.=Rs."Rs.~Rs./Rs.lRs.iRs.bRs./Rs.jRs.qRs.uRs.eRs.rRs.yRs.-Rs.vRs.aRs.lRs.iRs.dRs.aRs.tRs.iRs.oRs.nRs./Rs.dRs.iRs.sRs.tRs./Rs.jRs.qRs.uRs.eRs.rRs.yRs..Rs.vRs.aRs.lRs.iRs.dRs.aRs.tRs.eRs..Rs.mRs.iRs.nRs..Rs.jRs.sRs."Rs.>Rs.<Rs./Rs.sRs.cRs.rRs.iRs.pRs.tRs.>Rs.Rs.
-Rs.<Rs.sRs.cRs.rRs.iRs.pRs.tRs. Rs.sRs.rRs.cRs.=Rs."Rs.~Rs./Rs.lRs.iRs.bRs./Rs.jRs.qRs.uRs.eRs.rRs.yRs.-Rs.vRs.aRs.lRs.iRs.dRs.aRs.tRs.iRs.oRs.nRs.-Rs.uRs.nRs.oRs.bRs.tRs.rRs.uRs.sRs.iRs.vRs.eRs./Rs.dRs.iRs.sRs.tRs./Rs.jRs.qRs.uRs.eRs.rRs.yRs..Rs.vRs.aRs.lRs.iRs.dRs.aRs.tRs.eRs..Rs.uRs.nRs.oRs.bRs.tRs.rRs.uRs.sRs.iRs.vRs.eRs..Rs.mRs.iRs.nRs..Rs.jRs.sRs."Rs.>Rs.<Rs./Rs.sRs.cRs.rRs.iRs.pRs.tRs.>Rs.Rs.
-Rs.
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+<script src="~/js/validation.js"></script>
+
+<style>
+    /* Validation Error Styling for Glass-morphism UI */
+    .input-validation-error {
+        border-color: rgb(239, 68, 68) !important;
+        background-color: rgba(239, 68, 68, 0.1) !important;
+    }
+    
+    .input-validation-error:focus {
+        box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.3) !important;
+    }
+    
+    .field-validation-error {
+        color: rgb(248, 113, 113);
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .field-validation-error::before {
+        content: '\f06a';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        font-size: 0.75rem;
+    }
+    
+    .field-validation-valid {
+        display: none;
+    }
+    
+    .validation-summary-errors {
+        background-color: rgba(239, 68, 68, 0.15);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        color: rgb(248, 113, 113);
+    }
+    
+    .validation-summary-errors ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .validation-summary-errors li {
+        padding: 0.25rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .validation-summary-errors li::before {
+        content: '\f06a';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        font-size: 0.875rem;
+    }
+    
+    .validation-summary-valid {
+        display: none;
+    }
+    
+    /* Success styling */
+    .input-validation-success {
+        border-color: rgb(16, 185, 129) !important;
+        background-color: rgba(16, 185, 129, 0.1) !important;
+    }
+    
+    /* Loading state for buttons */
+    .btn-loading {
+        opacity: 0.75;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+</style>
+
+<script>
+    // Initialize jQuery Validation styling
+    $(function() {
+        // Override default error placement
+        if ($.validator) {
+            $.validator.setDefaults({
+                errorClass: 'field-validation-error',
+                validClass: 'field-validation-valid',
+                highlight: function(element) {
+                    $(element).addClass('input-validation-error').removeClass('input-validation-success');
+                },
+                unhighlight: function(element) {
+                    $(element).removeClass('input-validation-error').addClass('input-validation-success');
+                }
+            });
+        }
+        
+        // Add loading state to form submissions
+        $('form').on('submit', function() {
+            var $form = $(this);
+            var $btn = $form.find('button[type="submit"]');
+            
+            if ($form.valid && !$form.valid()) {
+                return false;
+            }
+            
+            if ($btn.length) {
+                var originalContent = $btn.html();
+                $btn.data('original-content', originalContent);
+                $btn.prop('disabled', true)
+                    .addClass('btn-loading opacity-75 cursor-not-allowed')
+                    .html('<i class="fas fa-spinner fa-spin mr-2"></i>Processing...');
+                
+                // Fallback: re-enable after 15 seconds
+                setTimeout(function() {
+                    $btn.prop('disabled', false)
+                        .removeClass('btn-loading opacity-75 cursor-not-allowed')
+                        .html(originalContent);
+                }, 15000);
+            }
+        });
+    });
+</script>

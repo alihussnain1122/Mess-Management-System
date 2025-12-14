@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MessManagement.Interfaces;
 using MessManagement.Models;
@@ -35,5 +36,28 @@ public class IndexModel : PageModel
         }
         
         Members = PaginatedList<Member>.Create(allMembers, pageIndex, PageSize, search);
+    }
+
+    public async Task<IActionResult> OnPostToggleStatusAsync(int id)
+    {
+        var member = await _memberService.GetMemberByIdAsync(id);
+        if (member != null)
+        {
+            member.IsActive = !member.IsActive;
+            await _memberService.UpdateMemberAsync(member);
+            TempData["Success"] = $"Member {(member.IsActive ? "activated" : "deactivated")} successfully!";
+        }
+        return RedirectToPage();
+    }
+
+    public async Task<IActionResult> OnPostDeleteAsync(int id)
+    {
+        var result = await _memberService.DeleteMemberAsync(id);
+        if (result)
+            TempData["Success"] = "Member deleted successfully!";
+        else
+            TempData["Error"] = "Failed to delete member. They may have associated records.";
+        
+        return RedirectToPage();
     }
 }

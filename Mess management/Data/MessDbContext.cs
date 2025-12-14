@@ -16,6 +16,7 @@ public class MessDbContext : DbContext
     public DbSet<Payment> Payments { get; set; } = null!;
     public DbSet<WaterTea> WaterTeaRecords { get; set; } = null!;
     public DbSet<PasswordResetToken> PasswordResetTokens { get; set; } = null!;
+    public DbSet<PasswordHistory> PasswordHistories { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

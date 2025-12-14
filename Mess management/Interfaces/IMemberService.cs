@@ -15,4 +15,5 @@ public interface IMemberService
     Task<bool> MemberExistsAsync(int memberId);
     Task<int> GetTotalMembersCountAsync();
     Task<int> GetActiveMembersCountAsync();
+    Task<bool> DeleteMemberAsync(int memberId);
 }

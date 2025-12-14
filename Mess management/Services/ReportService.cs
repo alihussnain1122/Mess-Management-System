@@ -148,20 +148,14 @@ public class ReportService : IReportService
         var startDate = new DateTime(year, month, 1);
         var endDate = startDate.AddMonths(1).AddDays(-1);
 
-        // Fetch all data in parallel with single database queries
-        var activeMembersTask = _memberService.GetActiveMembersAsync();
-        var allAttendancesTask = _context.Attendances
+        // Run queries sequentially to avoid DbContext concurrency issues
+        var activeMembers = await _memberService.GetActiveMembersAsync();
+        var allAttendances = await _context.Attendances
             .Where(a => a.Date >= startDate && a.Date <= endDate)
             .ToListAsync();
-        var allPaymentsTask = _context.Payments
+        var allPayments = await _context.Payments
             .Where(p => p.Date >= startDate && p.Date <= endDate && p.Status == Models.PaymentStatus.Completed)
             .ToListAsync();
-
-        await Task.WhenAll(activeMembersTask, allAttendancesTask, allPaymentsTask);
-
-        var activeMembers = await activeMembersTask;
-        var allAttendances = await allAttendancesTask;
-        var allPayments = await allPaymentsTask;
 
         var breakdowns = activeMembers.Select(member =>
         {

@@ -11,10 +11,48 @@
         </div>
         <h2 class="text-xl font-semibold text-white mb-2">Delete Dish</h2>
         <p class="text-white/70 mb-6">Are you sure you want to delete <strong class="text-white">@Model.DishName</strong>?</p>
+        <p class="text-red-400/70 text-sm mb-4"><i class="fas fa-exclamation-triangle mr-1"></i>This action cannot be undone.</p>
 
-        <form method="post" class="flex gap-4 justify-center">
-            <a href="/Admin/Menu" class="px-4 py-2 bg-white/10 border border-white/20 rounded-xl text-white hover:bg-white/20 transition-all">Cancel</a>
-            <button type="submit" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-colors">Delete</button>
+        <form method="post" id="deleteForm" class="flex gap-4 justify-center">
+            <a href="/Admin/Menu" class="px-4 py-2 bg-white/10 border border-white/20 rounded-xl text-white hover:bg-white/20 transition-all">
+                <i class="fas fa-times mr-2"></i>Cancel
+            </a>
+            <button type="submit" id="deleteBtn" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-colors">
+                <span class="btn-text"><i class="fas fa-trash mr-2"></i>Delete</span>
+                <span class="btn-spinner hidden"><i class="fas fa-spinner fa-spin mr-2"></i>Deleting...</span>
+            </button>
         </form>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.getElementById('deleteForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const form = this;
+            
+            Swal.fire({
+                title: 'Confirm Deletion',
+                html: 'Are you sure you want to delete <strong>@Model.DishName</strong>?<br><span class="text-red-400 text-sm">This action cannot be undone.</span>',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: '<i class="fas fa-trash mr-2"></i>Yes, delete it!',
+                cancelButtonText: 'Cancel',
+                background: 'rgba(31, 41, 55, 0.95)',
+                color: '#fff',
+                backdrop: 'rgba(0,0,0,0.7)'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const btn = document.getElementById('deleteBtn');
+                    btn.disabled = true;
+                    btn.classList.add('opacity-75', 'cursor-not-allowed');
+                    btn.querySelector('.btn-text').classList.add('hidden');
+                    btn.querySelector('.btn-spinner').classList.remove('hidden');
+                    form.submit();
+                }
+            });
+        });
+    </script>
+}

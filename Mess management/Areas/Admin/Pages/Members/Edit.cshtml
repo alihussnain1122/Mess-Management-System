@@ -13,34 +13,91 @@
     </div>
 
     <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
-        <h2 class="text-xl font-semibold text-white mb-6">Edit Member</h2>
+        <h2 class="text-xl font-semibold text-white mb-6">
+            <i class="fas fa-user-edit mr-2 text-emerald-400"></i>Edit Member
+        </h2>
 
-        <form method="post">
+        <div asp-validation-summary="ModelOnly" class="bg-red-500/15 border border-red-500/30 rounded-xl p-4 mb-4 text-red-400"></div>
+
+        <form method="post" id="editMemberForm">
             <input type="hidden" asp-for="Input.MemberId" />
 
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-white/70 mb-1">Full Name</label>
-                <input type="text" asp-for="Input.FullName" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-emerald-500/50 focus:bg-white/15" />
-                <span asp-validation-for="Input.FullName" class="text-red-400 text-sm"></span>
+            <div class="mb-4 form-group">
+                <label asp-for="Input.FullName" class="block text-sm font-medium text-white/70 mb-1">
+                    Full Name <span class="text-red-400">*</span>
+                </label>
+                <input type="text" asp-for="Input.FullName" 
+                       class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-emerald-500/50 focus:bg-white/15 transition-all" 
+                       placeholder="Enter full name" />
+                <span asp-validation-for="Input.FullName" class="text-red-400 text-sm mt-1 block"></span>
             </div>
 
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-white/70 mb-1">Room Number</label>
-                <input type="text" asp-for="Input.RoomNumber" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-emerald-500/50 focus:bg-white/15" />
-                <span asp-validation-for="Input.RoomNumber" class="text-red-400 text-sm"></span>
+            <div class="mb-4 form-group">
+                <label asp-for="Input.RoomNumber" class="block text-sm font-medium text-white/70 mb-1">
+                    Room Number <span class="text-red-400">*</span>
+                </label>
+                <input type="text" asp-for="Input.RoomNumber" 
+                       class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-emerald-500/50 focus:bg-white/15 transition-all" 
+                       placeholder="Enter room number" />
+                <span asp-validation-for="Input.RoomNumber" class="text-red-400 text-sm mt-1 block"></span>
             </div>
 
             <div class="mb-6">
-                <label class="flex items-center cursor-pointer">
+                <label class="flex items-center cursor-pointer p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-all">
                     <input type="checkbox" asp-for="Input.IsActive" class="w-5 h-5 bg-white/10 border-white/20 rounded focus:ring-emerald-500 text-emerald-500" />
-                    <span class="ml-3 text-white/70">Active</span>
+                    <span class="ml-3 text-white/70">Member is Active</span>
+                    <span class="ml-auto text-xs @(Model.Input?.IsActive == true ? "text-emerald-400" : "text-red-400")">
+                        @(Model.Input?.IsActive == true ? "✓ Active" : "✗ Inactive")
+                    </span>
                 </label>
             </div>
 
-            <button type="submit" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white py-3 rounded-xl font-semibold transition-all shadow-lg">
-                <i class="fas fa-save mr-2"></i>
-                Save Changes
+            <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white py-3 rounded-xl font-semibold transition-all shadow-lg">
+                <span class="btn-text"><i class="fas fa-save mr-2"></i>Save Changes</span>
+                <span class="btn-spinner hidden"><i class="fas fa-spinner fa-spin mr-2"></i>Saving...</span>
             </button>
         </form>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('editMemberForm').addEventListener('submit', function(e) {
+            const fullName = document.querySelector('[name="Input.FullName"]').value.trim();
+            const roomNumber = document.querySelector('[name="Input.RoomNumber"]').value.trim();
+            
+            if (!fullName) {
+                e.preventDefault();
+                Toast.error('Full name is required');
+                return;
+            }
+            
+            if (!roomNumber) {
+                e.preventDefault();
+                Toast.error('Room number is required');
+                return;
+            }
+            
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.classList.add('opacity-75', 'cursor-not-allowed');
+            btn.querySelector('.btn-text').classList.add('hidden');
+            btn.querySelector('.btn-spinner').classList.remove('hidden');
+        });
+
+        // Toggle active status visual feedback
+        document.querySelector('[name="Input.IsActive"]').addEventListener('change', function() {
+            const statusSpan = this.closest('label').querySelector('.ml-auto');
+            if (this.checked) {
+                statusSpan.textContent = '✓ Active';
+                statusSpan.classList.remove('text-red-400');
+                statusSpan.classList.add('text-emerald-400');
+            } else {
+                statusSpan.textContent = '✗ Inactive';
+                statusSpan.classList.remove('text-emerald-400');
+                statusSpan.classList.add('text-red-400');
+            }
+        });
+    </script>
+}

@@ -16,11 +16,13 @@ public class ChangePasswordModel : PageModel
 {
     private readonly MessDbContext _context;
     private readonly IEmailService _emailService;
+    private readonly IUserService _userService;
 
-    public ChangePasswordModel(MessDbContext context, IEmailService emailService)
+    public ChangePasswordModel(MessDbContext context, IEmailService emailService, IUserService userService)
     {
         _context = context;
         _emailService = emailService;
+        _userService = userService;
     }
 
     [BindProperty(SupportsGet = true)]
@@ -206,6 +208,25 @@ public class ChangePasswordModel : PageModel
             TempData["ChangePasswordVerified"] = user.Id;
             return Page();
         }
+
+        // Check if new password was used before
+        if (await _userService.IsPasswordInHistoryAsync(user.Id, NewPassword))
+        {
+            ErrorMessage = "You cannot reuse a previous password. Please choose a different password.";
+            Step = 3;
+            TempData["ChangePasswordVerified"] = user.Id;
+            return Page();
+        }
+
+        // Save current password to history before changing
+        var passwordHistory = new MessManagement.Models.PasswordHistory
+        {
+            UserId = user.Id,
+            PasswordHash = user.PasswordHash,
+            PasswordSalt = user.PasswordSalt,
+            CreatedAt = DateTime.UtcNow
+        };
+        _context.PasswordHistories.Add(passwordHistory);
 
         // Update password
         var (hash, salt) = PasswordHelper.HashPassword(NewPassword);

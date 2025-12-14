@@ -74,6 +74,20 @@ public class UserService : IUserService
         if (!PasswordHelper.VerifyPassword(currentPassword, user.PasswordHash, user.PasswordSalt))
             return false;
 
+        // Check if new password was used before
+        if (await IsPasswordInHistoryAsync(userId, newPassword))
+            return false;
+
+        // Save current password to history before changing
+        var passwordHistory = new PasswordHistory
+        {
+            UserId = userId,
+            PasswordHash = user.PasswordHash,
+            PasswordSalt = user.PasswordSalt,
+            CreatedAt = DateTime.UtcNow
+        };
+        _context.PasswordHistories.Add(passwordHistory);
+
         var (hash, salt) = PasswordHelper.HashPassword(newPassword);
         user.PasswordHash = hash;
         user.PasswordSalt = salt;
@@ -89,6 +103,20 @@ public class UserService : IUserService
         
         if (user == null)
             return false;
+
+        // Check if new password was used before
+        if (await IsPasswordInHistoryAsync(userId, newPassword))
+            return false;
+
+        // Save current password to history before changing
+        var passwordHistory = new PasswordHistory
+        {
+            UserId = userId,
+            PasswordHash = user.PasswordHash,
+            PasswordSalt = user.PasswordSalt,
+            CreatedAt = DateTime.UtcNow
+        };
+        _context.PasswordHistories.Add(passwordHistory);
 
         var (hash, salt) = PasswordHelper.HashPassword(newPassword);
         user.PasswordHash = hash;
@@ -123,5 +151,26 @@ public class UserService : IUserService
         await _context.SaveChangesAsync();
         
         return true;
+    }
+
+    public async Task<bool> IsPasswordInHistoryAsync(int userId, string password)
+    {
+        // Check current password
+        var user = await _context.Users.FindAsync(userId);
+        if (user != null && PasswordHelper.VerifyPassword(password, user.PasswordHash, user.PasswordSalt))
+            return true;
+
+        // Check password history
+        var passwordHistories = await _context.PasswordHistories
+            .Where(ph => ph.UserId == userId)
+            .ToListAsync();
+
+        foreach (var history in passwordHistories)
+        {
+            if (PasswordHelper.VerifyPassword(password, history.PasswordHash, history.PasswordSalt))
+                return true;
+        }
+
+        return false;
     }
 }

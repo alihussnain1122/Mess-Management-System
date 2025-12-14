@@ -45,12 +45,12 @@ public class PayNowModel : PageModel
             Amount = Amount,
             PaymentMode = PaymentMethod == "Cash" ? PaymentMode.Cash : PaymentMode.Online,
             Date = DateTime.Now,
-            Status = PaymentStatus.Completed
+            Status = PaymentStatus.Pending // Payment requires admin verification
         };
 
         await _paymentService.AddPaymentAsync(payment);
         
-        TempData["Success"] = "Payment submitted successfully!";
+        TempData["Success"] = "Payment submitted successfully! It will be verified by admin shortly.";
         return RedirectToPage("History");
     }
 
@@ -64,13 +64,10 @@ public class PayNowModel : PageModel
         if (member == null) return;
 
         var now = DateTime.Now;
-        var presentCountTask = _attendanceService.GetPresentCountForMemberAsync(member.MemberId, now.Month, now.Year);
-        var paymentsTask = _paymentService.GetPaymentsForMemberAsync(member.MemberId);
-
-        await Task.WhenAll(presentCountTask, paymentsTask);
-
-        var presentDays = await presentCountTask;
-        var payments = await paymentsTask;
+        
+        // Run queries sequentially to avoid DbContext concurrency issues
+        var presentDays = await _attendanceService.GetPresentCountForMemberAsync(member.MemberId, now.Month, now.Year);
+        var payments = await _paymentService.GetPaymentsForMemberAsync(member.MemberId);
 
         TotalPaid = payments.Where(p => p.Date.Month == now.Month && p.Date.Year == now.Year).Sum(p => p.Amount);
         MonthCost = presentDays * 150m;

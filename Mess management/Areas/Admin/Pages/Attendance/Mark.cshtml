@@ -32,31 +32,31 @@
 <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-4 mb-6">
     <div class="flex flex-wrap gap-3 items-center">
         <span class="text-white/70 text-sm mr-2">Quick Actions:</span>
-        <form method="post" asp-page-handler="MarkAll" class="inline">
+        <form method="post" asp-page-handler="MarkAll" class="inline" id="markAllForm">
             <input type="hidden" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
             <input type="hidden" name="mealType" value="all" />
-            <button type="submit" class="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-sm transition-all">
+            <button type="button" onclick="confirmMarkAll('all members present for all meals', this.form)" class="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-sm transition-all">
                 <i class="fas fa-check-double mr-1"></i>Mark All Present
             </button>
         </form>
-        <form method="post" asp-page-handler="MarkAll" class="inline">
+        <form method="post" asp-page-handler="MarkAll" class="inline" id="markBreakfastForm">
             <input type="hidden" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
             <input type="hidden" name="mealType" value="breakfast" />
-            <button type="submit" class="bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/30 px-3 py-1.5 rounded-lg text-sm transition-all">
+            <button type="button" onclick="confirmMarkAll('all members present for Breakfast', this.form)" class="bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/30 px-3 py-1.5 rounded-lg text-sm transition-all">
                 <i class="fas fa-sun mr-1"></i>All Breakfast
             </button>
         </form>
-        <form method="post" asp-page-handler="MarkAll" class="inline">
+        <form method="post" asp-page-handler="MarkAll" class="inline" id="markLunchForm">
             <input type="hidden" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
             <input type="hidden" name="mealType" value="lunch" />
-            <button type="submit" class="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/30 px-3 py-1.5 rounded-lg text-sm transition-all">
+            <button type="button" onclick="confirmMarkAll('all members present for Lunch', this.form)" class="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/30 px-3 py-1.5 rounded-lg text-sm transition-all">
                 <i class="fas fa-cloud-sun mr-1"></i>All Lunch
             </button>
         </form>
-        <form method="post" asp-page-handler="MarkAll" class="inline">
+        <form method="post" asp-page-handler="MarkAll" class="inline" id="markDinnerForm">
             <input type="hidden" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
             <input type="hidden" name="mealType" value="dinner" />
-            <button type="submit" class="bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 border border-purple-500/30 px-3 py-1.5 rounded-lg text-sm transition-all">
+            <button type="button" onclick="confirmMarkAll('all members present for Dinner', this.form)" class="bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 border border-purple-500/30 px-3 py-1.5 rounded-lg text-sm transition-all">
                 <i class="fas fa-moon mr-1"></i>All Dinner
             </button>
         </form>
@@ -151,13 +151,52 @@
                 <i class="fas fa-info-circle mr-1"></i>
                 Toggle switches to mark presence for each meal
             </div>
-            <button type="submit" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-8 py-3 rounded-xl font-semibold transition-all shadow-lg transform hover:scale-105">
-                <i class="fas fa-save mr-2"></i>
-                Save Attendance
+            <button type="submit" id="saveBtn" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-8 py-3 rounded-xl font-semibold transition-all shadow-lg transform hover:scale-105">
+                <span class="btn-text"><i class="fas fa-save mr-2"></i>Save Attendance</span>
+                <span class="btn-spinner hidden"><i class="fas fa-spinner fa-spin mr-2"></i>Saving...</span>
             </button>
         </div>
     }
 </form>
+
+@section Scripts {
+    <script>
+        function confirmMarkAll(message, form) {
+            Swal.fire({
+                title: 'Confirm Bulk Action',
+                text: 'Mark ' + message + '?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: '<i class="fas fa-check mr-2"></i>Yes, mark all',
+                cancelButtonText: 'Cancel',
+                background: 'rgba(31, 41, 55, 0.95)',
+                color: '#fff'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        }
+
+        // Save button loading state
+        const attendanceForm = document.querySelector('form[method="post"]:not([asp-page-handler])');
+        if (attendanceForm) {
+            attendanceForm.addEventListener('submit', function() {
+                const btn = document.getElementById('saveBtn');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-75', 'cursor-not-allowed');
+                    if (btn.querySelector('.btn-text')) {
+                        btn.querySelector('.btn-text').classList.add('hidden');
+                        btn.querySelector('.btn-spinner').classList.remove('hidden');
+                    }
+                }
+            });
+        }
+    </script>
+}
 
 <!-- Summary Stats -->
 @if (Model.AttendanceList != null && Model.AttendanceList.Any())

@@ -13,37 +13,66 @@
     </div>
 
     <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
-        <h2 class="text-xl font-semibold text-white mb-6">Add New Member</h2>
+        <h2 class="text-xl font-semibold text-white mb-6">
+            <i class="fas fa-user-plus mr-2 text-emerald-400"></i>Add New Member
+        </h2>
 
-        <form method="post">
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-white/70 mb-1">Full Name</label>
-                <input type="text" asp-for="Input.FullName" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-emerald-500/50 focus:bg-white/15" placeholder="Enter full name" />
-                <span asp-validation-for="Input.FullName" class="text-red-400 text-sm"></span>
+        <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
+        <form method="post" id="addMemberForm">
+            <div class="mb-4 form-group">
+                <label asp-for="Input.FullName" class="block text-sm font-medium text-white/70 mb-1">
+                    Full Name <span class="text-red-400">*</span>
+                </label>
+                <input type="text" asp-for="Input.FullName" 
+                       class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-emerald-500/50 focus:bg-white/15 transition-all" 
+                       placeholder="Enter full name" />
+                <span asp-validation-for="Input.FullName" class="field-validation-error"></span>
             </div>
 
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-white/70 mb-1">Room Number</label>
-                <input type="text" asp-for="Input.RoomNumber" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-emerald-500/50 focus:bg-white/15" placeholder="Enter room number" />
-                <span asp-validation-for="Input.RoomNumber" class="text-red-400 text-sm"></span>
+            <div class="mb-4 form-group">
+                <label asp-for="Input.RoomNumber" class="block text-sm font-medium text-white/70 mb-1">
+                    Room Number <span class="text-red-400">*</span>
+                </label>
+                <input type="text" asp-for="Input.RoomNumber" 
+                       class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-emerald-500/50 focus:bg-white/15 transition-all" 
+                       placeholder="Enter room number" />
+                <span asp-validation-for="Input.RoomNumber" class="field-validation-error"></span>
             </div>
 
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-white/70 mb-1">Username</label>
-                <input type="text" asp-for="Input.Username" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-emerald-500/50 focus:bg-white/15" placeholder="Enter username" />
-                <span asp-validation-for="Input.Username" class="text-red-400 text-sm"></span>
+            <div class="mb-4 form-group">
+                <label asp-for="Input.Username" class="block text-sm font-medium text-white/70 mb-1">
+                    Username <span class="text-red-400">*</span>
+                </label>
+                <input type="text" asp-for="Input.Username" 
+                       class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-emerald-500/50 focus:bg-white/15 transition-all" 
+                       placeholder="Enter username (min 3 characters)" />
+                <span asp-validation-for="Input.Username" class="field-validation-error"></span>
             </div>
 
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-white/70 mb-1">Email <span class="text-white/40">(Optional - for notifications)</span></label>
-                <input type="email" asp-for="Input.Email" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-emerald-500/50 focus:bg-white/15" placeholder="Enter email address" />
-                <span asp-validation-for="Input.Email" class="text-red-400 text-sm"></span>
+            <div class="mb-4 form-group">
+                <label asp-for="Input.Email" class="block text-sm font-medium text-white/70 mb-1">
+                    Email <span class="text-white/40">(Optional - for notifications)</span>
+                </label>
+                <input type="email" asp-for="Input.Email" 
+                       class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-emerald-500/50 focus:bg-white/15 transition-all" 
+                       placeholder="Enter email address" />
+                <span asp-validation-for="Input.Email" class="field-validation-error"></span>
             </div>
 
-            <div class="mb-6">
-                <label class="block text-sm font-medium text-white/70 mb-1">Password</label>
-                <input type="password" asp-for="Input.Password" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-emerald-500/50 focus:bg-white/15" placeholder="Enter password" />
-                <span asp-validation-for="Input.Password" class="text-red-400 text-sm"></span>
+            <div class="mb-6 form-group">
+                <label asp-for="Input.Password" class="block text-sm font-medium text-white/70 mb-1">
+                    Password <span class="text-red-400">*</span>
+                </label>
+                <div class="relative">
+                    <input type="password" asp-for="Input.Password" id="passwordInput"
+                           class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-emerald-500/50 focus:bg-white/15 transition-all" 
+                           placeholder="Enter password (min 6 characters)" />
+                    <button type="button" onclick="togglePassword()" class="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors">
+                        <i class="fas fa-eye" id="toggleIcon"></i>
+                    </button>
+                </div>
+                <span asp-validation-for="Input.Password" class="field-validation-error"></span>
             </div>
 
             <button type="submit" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white py-3 rounded-xl font-semibold transition-all shadow-lg">
@@ -53,3 +82,22 @@
         </form>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function togglePassword() {
+            const input = document.getElementById('passwordInput');
+            const icon = document.getElementById('toggleIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+    </script>
+}

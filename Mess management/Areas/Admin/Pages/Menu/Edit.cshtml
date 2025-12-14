@@ -22,36 +22,76 @@
     <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
         <h2 class="text-xl font-semibold text-white mb-6">Edit Dish</h2>
 
-        <form method="post">
+        <form method="post" id="editMenuForm">
             <input type="hidden" asp-for="Input.Id" />
 
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-emerald-400 mb-1">Day of Week</label>
-                <select asp-for="Input.DayOfWeek" asp-items="Html.GetEnumSelectList<DayOfWeek>()" class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"></select>
+            <div class="mb-4 form-group">
+                <label class="block text-sm font-medium text-emerald-400 mb-1">Day of Week <span class="text-red-400">*</span></label>
+                <select asp-for="Input.DayOfWeek" asp-items="Html.GetEnumSelectList<DayOfWeek>()" required class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"></select>
+                <span asp-validation-for="Input.DayOfWeek" class="text-red-400 text-xs mt-1 block"></span>
             </div>
 
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-emerald-400 mb-1">Meal Type</label>
-                <select asp-for="Input.MealType" asp-items="Html.GetEnumSelectList<MessManagement.Models.MealType>()" class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"></select>
+            <div class="mb-4 form-group">
+                <label class="block text-sm font-medium text-emerald-400 mb-1">Meal Type <span class="text-red-400">*</span></label>
+                <select asp-for="Input.MealType" asp-items="Html.GetEnumSelectList<MessManagement.Models.MealType>()" required class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"></select>
+                <span asp-validation-for="Input.MealType" class="text-red-400 text-xs mt-1 block"></span>
             </div>
 
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-emerald-400 mb-1">Dish Name</label>
-                <input type="text" asp-for="Input.DishName" class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+            <div class="mb-4 form-group">
+                <label class="block text-sm font-medium text-emerald-400 mb-1">Dish Name <span class="text-red-400">*</span></label>
+                <input type="text" asp-for="Input.DishName" required class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                <span asp-validation-for="Input.DishName" class="text-red-400 text-xs mt-1 block"></span>
             </div>
 
-            <div class="mb-6">
-                <label class="block text-sm font-medium text-emerald-400 mb-1">Price</label>
+            <div class="mb-6 form-group">
+                <label class="block text-sm font-medium text-emerald-400 mb-1">Price <span class="text-red-400">*</span></label>
                 <div class="relative">
                     <span class="absolute left-3 top-2 text-white/50">Rs.</span>
-                    <input type="number" step="0.01" asp-for="Input.Price" class="w-full bg-white/10 border border-white/20 rounded-xl pl-10 pr-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                    <input type="number" step="0.01" min="1" asp-for="Input.Price" required class="w-full bg-white/10 border border-white/20 rounded-xl pl-10 pr-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                 </div>
+                <span asp-validation-for="Input.Price" class="text-red-400 text-xs mt-1 block"></span>
             </div>
 
-            <button type="submit" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white py-2 rounded-xl font-semibold transition-all shadow-lg">
-                <i class="fas fa-save mr-2"></i>
-                Save Changes
+            <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white py-2 rounded-xl font-semibold transition-all shadow-lg">
+                <span class="btn-text"><i class="fas fa-save mr-2"></i>Save Changes</span>
+                <span class="btn-spinner hidden"><i class="fas fa-spinner fa-spin mr-2"></i>Saving...</span>
             </button>
         </form>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('editMenuForm').addEventListener('submit', function(e) {
+            const dishName = document.querySelector('[name="Input.DishName"]').value.trim();
+            const price = document.querySelector('[name="Input.Price"]').value;
+            
+            if (!dishName) {
+                e.preventDefault();
+                Swal.fire({
+                    toast: true, position: 'top-end', icon: 'error',
+                    title: 'Dish name is required', showConfirmButton: false, timer: 3000,
+                    background: 'rgba(239, 68, 68, 0.95)', color: '#fff'
+                });
+                return;
+            }
+            
+            if (!price || parseFloat(price) < 1) {
+                e.preventDefault();
+                Swal.fire({
+                    toast: true, position: 'top-end', icon: 'error',
+                    title: 'Price must be at least Rs. 1', showConfirmButton: false, timer: 3000,
+                    background: 'rgba(239, 68, 68, 0.95)', color: '#fff'
+                });
+                return;
+            }
+
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.classList.add('opacity-75', 'cursor-not-allowed');
+            btn.querySelector('.btn-text').classList.add('hidden');
+            btn.querySelector('.btn-spinner').classList.remove('hidden');
+        });
+    </script>
+}

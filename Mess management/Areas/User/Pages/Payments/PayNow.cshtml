@@ -5,13 +5,13 @@
 }
 
 <div class="mb-6">
-    <h1 class="text-2xl font-bold text-white">Make Payment</h1>
-    <p class="text-white/60">Pay your mess dues</p>
+    <h1 class="text-2xl font-bold text-white"><i class="fas fa-credit-card mr-3 text-emerald-400"></i>Make Payment</h1>
+    <p class="text-white/60">Pay your mess dues securely</p>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
-        <h3 class="text-lg font-semibold text-white mb-4">Payment Summary</h3>
+        <h3 class="text-lg font-semibold text-white mb-4"><i class="fas fa-receipt mr-2 text-blue-400"></i>Payment Summary</h3>
         <div class="space-y-3">
             <div class="flex justify-between items-center p-3 bg-white/10 border border-white/10 rounded-xl">
                 <span class="text-white/70">This Month's Cost</span>
@@ -26,39 +26,137 @@
                 <span class="font-bold text-xl @(Model.BalanceDue > 0 ? "text-red-400" : "text-emerald-400")">Rs.@Model.BalanceDue.ToString("N2")</span>
             </div>
         </div>
+        
+        @if (Model.BalanceDue <= 0)
+        {
+            <div class="mt-4 p-4 bg-emerald-500/20 border border-emerald-500/30 rounded-xl text-center">
+                <i class="fas fa-check-circle text-4xl text-emerald-400 mb-2"></i>
+                <p class="text-emerald-300 font-semibold">All dues paid!</p>
+                <p class="text-white/60 text-sm">You have no pending payments.</p>
+            </div>
+        }
     </div>
 
     <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
-        <h3 class="text-lg font-semibold text-white mb-4">Payment Form</h3>
-        <form method="post">
+        <h3 class="text-lg font-semibold text-white mb-4"><i class="fas fa-money-bill-wave mr-2 text-emerald-400"></i>Payment Form</h3>
+        <form method="post" id="paymentForm">
             <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-emerald-400 mb-1">Amount (Rs.)</label>
-                    <input type="number" name="Amount" step="0.01" min="1" value="@Model.BalanceDue" required 
-                           class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                <div class="form-group">
+                    <label class="block text-sm font-medium text-emerald-400 mb-1">
+                        Amount (Rs.) <span class="text-red-400">*</span>
+                    </label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 font-semibold">Rs.</span>
+                        <input type="number" name="Amount" id="amountInput" step="0.01" min="1" max="100000" 
+                               value="@(Model.BalanceDue > 0 ? Model.BalanceDue : 0)" required 
+                               class="w-full bg-white/10 border border-white/20 rounded-xl pl-12 pr-3 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all" />
+                    </div>
+                    <p class="text-white/40 text-xs mt-1">Minimum: Rs.1, Maximum: Rs.100,000</p>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-emerald-400 mb-1">Payment Method</label>
-                    <select name="PaymentMethod" required class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                        <option value="Cash">Cash</option>
-                        <option value="Bank Transfer">Bank Transfer</option>
-                        <option value="JazzCash">JazzCash</option>
-                        <option value="Easypaisa">Easypaisa</option>
+                <div class="form-group">
+                    <label class="block text-sm font-medium text-emerald-400 mb-1">
+                        Payment Method <span class="text-red-400">*</span>
+                    </label>
+                    <select name="PaymentMethod" required class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all">
+                        <option value="">-- Select Payment Method --</option>
+                        <option value="Cash">💵 Cash</option>
+                        <option value="Bank Transfer">🏦 Bank Transfer</option>
+                        <option value="JazzCash">📱 JazzCash</option>
+                        <option value="Easypaisa">📱 Easypaisa</option>
                     </select>
                 </div>
-                <div>
+                <div class="form-group">
                     <label class="block text-sm font-medium text-emerald-400 mb-1">Transaction ID (Optional)</label>
-                    <input type="text" name="TransactionId" placeholder="Enter reference number"
-                           class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                    <input type="text" name="TransactionId" placeholder="Enter reference/transaction number"
+                           class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all" />
+                    <p class="text-white/40 text-xs mt-1">For online payments, enter the transaction reference</p>
                 </div>
-                <button type="submit" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white py-3 rounded-xl font-semibold transition-all shadow-lg">
-                    <i class="fas fa-check mr-2"></i>Submit Payment Request
+                <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white py-3 rounded-xl font-semibold transition-all shadow-lg">
+                    <span class="btn-text"><i class="fas fa-check mr-2"></i>Submit Payment Request</span>
+                    <span class="btn-spinner hidden"><i class="fas fa-spinner fa-spin mr-2"></i>Submitting...</span>
                 </button>
             </div>
         </form>
-        <p class="text-sm text-white/50 mt-4 text-center">
-            <i class="fas fa-info-circle mr-1"></i>
-            Your payment will be verified by the admin
-        </p>
+        <div class="mt-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-xl">
+            <p class="text-sm text-blue-300">
+                <i class="fas fa-info-circle mr-1"></i>
+                <strong>Note:</strong> Your payment will be marked as <span class="text-amber-400 font-semibold">Pending</span> until verified by the admin.
+            </p>
+        </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.getElementById('paymentForm').addEventListener('submit', function(e) {
+            const amount = parseFloat(document.getElementById('amountInput').value);
+            const method = document.querySelector('[name="PaymentMethod"]').value;
+            
+            // Validate amount
+            if (!amount || amount < 1) {
+                e.preventDefault();
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'error',
+                    title: 'Please enter a valid amount (minimum Rs.1)',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    background: 'rgba(239, 68, 68, 0.95)',
+                    color: '#fff'
+                });
+                return;
+            }
+            
+            if (amount > 100000) {
+                e.preventDefault();
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'error',
+                    title: 'Amount cannot exceed Rs.100,000',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    background: 'rgba(239, 68, 68, 0.95)',
+                    color: '#fff'
+                });
+                return;
+            }
+            
+            // Validate payment method
+            if (!method) {
+                e.preventDefault();
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'error',
+                    title: 'Please select a payment method',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    background: 'rgba(239, 68, 68, 0.95)',
+                    color: '#fff'
+                });
+                return;
+            }
+            
+            // Show loading state
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.classList.add('opacity-75', 'cursor-not-allowed');
+            btn.querySelector('.btn-text').classList.add('hidden');
+            btn.querySelector('.btn-spinner').classList.remove('hidden');
+        });
+
+        // Real-time amount validation
+        document.getElementById('amountInput').addEventListener('input', function() {
+            const value = parseFloat(this.value);
+            if (value < 1 || value > 100000) {
+                this.classList.add('border-red-500', 'bg-red-500/10');
+                this.classList.remove('border-white/20');
+            } else {
+                this.classList.remove('border-red-500', 'bg-red-500/10');
+                this.classList.add('border-white/20');
+            }
+        });
+    </script>
+}

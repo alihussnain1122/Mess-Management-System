@@ -22,25 +22,11 @@ public class WeeklyModel : PageModel
         var startOfWeek = DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek);
         var endOfWeek = startOfWeek.AddDays(6);
 
-        var tasks = new List<Task<(DateTime date, IEnumerable<WeeklyMenu> items)>>();
-        
+        // Run queries sequentially to avoid DbContext concurrency issues
         for (var date = startOfWeek; date <= endOfWeek; date = date.AddDays(1))
         {
-            var currentDate = date;
-            tasks.Add(GetMenuForDate(currentDate));
+            var items = await _menuService.GetMenuByDayAsync(date.DayOfWeek);
+            WeeklyMenuData[date] = items.ToList();
         }
-
-        var results = await Task.WhenAll(tasks);
-        
-        foreach (var result in results.OrderBy(r => r.date))
-        {
-            WeeklyMenuData[result.date] = result.items.ToList();
-        }
-    }
-
-    private async Task<(DateTime date, IEnumerable<WeeklyMenu> items)> GetMenuForDate(DateTime date)
-    {
-        var items = await _menuService.GetMenuByDayAsync(date.DayOfWeek);
-        return (date, items);
     }
 }

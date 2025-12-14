@@ -15,7 +15,7 @@
     </a>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
     <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
         <p class="text-sm text-white/60">Total Collected</p>
         <p class="text-2xl font-bold text-emerald-400">Rs.@Model.TotalCollected.ToString("N2")</p>
@@ -27,6 +27,14 @@
     <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
         <p class="text-sm text-white/60">Online</p>
         <p class="text-2xl font-bold text-purple-400">Rs.@Model.OnlineTotal.ToString("N2")</p>
+    </div>
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6 @(Model.PendingCount > 0 ? "border-amber-500/50" : "")">
+        <p class="text-sm text-white/60">Pending Verification</p>
+        <p class="text-2xl font-bold text-amber-400">@Model.PendingCount</p>
+        @if (Model.PendingCount > 0)
+        {
+            <p class="text-xs text-amber-400/70 mt-1"><i class="fas fa-exclamation-circle mr-1"></i>Requires action</p>
+        }
     </div>
 </div>
 
@@ -59,6 +67,7 @@
                 <th class="px-6 py-3 text-left text-xs font-medium text-emerald-400 uppercase">Amount</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-emerald-400 uppercase">Mode</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-emerald-400 uppercase">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-emerald-400 uppercase">Actions</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-white/10">
@@ -66,7 +75,7 @@
             {
                 @foreach (var payment in Model.Payments)
                 {
-                    <tr class="hover:bg-white/5">
+                    <tr class="hover:bg-white/5 @(payment.Status == MessManagement.Models.PaymentStatus.Pending ? "bg-amber-500/5" : "")">
                         <td class="px-6 py-4 text-white">@payment.Date.ToString("dd MMM yyyy")</td>
                         <td class="px-6 py-4 font-medium text-white">@payment.Member?.FullName</td>
                         <td class="px-6 py-4 font-semibold text-emerald-400">Rs.@payment.Amount.ToString("N2")</td>
@@ -76,9 +85,74 @@
                             </span>
                         </td>
                         <td class="px-6 py-4">
-                            <span class="px-2 py-1 text-xs font-medium @(payment.Status == MessManagement.Models.PaymentStatus.Completed ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30") rounded-full">
+                            @{
+                                var statusClass = payment.Status switch
+                                {
+                                    MessManagement.Models.PaymentStatus.Completed => "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+                                    MessManagement.Models.PaymentStatus.Pending => "bg-amber-500/20 text-amber-400 border-amber-500/30",
+                                    MessManagement.Models.PaymentStatus.Failed => "bg-red-500/20 text-red-400 border-red-500/30",
+                                    _ => "bg-gray-500/20 text-gray-400 border-gray-500/30"
+                                };
+                            }
+                            <span class="px-2 py-1 text-xs font-medium @statusClass border rounded-full">
                                 @payment.Status
                             </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-2">
+                                @if (payment.Status == MessManagement.Models.PaymentStatus.Pending)
+                                {
+                                    <form method="post" asp-page-handler="Verify" id="verify-form-@payment.Id" class="inline">
+                                        <input type="hidden" name="id" value="@payment.Id" />
+                                        <button type="button" onclick="confirmVerify(@payment.Id, '@payment.Member?.FullName', '@payment.Amount.ToString("N2")')" 
+                                                class="bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-400 px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1" title="Verify Payment">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                    <form method="post" asp-page-handler="Reject" id="reject-form-@payment.Id" class="inline">
+                                        <input type="hidden" name="id" value="@payment.Id" />
+                                        <button type="button" onclick="confirmReject(@payment.Id, '@payment.Member?.FullName', '@payment.Amount.ToString("N2")')"
+                                                class="bg-red-500/20 hover:bg-red-500/40 text-red-400 px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1" title="Reject Payment">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </form>
+                                }
+                                
+                                <!-- Change Status Dropdown -->
+                                <div class="relative inline-block">
+                                    <button type="button" class="bg-white/10 hover:bg-white/20 text-white/70 px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1" 
+                                            onclick="toggleDropdown('dropdown-@payment.Id')" title="Change Status">
+                                        <i class="fas fa-exchange-alt"></i>
+                                    </button>
+                                    <div id="dropdown-@payment.Id" class="hidden absolute right-0 mt-1 w-36 bg-gray-800 border border-white/20 rounded-xl shadow-xl z-50 overflow-hidden">
+                                        <form method="post" asp-page-handler="ChangeStatus" id="status-form-@payment.Id">
+                                            <input type="hidden" name="id" value="@payment.Id" />
+                                            <input type="hidden" name="status" id="status-input-@payment.Id" value="" />
+                                            <button type="button" onclick="changeStatus(@payment.Id, 'Pending')" class="w-full px-4 py-2 text-left text-xs text-amber-400 hover:bg-white/10 transition-all">
+                                                <i class="fas fa-clock mr-2"></i>Pending
+                                            </button>
+                                            <button type="button" onclick="changeStatus(@payment.Id, 'Completed')" class="w-full px-4 py-2 text-left text-xs text-emerald-400 hover:bg-white/10 transition-all">
+                                                <i class="fas fa-check-circle mr-2"></i>Completed
+                                            </button>
+                                            <button type="button" onclick="changeStatus(@payment.Id, 'Failed')" class="w-full px-4 py-2 text-left text-xs text-red-400 hover:bg-white/10 transition-all">
+                                                <i class="fas fa-times-circle mr-2"></i>Failed
+                                            </button>
+                                            <button type="button" onclick="changeStatus(@payment.Id, 'Refunded')" class="w-full px-4 py-2 text-left text-xs text-purple-400 hover:bg-white/10 transition-all">
+                                                <i class="fas fa-undo mr-2"></i>Refunded
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                                
+                                <!-- Delete Button -->
+                                <form method="post" asp-page-handler="Delete" id="delete-form-@payment.Id" class="inline">
+                                    <input type="hidden" name="id" value="@payment.Id" />
+                                    <button type="button" onclick="confirmDeletePayment(@payment.Id, '@payment.Member?.FullName', '@payment.Amount.ToString("N2")')"
+                                            class="bg-red-500/20 hover:bg-red-500/40 text-red-400 px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1" title="Delete Payment">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 }
@@ -86,7 +160,7 @@
             else
             {
                 <tr>
-                    <td colspan="5" class="px-6 py-8 text-center text-white/50">No payments found</td>
+                    <td colspan="6" class="px-6 py-8 text-center text-white/50">No payments found</td>
                 </tr>
             }
         </tbody>
@@ -127,4 +201,134 @@
     <p class="text-center text-white/50 mt-2 text-sm">
         Showing @((Model.Payments.PageIndex - 1) * 10 + 1) - @((Model.Payments.PageIndex - 1) * 10 + Model.Payments.Count) of @Model.Payments.TotalItems payments
     </p>
+}
+
+@section Scripts {
+    <script>
+        function toggleDropdown(id) {
+            // Close all other dropdowns first
+            document.querySelectorAll('[id^="dropdown-"]').forEach(el => {
+                if (el.id !== id) el.classList.add('hidden');
+            });
+            // Toggle the clicked dropdown
+            document.getElementById(id).classList.toggle('hidden');
+        }
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('[onclick^="toggleDropdown"]') && !e.target.closest('[id^="dropdown-"]')) {
+                document.querySelectorAll('[id^="dropdown-"]').forEach(el => el.classList.add('hidden'));
+            }
+        });
+
+        function confirmVerify(paymentId, memberName, amount) {
+            Swal.fire({
+                title: 'Verify Payment?',
+                html: `<p class="text-white/70">Verify payment of <strong class="text-emerald-400">Rs.${amount}</strong> from <strong class="text-white">${memberName}</strong>?</p>`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: '<i class="fas fa-check mr-2"></i>Yes, verify',
+                cancelButtonText: '<i class="fas fa-times mr-2"></i>Cancel',
+                background: 'rgba(17, 24, 39, 0.95)',
+                color: '#fff',
+                backdrop: 'rgba(0,0,0,0.7)',
+                customClass: {
+                    popup: 'rounded-2xl border border-white/20',
+                    confirmButton: 'rounded-xl px-6 py-2',
+                    cancelButton: 'rounded-xl px-6 py-2'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('verify-form-' + paymentId).submit();
+                }
+            });
+        }
+
+        function confirmReject(paymentId, memberName, amount) {
+            Swal.fire({
+                title: 'Reject Payment?',
+                html: `<p class="text-white/70">Reject payment of <strong class="text-red-400">Rs.${amount}</strong> from <strong class="text-white">${memberName}</strong>?</p>
+                       <p class="text-amber-400 text-sm mt-2"><i class="fas fa-exclamation-triangle mr-1"></i>The member will need to submit again.</p>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: '<i class="fas fa-times mr-2"></i>Yes, reject',
+                cancelButtonText: '<i class="fas fa-arrow-left mr-2"></i>Cancel',
+                background: 'rgba(17, 24, 39, 0.95)',
+                color: '#fff',
+                backdrop: 'rgba(0,0,0,0.7)',
+                customClass: {
+                    popup: 'rounded-2xl border border-white/20',
+                    confirmButton: 'rounded-xl px-6 py-2',
+                    cancelButton: 'rounded-xl px-6 py-2'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('reject-form-' + paymentId).submit();
+                }
+            });
+        }
+
+        function confirmDeletePayment(paymentId, memberName, amount) {
+            Swal.fire({
+                title: 'Delete Payment?',
+                html: `<p class="text-white/70">Delete payment of <strong class="text-red-400">Rs.${amount}</strong> from <strong class="text-white">${memberName}</strong>?</p>
+                       <p class="text-red-400 text-sm mt-2"><i class="fas fa-exclamation-triangle mr-1"></i>This action cannot be undone!</p>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: '<i class="fas fa-trash mr-2"></i>Yes, delete',
+                cancelButtonText: '<i class="fas fa-times mr-2"></i>Cancel',
+                background: 'rgba(17, 24, 39, 0.95)',
+                color: '#fff',
+                backdrop: 'rgba(0,0,0,0.7)',
+                customClass: {
+                    popup: 'rounded-2xl border border-white/20',
+                    confirmButton: 'rounded-xl px-6 py-2',
+                    cancelButton: 'rounded-xl px-6 py-2'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-form-' + paymentId).submit();
+                }
+            });
+        }
+
+        function changeStatus(paymentId, status) {
+            const statusColors = {
+                'Pending': '#f59e0b',
+                'Completed': '#10b981',
+                'Failed': '#ef4444',
+                'Refunded': '#a855f7'
+            };
+            
+            Swal.fire({
+                title: 'Change Status?',
+                html: `<p class="text-white/70">Change payment status to <strong style="color: ${statusColors[status]}">${status}</strong>?</p>`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: statusColors[status],
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: '<i class="fas fa-check mr-2"></i>Yes, change',
+                cancelButtonText: '<i class="fas fa-times mr-2"></i>Cancel',
+                background: 'rgba(17, 24, 39, 0.95)',
+                color: '#fff',
+                backdrop: 'rgba(0,0,0,0.7)',
+                customClass: {
+                    popup: 'rounded-2xl border border-white/20',
+                    confirmButton: 'rounded-xl px-6 py-2',
+                    cancelButton: 'rounded-xl px-6 py-2'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('status-input-' + paymentId).value = status;
+                    document.getElementById('status-form-' + paymentId).submit();
+                }
+            });
+        }
+    </script>
 }

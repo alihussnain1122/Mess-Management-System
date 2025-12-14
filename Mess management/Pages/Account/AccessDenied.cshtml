@@ -8,21 +8,83 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Access Denied</title>
+    <title>Access Denied - Mess Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-    <div class="bg-white rounded-lg shadow-lg p-8 text-center max-w-md mx-4">
-        <div class="bg-red-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-            <i class="fas fa-lock text-red-500 text-3xl"></i>
+<body class="min-h-screen">
+    <!-- Full Background -->
+    <div class="fixed inset-0 z-0">
+        <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80" 
+             class="w-full h-full object-cover" alt="Background">
+        <div class="absolute inset-0 bg-black/60"></div>
+    </div>
+
+    <!-- Content -->
+    <div class="relative z-10 min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-lg text-center">
+            <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-8">
+                <!-- Lock Icon -->
+                <div class="mb-6">
+                    <div class="w-24 h-24 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto border border-amber-500/30">
+                        <i class="fas fa-lock text-amber-400 text-4xl"></i>
+                    </div>
+                </div>
+
+                <!-- Message -->
+                <h1 class="text-3xl font-bold text-white mb-3">Access Denied</h1>
+                <p class="text-white/60 mb-6">
+                    You don't have permission to access this page. 
+                    Please contact the administrator if you believe this is an error.
+                </p>
+
+                <!-- Current User Info -->
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="bg-white/5 border border-white/10 rounded-xl p-4 mb-6">
+                        <p class="text-white/40 text-xs uppercase tracking-wider mb-1">Logged in as</p>
+                        <p class="text-white/70 font-medium">@User.Identity.Name</p>
+                        <p class="text-white/40 text-sm">Role: @(User.IsInRole("Admin") ? "Admin" : "User")</p>
+                    </div>
+                }
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                    <a href="javascript:history.back()" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-6 py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2">
+                        <i class="fas fa-arrow-left"></i>
+                        Go Back
+                    </a>
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a href="/Admin/Dashboard" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-6 py-3 rounded-xl font-medium transition-all shadow-lg flex items-center justify-center gap-2">
+                                <i class="fas fa-home"></i>
+                                Dashboard
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="/User/Dashboard" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-6 py-3 rounded-xl font-medium transition-all shadow-lg flex items-center justify-center gap-2">
+                                <i class="fas fa-home"></i>
+                                Dashboard
+                            </a>
+                        }
+                    }
+                    else
+                    {
+                        <a href="/Account/Login" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-6 py-3 rounded-xl font-medium transition-all shadow-lg flex items-center justify-center gap-2">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Login
+                        </a>
+                    }
+                </div>
+            </div>
         </div>
-        <h1 class="text-2xl font-bold text-gray-800 mb-2">Access Denied</h1>
-        <p class="text-gray-600 mb-6">You don't have permission to access this page.</p>
-        <a href="/Account/Login" class="inline-block bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors">
-            <i class="fas fa-sign-in-alt mr-2"></i>
-            Go to Login
-        </a>
     </div>
 </body>
 </html>

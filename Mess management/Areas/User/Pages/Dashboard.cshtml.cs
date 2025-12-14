@@ -51,15 +51,10 @@ public class DashboardModel : PageModel
 
         var now = DateTime.Now;
         
-        var presentCountTask = _attendanceService.GetPresentCountForMemberAsync(memberId, now.Month, now.Year);
-        var paymentsTask = _paymentService.GetPaymentsForMemberAsync(memberId);
-        var menuTask = _menuService.GetMenuByDayAsync(DateTime.Today.DayOfWeek);
-
-        await Task.WhenAll(presentCountTask, paymentsTask, menuTask);
-
-        PresentDays = await presentCountTask;
-        var payments = await paymentsTask;
-        TodayMenu = await menuTask;
+        // Run queries sequentially to avoid DbContext concurrency issues
+        PresentDays = await _attendanceService.GetPresentCountForMemberAsync(memberId, now.Month, now.Year);
+        var payments = await _paymentService.GetPaymentsForMemberAsync(memberId);
+        TodayMenu = await _menuService.GetMenuByDayAsync(DateTime.Today.DayOfWeek);
 
         TotalPaid = payments.Where(p => p.Date.Month == now.Month && p.Date.Year == now.Year).Sum(p => p.Amount);
         MonthCost = PresentDays * 150m;

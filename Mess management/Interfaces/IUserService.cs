@@ -13,4 +13,5 @@ public interface IUserService
     Task<bool> UserExistsAsync(string username);
     Task<IEnumerable<User>> GetAllUsersAsync();
     Task<bool> DeleteUserAsync(int userId);
+    Task<bool> IsPasswordInHistoryAsync(int userId, string password);
 }

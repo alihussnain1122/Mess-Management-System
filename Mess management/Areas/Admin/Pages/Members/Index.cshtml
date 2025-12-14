@@ -61,12 +61,35 @@
                             </span>
                         </td>
                         <td class="px-6 py-4">
-                            <a href="/Admin/Members/Edit/@member.MemberId" class="text-blue-400 hover:text-blue-300 mr-3 transition-colors" title="Edit">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <a href="/Admin/Members/Disable/@member.MemberId" class="text-red-400 hover:text-red-300 transition-colors" title="Disable">
-                                <i class="fas fa-ban"></i>
-                            </a>
+                            <div class="flex items-center gap-2">
+                                <a href="/Admin/Members/Edit/@member.MemberId" class="bg-blue-500/20 hover:bg-blue-500/40 text-blue-400 px-3 py-1.5 rounded-lg text-xs font-medium transition-all" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form method="post" asp-page-handler="ToggleStatus" id="toggle-form-@member.MemberId" class="inline">
+                                    <input type="hidden" name="id" value="@member.MemberId" />
+                                    @if (member.IsActive)
+                                    {
+                                        <button type="button" onclick="confirmToggle(@member.MemberId, '@member.FullName', false)" 
+                                                class="bg-amber-500/20 hover:bg-amber-500/40 text-amber-400 px-3 py-1.5 rounded-lg text-xs font-medium transition-all" title="Deactivate">
+                                            <i class="fas fa-ban"></i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" onclick="confirmToggle(@member.MemberId, '@member.FullName', true)"
+                                                class="bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-400 px-3 py-1.5 rounded-lg text-xs font-medium transition-all" title="Activate">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    }
+                                </form>
+                                <form method="post" asp-page-handler="Delete" id="delete-form-@member.MemberId" class="inline">
+                                    <input type="hidden" name="id" value="@member.MemberId" />
+                                    <button type="button" onclick="confirmDeleteMember(@member.MemberId, '@member.FullName')"
+                                            class="bg-red-500/20 hover:bg-red-500/40 text-red-400 px-3 py-1.5 rounded-lg text-xs font-medium transition-all" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 }
@@ -115,4 +138,63 @@
     <p class="text-center text-white/50 mt-2 text-sm">
         Showing @((Model.Members.PageIndex - 1) * 10 + 1) - @((Model.Members.PageIndex - 1) * 10 + Model.Members.Count) of @Model.Members.TotalItems members
     </p>
+}
+
+@section Scripts {
+    <script>
+        function confirmDeleteMember(memberId, memberName) {
+            Swal.fire({
+                title: 'Delete Member?',
+                html: `<p class="text-white/70">Are you sure you want to delete <strong class="text-white">${memberName}</strong>?</p>
+                       <p class="text-red-400 text-sm mt-2"><i class="fas fa-exclamation-triangle mr-1"></i>This will also delete their user account and cannot be undone!</p>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: '<i class="fas fa-trash mr-2"></i>Yes, delete',
+                cancelButtonText: '<i class="fas fa-times mr-2"></i>Cancel',
+                background: 'rgba(17, 24, 39, 0.95)',
+                color: '#fff',
+                backdrop: 'rgba(0,0,0,0.7)',
+                customClass: {
+                    popup: 'rounded-2xl border border-white/20',
+                    confirmButton: 'rounded-xl px-6 py-2',
+                    cancelButton: 'rounded-xl px-6 py-2'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-form-' + memberId).submit();
+                }
+            });
+        }
+
+        function confirmToggle(memberId, memberName, activating) {
+            const action = activating ? 'activate' : 'deactivate';
+            const icon = activating ? 'question' : 'warning';
+            const color = activating ? '#10b981' : '#f59e0b';
+            
+            Swal.fire({
+                title: `${activating ? 'Activate' : 'Deactivate'} Member?`,
+                html: `<p class="text-white/70">Are you sure you want to ${action} <strong class="text-white">${memberName}</strong>?</p>`,
+                icon: icon,
+                showCancelButton: true,
+                confirmButtonColor: color,
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: `<i class="fas fa-${activating ? 'check' : 'ban'} mr-2"></i>Yes, ${action}`,
+                cancelButtonText: '<i class="fas fa-times mr-2"></i>Cancel',
+                background: 'rgba(17, 24, 39, 0.95)',
+                color: '#fff',
+                backdrop: 'rgba(0,0,0,0.7)',
+                customClass: {
+                    popup: 'rounded-2xl border border-white/20',
+                    confirmButton: 'rounded-xl px-6 py-2',
+                    cancelButton: 'rounded-xl px-6 py-2'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('toggle-form-' + memberId).submit();
+                }
+            });
+        }
+    </script>
 }

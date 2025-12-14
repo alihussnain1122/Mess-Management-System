@@ -14,6 +14,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         * { font-family: 'Inter', sans-serif; }
         .code-input {
@@ -23,6 +24,7 @@
             font-size: 24px;
             font-weight: bold;
         }
+        .input-validation-error { border-color: rgba(239, 68, 68, 0.5) !important; background: rgba(239, 68, 68, 0.1) !important; }
     </style>
 </head>
 <body class="min-h-screen">
@@ -63,23 +65,23 @@
                     </div>
                 }
 
-                <form method="post">
+                <form method="post" id="verifyCodeForm">
                     <input type="hidden" asp-for="Email" />
                     
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-white/70 mb-3 text-center">Verification Code</label>
+                    <div class="mb-6 form-group">
+                        <label class="block text-sm font-medium text-white/70 mb-3 text-center">Verification Code <span class="text-red-400">*</span></label>
                         <div class="flex justify-center gap-2">
-                            <input type="text" maxlength="6" asp-for="Input.Code" 
+                            <input type="text" maxlength="6" asp-for="Input.Code" id="codeInput" required
                                    class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-4 text-white text-center text-2xl font-bold tracking-[0.5em] placeholder-white/40 focus:outline-none focus:border-emerald-500/50 focus:bg-white/15 transition-all" 
-                                   placeholder="000000" />
+                                   placeholder="000000" autocomplete="off" />
                         </div>
                         <span asp-validation-for="Input.Code" class="text-red-400 text-xs mt-1 block text-center"></span>
                     </div>
 
-                    <button type="submit" 
+                    <button type="submit" id="submitBtn"
                             class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white py-3 rounded-xl font-semibold transition-all shadow-lg hover:shadow-emerald-500/25">
-                        <i class="fas fa-check-circle mr-2"></i>
-                        Verify Code
+                        <span class="btn-text"><i class="fas fa-check-circle mr-2"></i>Verify Code</span>
+                        <span class="btn-spinner hidden"><i class="fas fa-spinner fa-spin mr-2"></i>Verifying...</span>
                     </button>
                 </form>
 
@@ -100,5 +102,55 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Only allow digits in code input
+        const codeInput = document.getElementById('codeInput');
+        if (codeInput) {
+            codeInput.addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+        }
+
+        document.getElementById('verifyCodeForm').addEventListener('submit', function(e) {
+            const code = codeInput.value.trim();
+            
+            if (!code) {
+                e.preventDefault();
+                Swal.fire({
+                    toast: true, position: 'top-end', icon: 'error',
+                    title: 'Please enter the verification code', showConfirmButton: false, timer: 3000,
+                    background: 'rgba(239, 68, 68, 0.95)', color: '#fff'
+                });
+                return;
+            }
+            
+            if (code.length !== 6) {
+                e.preventDefault();
+                Swal.fire({
+                    toast: true, position: 'top-end', icon: 'error',
+                    title: 'Verification code must be 6 digits', showConfirmButton: false, timer: 3000,
+                    background: 'rgba(239, 68, 68, 0.95)', color: '#fff'
+                });
+                return;
+            }
+            
+            if (!/^\d{6}$/.test(code)) {
+                e.preventDefault();
+                Swal.fire({
+                    toast: true, position: 'top-end', icon: 'error',
+                    title: 'Verification code must contain only numbers', showConfirmButton: false, timer: 3000,
+                    background: 'rgba(239, 68, 68, 0.95)', color: '#fff'
+                });
+                return;
+            }
+
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.classList.add('opacity-75', 'cursor-not-allowed');
+            btn.querySelector('.btn-text').classList.add('hidden');
+            btn.querySelector('.btn-spinner').classList.remove('hidden');
+        });
+    </script>
 </body>
 </html>

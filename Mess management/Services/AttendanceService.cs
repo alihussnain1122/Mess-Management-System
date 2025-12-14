@@ -91,15 +91,11 @@ public class AttendanceService : IAttendanceService
 
     public async Task MarkAllAttendanceAsync(DateTime date, bool breakfast, bool lunch, bool dinner, int markedBy)
     {
-        var activeMembersTask = _memberService.GetActiveMembersAsync();
-        var existingAttendancesTask = _context.Attendances
+        // Run queries sequentially to avoid DbContext concurrency issues
+        var activeMembers = await _memberService.GetActiveMembersAsync();
+        var existingAttendances = await _context.Attendances
             .Where(a => a.Date.Date == date.Date)
             .ToListAsync();
-
-        await Task.WhenAll(activeMembersTask, existingAttendancesTask);
-
-        var activeMembers = await activeMembersTask;
-        var existingAttendances = await existingAttendancesTask;
         var existingMemberIds = existingAttendances.Select(a => a.MemberId).ToHashSet();
 
         // Update existing attendance records

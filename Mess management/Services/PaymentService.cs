@@ -192,4 +192,44 @@ public class PaymentService : IPaymentService
             .Where(p => p.Date >= startDate && p.Date <= endDate && p.Status == PaymentStatus.Completed)
             .SumAsync(p => p.Amount);
     }
+
+    public async Task<IEnumerable<Payment>> GetPendingPaymentsAsync()
+    {
+        return await _context.Payments
+            .Include(p => p.Member)
+            .Where(p => p.Status == PaymentStatus.Pending)
+            .OrderByDescending(p => p.Date)
+            .ToListAsync();
+    }
+
+    public async Task<int> GetPendingPaymentsCountAsync()
+    {
+        return await _context.Payments
+            .CountAsync(p => p.Status == PaymentStatus.Pending);
+    }
+
+    public async Task<bool> VerifyPaymentAsync(int id)
+    {
+        var payment = await _context.Payments.FindAsync(id);
+        if (payment == null || payment.Status != PaymentStatus.Pending)
+            return false;
+
+        payment.Status = PaymentStatus.Completed;
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> RejectPaymentAsync(int id, string? reason = null)
+    {
+        var payment = await _context.Payments.FindAsync(id);
+        if (payment == null || payment.Status != PaymentStatus.Pending)
+            return false;
+
+        payment.Status = PaymentStatus.Failed;
+        if (!string.IsNullOrEmpty(reason))
+            payment.Notes = $"Rejected: {reason}";
+        
+        await _context.SaveChangesAsync();
+        return true;
+    }
 }
