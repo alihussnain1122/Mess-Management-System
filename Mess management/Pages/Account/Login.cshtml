@@ -155,6 +155,7 @@
         
     </div>
 
+    <script src="~/js/validation.js"></script>
     <script>
         function togglePassword() {
             const input = document.getElementById('passwordInput');
@@ -182,27 +183,9 @@
             if (!username || !password) {
                 e.preventDefault();
                 if (!username) {
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'error',
-                        title: 'Username is required',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        background: 'rgba(239, 68, 68, 0.95)',
-                        color: '#fff'
-                    });
+                    Toast.error('Username is required');
                 } else {
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'error',
-                        title: 'Password is required',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        background: 'rgba(239, 68, 68, 0.95)',
-                        color: '#fff'
-                    });
+                    Toast.error('Password is required');
                 }
                 return;
             }

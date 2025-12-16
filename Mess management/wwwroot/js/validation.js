@@ -1,7 +1,258 @@
 /**
  * Mess Management System - Validation & UI Enhancement Library
  * Professional client-side validation, toast notifications, and confirmation dialogs
+ * Styled to match the landing page and login page design
  */
+
+// ============================================
+// SWEETALERT2 CUSTOM THEME - GLASS MORPHISM
+// ============================================
+
+const SwalTheme = {
+    // Base glass morphism styling matching landing/login pages
+    glass: {
+        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%)',
+        backdrop: `
+            rgba(0, 0, 0, 0.6)
+            url("https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1920&h=1080&fit=crop")
+            center/cover
+            no-repeat
+        `,
+        color: '#fff',
+        customClass: {
+            popup: 'swal-glass-popup',
+            title: 'swal-glass-title',
+            htmlContainer: 'swal-glass-content',
+            confirmButton: 'swal-btn-primary',
+            cancelButton: 'swal-btn-secondary',
+            denyButton: 'swal-btn-danger',
+            icon: 'swal-glass-icon'
+        }
+    }
+};
+
+// Inject custom styles for SweetAlert2
+(function() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .swal-glass-popup {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.08) 100%) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            border-radius: 24px !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+        }
+        
+        .swal-glass-title {
+            color: #fff !important;
+            font-family: 'Inter', sans-serif !important;
+            font-weight: 700 !important;
+            font-size: 1.5rem !important;
+        }
+        
+        .swal-glass-content {
+            color: rgba(255, 255, 255, 0.8) !important;
+            font-family: 'Inter', sans-serif !important;
+        }
+        
+        .swal-btn-primary {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+            border: none !important;
+            border-radius: 12px !important;
+            padding: 12px 28px !important;
+            font-weight: 600 !important;
+            font-family: 'Inter', sans-serif !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4) !important;
+        }
+        
+        .swal-btn-primary:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5) !important;
+        }
+        
+        .swal-btn-secondary {
+            background: rgba(255, 255, 255, 0.15) !important;
+            backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            border-radius: 12px !important;
+            padding: 12px 28px !important;
+            font-weight: 600 !important;
+            font-family: 'Inter', sans-serif !important;
+            color: #fff !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .swal-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.25) !important;
+            transform: translateY(-2px) !important;
+        }
+        
+        .swal-btn-danger {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%) !important;
+            border: none !important;
+            border-radius: 12px !important;
+            padding: 12px 28px !important;
+            font-weight: 600 !important;
+            font-family: 'Inter', sans-serif !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4) !important;
+        }
+        
+        .swal-btn-danger:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5) !important;
+        }
+        
+        .swal-glass-icon {
+            border-color: rgba(255, 255, 255, 0.3) !important;
+        }
+        
+        .swal-glass-icon.swal2-success {
+            border-color: rgba(16, 185, 129, 0.5) !important;
+        }
+        
+        .swal-glass-icon.swal2-success [class^=swal2-success-line] {
+            background-color: #10b981 !important;
+        }
+        
+        .swal-glass-icon.swal2-success .swal2-success-ring {
+            border-color: rgba(16, 185, 129, 0.3) !important;
+        }
+        
+        .swal-glass-icon.swal2-error {
+            border-color: rgba(239, 68, 68, 0.5) !important;
+        }
+        
+        .swal-glass-icon.swal2-error [class^=swal2-x-mark-line] {
+            background-color: #ef4444 !important;
+        }
+        
+        .swal-glass-icon.swal2-warning {
+            border-color: rgba(245, 158, 11, 0.5) !important;
+            color: #f59e0b !important;
+        }
+        
+        .swal-glass-icon.swal2-info {
+            border-color: rgba(59, 130, 246, 0.5) !important;
+            color: #3b82f6 !important;
+        }
+        
+        .swal-glass-icon.swal2-question {
+            border-color: rgba(139, 92, 246, 0.5) !important;
+            color: #8b5cf6 !important;
+        }
+        
+        /* Toast styling */
+        .swal-toast-glass {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%) !important;
+            backdrop-filter: blur(15px) !important;
+            -webkit-backdrop-filter: blur(15px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3) !important;
+        }
+        
+        .swal-toast-success {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(5, 150, 105, 0.9) 100%) !important;
+        }
+        
+        .swal-toast-error {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.9) 0%, rgba(220, 38, 38, 0.9) 100%) !important;
+        }
+        
+        .swal-toast-warning {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.9) 0%, rgba(217, 119, 6, 0.9) 100%) !important;
+        }
+        
+        .swal-toast-info {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.9) 0%, rgba(37, 99, 235, 0.9) 100%) !important;
+        }
+        
+        /* Logout popup styling - matching landing page */
+        .swal-logout-popup {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.08) 100%) !important;
+            backdrop-filter: blur(25px) !important;
+            -webkit-backdrop-filter: blur(25px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            border-radius: 28px !important;
+            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.15) inset !important;
+            padding: 20px !important;
+        }
+        
+        .swal-btn-logout {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%) !important;
+            border: none !important;
+            border-radius: 14px !important;
+            padding: 14px 32px !important;
+            font-weight: 600 !important;
+            font-size: 1rem !important;
+            font-family: 'Inter', sans-serif !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4) !important;
+        }
+        
+        .swal-btn-logout:hover {
+            transform: translateY(-3px) !important;
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.5) !important;
+        }
+        
+        .swal-btn-stay {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+            border: none !important;
+            border-radius: 14px !important;
+            padding: 14px 32px !important;
+            font-weight: 600 !important;
+            font-size: 1rem !important;
+            font-family: 'Inter', sans-serif !important;
+            color: #fff !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4) !important;
+        }
+        
+        .swal-btn-stay:hover {
+            transform: translateY(-3px) !important;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.5) !important;
+        }
+        
+        .swal-close-btn {
+            color: rgba(255, 255, 255, 0.6) !important;
+            transition: all 0.2s ease !important;
+        }
+        
+        .swal-close-btn:hover {
+            color: rgba(255, 255, 255, 1) !important;
+            transform: rotate(90deg) !important;
+        }
+        
+        /* Input styling in modals */
+        .swal2-input, .swal2-textarea, .swal2-select {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 12px !important;
+            color: #fff !important;
+            font-family: 'Inter', sans-serif !important;
+        }
+        
+        .swal2-input:focus, .swal2-textarea:focus, .swal2-select:focus {
+            border-color: rgba(16, 185, 129, 0.5) !important;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.2) !important;
+            background: rgba(255, 255, 255, 0.15) !important;
+        }
+        
+        .swal2-input::placeholder {
+            color: rgba(255, 255, 255, 0.5) !important;
+        }
+        
+        .swal2-validation-message {
+            background: rgba(239, 68, 68, 0.2) !important;
+            color: #fca5a5 !important;
+            border-radius: 8px !important;
+        }
+    `;
+    document.head.appendChild(style);
+})();
 
 // ============================================
 // TOAST NOTIFICATION SYSTEM
@@ -17,10 +268,11 @@ const Toast = {
             showConfirmButton: false,
             timer: 3000,
             timerProgressBar: true,
-            background: 'rgba(16, 185, 129, 0.95)',
+            background: 'transparent',
             color: '#fff',
             customClass: {
-                popup: 'rounded-xl shadow-2xl'
+                popup: 'swal-toast-glass swal-toast-success',
+                timerProgressBar: 'bg-white/30'
             }
         });
     },
@@ -34,10 +286,11 @@ const Toast = {
             showConfirmButton: false,
             timer: 4000,
             timerProgressBar: true,
-            background: 'rgba(239, 68, 68, 0.95)',
+            background: 'transparent',
             color: '#fff',
             customClass: {
-                popup: 'rounded-xl shadow-2xl'
+                popup: 'swal-toast-glass swal-toast-error',
+                timerProgressBar: 'bg-white/30'
             }
         });
     },
@@ -51,10 +304,11 @@ const Toast = {
             showConfirmButton: false,
             timer: 3000,
             timerProgressBar: true,
-            background: 'rgba(245, 158, 11, 0.95)',
+            background: 'transparent',
             color: '#fff',
             customClass: {
-                popup: 'rounded-xl shadow-2xl'
+                popup: 'swal-toast-glass swal-toast-warning',
+                timerProgressBar: 'bg-white/30'
             }
         });
     },
@@ -68,37 +322,36 @@ const Toast = {
             showConfirmButton: false,
             timer: 3000,
             timerProgressBar: true,
-            background: 'rgba(59, 130, 246, 0.95)',
+            background: 'transparent',
             color: '#fff',
             customClass: {
-                popup: 'rounded-xl shadow-2xl'
+                popup: 'swal-toast-glass swal-toast-info',
+                timerProgressBar: 'bg-white/30'
             }
         });
     }
 };
 
 // ============================================
-// CONFIRMATION DIALOGS
+// CONFIRMATION DIALOGS - GLASS MORPHISM STYLE
 // ============================================
 
 const Confirm = {
     delete: function(itemName = 'item') {
         return Swal.fire({
-            title: 'Delete ' + itemName + '?',
-            text: "This action cannot be undone!",
+            title: '<i class="fas fa-trash-alt text-red-400 mr-2"></i>Delete ' + itemName + '?',
+            html: '<p class="text-white/70">This action cannot be undone. Are you sure you want to permanently delete this ' + itemName.toLowerCase() + '?</p>',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: '<i class="fas fa-trash mr-2"></i>Yes, delete it!',
+            confirmButtonText: '<i class="fas fa-trash mr-2"></i>Yes, Delete',
             cancelButtonText: '<i class="fas fa-times mr-2"></i>Cancel',
-            background: 'rgba(17, 24, 39, 0.95)',
-            color: '#fff',
-            backdrop: 'rgba(0,0,0,0.7)',
+            reverseButtons: true,
+            focusCancel: true,
+            backdrop: `rgba(0, 0, 0, 0.7)`,
+            ...SwalTheme.glass,
             customClass: {
-                popup: 'rounded-2xl border border-white/20',
-                confirmButton: 'rounded-xl px-6 py-2',
-                cancelButton: 'rounded-xl px-6 py-2'
+                ...SwalTheme.glass.customClass,
+                confirmButton: 'swal-btn-danger',
             }
         });
     },
@@ -106,63 +359,93 @@ const Confirm = {
     action: function(title, text, confirmText = 'Confirm', icon = 'question') {
         return Swal.fire({
             title: title,
-            text: text,
+            html: '<p class="text-white/70">' + text + '</p>',
             icon: icon,
             showCancelButton: true,
-            confirmButtonColor: '#10b981',
-            cancelButtonColor: '#6b7280',
             confirmButtonText: '<i class="fas fa-check mr-2"></i>' + confirmText,
             cancelButtonText: '<i class="fas fa-times mr-2"></i>Cancel',
-            background: 'rgba(17, 24, 39, 0.95)',
-            color: '#fff',
-            backdrop: 'rgba(0,0,0,0.7)',
-            customClass: {
-                popup: 'rounded-2xl border border-white/20',
-                confirmButton: 'rounded-xl px-6 py-2',
-                cancelButton: 'rounded-xl px-6 py-2'
-            }
+            reverseButtons: true,
+            backdrop: `rgba(0, 0, 0, 0.7)`,
+            ...SwalTheme.glass
         });
     },
     
     danger: function(title, text, confirmText = 'Proceed') {
         return Swal.fire({
-            title: title,
-            text: text,
+            title: '<i class="fas fa-exclamation-triangle text-amber-400 mr-2"></i>' + title,
+            html: '<p class="text-white/70">' + text + '</p>',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#6b7280',
             confirmButtonText: '<i class="fas fa-exclamation-triangle mr-2"></i>' + confirmText,
             cancelButtonText: '<i class="fas fa-times mr-2"></i>Cancel',
-            background: 'rgba(17, 24, 39, 0.95)',
-            color: '#fff',
-            backdrop: 'rgba(0,0,0,0.7)',
+            reverseButtons: true,
+            focusCancel: true,
+            backdrop: `rgba(0, 0, 0, 0.7)`,
+            ...SwalTheme.glass,
             customClass: {
-                popup: 'rounded-2xl border border-white/20',
-                confirmButton: 'rounded-xl px-6 py-2',
-                cancelButton: 'rounded-xl px-6 py-2'
+                ...SwalTheme.glass.customClass,
+                confirmButton: 'swal-btn-danger',
             }
         });
     },
     
     logout: function() {
         return Swal.fire({
-            title: 'Logout?',
-            text: "Are you sure you want to sign out?",
-            icon: 'question',
+            title: 'Sign Out',
+            html: `
+                <div class="text-center py-4">
+                    <div class="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center shadow-lg">
+                        <i class="fas fa-sign-out-alt text-white text-3xl"></i>
+                    </div>
+                    <p class="text-white/80 text-lg mb-2">Are you sure you want to sign out?</p>
+                    <p class="text-white/50 text-sm">You'll need to login again to access your account</p>
+                </div>
+            `,
             showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: '<i class="fas fa-sign-out-alt mr-2"></i>Yes, logout',
-            cancelButtonText: '<i class="fas fa-times mr-2"></i>Stay',
-            background: 'rgba(17, 24, 39, 0.95)',
+            confirmButtonText: '<i class="fas fa-sign-out-alt mr-2"></i>Yes, Sign Out',
+            cancelButtonText: '<i class="fas fa-arrow-left mr-2"></i>Stay Logged In',
+            reverseButtons: true,
+            showCloseButton: true,
+            backdrop: `
+                linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                url("https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1920&h=1080&fit=crop")
+                center/cover
+                no-repeat
+            `,
+            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.08) 100%)',
             color: '#fff',
-            backdrop: 'rgba(0,0,0,0.7)',
             customClass: {
-                popup: 'rounded-2xl border border-white/20',
-                confirmButton: 'rounded-xl px-6 py-2',
-                cancelButton: 'rounded-xl px-6 py-2'
+                popup: 'swal-logout-popup',
+                title: 'swal-glass-title',
+                htmlContainer: 'swal-glass-content',
+                confirmButton: 'swal-btn-logout',
+                cancelButton: 'swal-btn-stay',
+                closeButton: 'swal-close-btn'
             }
+        });
+    },
+    
+    // New: Success confirmation with animation
+    success: function(title, text) {
+        return Swal.fire({
+            title: '<i class="fas fa-check-circle text-emerald-400 mr-2"></i>' + title,
+            html: '<p class="text-white/70">' + text + '</p>',
+            icon: 'success',
+            confirmButtonText: '<i class="fas fa-thumbs-up mr-2"></i>Great!',
+            backdrop: `rgba(0, 0, 0, 0.7)`,
+            ...SwalTheme.glass
+        });
+    },
+    
+    // New: Info modal
+    info: function(title, text) {
+        return Swal.fire({
+            title: '<i class="fas fa-info-circle text-blue-400 mr-2"></i>' + title,
+            html: '<p class="text-white/70">' + text + '</p>',
+            icon: 'info',
+            confirmButtonText: '<i class="fas fa-check mr-2"></i>Got it',
+            backdrop: `rgba(0, 0, 0, 0.7)`,
+            ...SwalTheme.glass
         });
     }
 };

@@ -129,79 +129,19 @@
         document.addEventListener('DOMContentLoaded', function() {
             @if (TempData["ToastSuccess"] != null)
             {
-                <text>
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'success',
-                    title: '@TempData["ToastSuccess"]',
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true,
-                    background: 'rgba(16, 185, 129, 0.95)',
-                    color: '#fff',
-                    customClass: {
-                        popup: 'rounded-xl'
-                    }
-                });
-                </text>
+                <text>Toast.success('@TempData["ToastSuccess"]');</text>
             }
             @if (TempData["ToastError"] != null)
             {
-                <text>
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'error',
-                    title: '@TempData["ToastError"]',
-                    showConfirmButton: false,
-                    timer: 4000,
-                    timerProgressBar: true,
-                    background: 'rgba(239, 68, 68, 0.95)',
-                    color: '#fff',
-                    customClass: {
-                        popup: 'rounded-xl'
-                    }
-                });
-                </text>
+                <text>Toast.error('@TempData["ToastError"]');</text>
             }
             @if (TempData["ToastInfo"] != null)
             {
-                <text>
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'info',
-                    title: '@TempData["ToastInfo"]',
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true,
-                    background: 'rgba(59, 130, 246, 0.95)',
-                    color: '#fff',
-                    customClass: {
-                        popup: 'rounded-xl'
-                    }
-                });
-                </text>
+                <text>Toast.info('@TempData["ToastInfo"]');</text>
             }
             @if (TempData["ToastWarning"] != null)
             {
-                <text>
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'warning',
-                    title: '@TempData["ToastWarning"]',
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true,
-                    background: 'rgba(245, 158, 11, 0.95)',
-                    color: '#fff',
-                    customClass: {
-                        popup: 'rounded-xl'
-                    }
-                });
-                </text>
+                <text>Toast.warning('@TempData["ToastWarning"]');</text>
             }
         });
     </script>

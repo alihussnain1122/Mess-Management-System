@@ -4,97 +4,200 @@
     ViewData["Title"] = "My Dashboard";
 }
 
-<div class="mb-6">
-    <h1 class="text-2xl font-bold text-white">Welcome, @Model.MemberName</h1>
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-white">Welcome Back, @Model.MemberName!</h1>
     <p class="text-white/60">View your mess details and recent activity</p>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+<!-- Summary Cards - Same style as Admin -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-white/60">This Month's Cost</p>
-                <p class="text-2xl font-bold text-white">Rs.@Model.MonthCost.ToString("N2")</p>
+                <p class="text-sm text-white/60 mb-1">This Month's Cost</p>
+                <p class="text-3xl font-bold text-white">Rs.@Model.MonthCost.ToString("N0")</p>
             </div>
-            <div class="text-blue-400 text-3xl"><i class="fas fa-coins"></i></div>
+            <div class="w-12 h-12 bg-blue-500/30 rounded-xl flex items-center justify-center">
+                <i class="fas fa-coins text-blue-400 text-xl"></i>
+            </div>
         </div>
+        <p class="text-sm text-white/50 mt-2">
+            Based on @Model.PresentDays present days
+        </p>
     </div>
-    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-white/60">Total Paid</p>
-                <p class="text-2xl font-bold text-emerald-400">Rs.@Model.TotalPaid.ToString("N2")</p>
+                <p class="text-sm text-white/60 mb-1">Total Paid</p>
+                <p class="text-3xl font-bold text-emerald-400">Rs.@Model.TotalPaid.ToString("N0")</p>
             </div>
-            <div class="text-emerald-400 text-3xl"><i class="fas fa-check-circle"></i></div>
+            <div class="w-12 h-12 bg-emerald-500/30 rounded-xl flex items-center justify-center">
+                <i class="fas fa-check-circle text-emerald-400 text-xl"></i>
+            </div>
         </div>
+        <p class="text-sm text-white/50 mt-2">
+            @(Model.TotalPaid > 0 ? "Keep up the payments!" : "No payments yet")
+        </p>
     </div>
-    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-white/60">Balance Due</p>
-                <p class="text-2xl font-bold @(Model.BalanceDue > 0 ? "text-red-400" : "text-emerald-400")">Rs.@Model.BalanceDue.ToString("N2")</p>
+                <p class="text-sm text-white/60 mb-1">Balance Due</p>
+                <p class="text-3xl font-bold @(Model.BalanceDue > 0 ? "text-red-400" : "text-emerald-400")">Rs.@Model.BalanceDue.ToString("N0")</p>
             </div>
-            <div class="@(Model.BalanceDue > 0 ? "text-red-400" : "text-emerald-400") text-3xl"><i class="fas fa-wallet"></i></div>
+            <div class="w-12 h-12 @(Model.BalanceDue > 0 ? "bg-red-500/30" : "bg-emerald-500/30") rounded-xl flex items-center justify-center">
+                <i class="fas fa-wallet @(Model.BalanceDue > 0 ? "text-red-400" : "text-emerald-400") text-xl"></i>
+            </div>
         </div>
+        <p class="text-sm text-white/50 mt-2">
+            @(Model.BalanceDue <= 0 ? "All cleared! 🎉" : "Please pay soon")
+        </p>
     </div>
-    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-white/60">Present Days</p>
-                <p class="text-2xl font-bold text-purple-400">@Model.PresentDays</p>
+                <p class="text-sm text-white/60 mb-1">Present Days</p>
+                <p class="text-3xl font-bold text-purple-400">@Model.PresentDays</p>
             </div>
-            <div class="text-purple-400 text-3xl"><i class="fas fa-calendar-check"></i></div>
+            <div class="w-12 h-12 bg-purple-500/30 rounded-xl flex items-center justify-center">
+                <i class="fas fa-calendar-check text-purple-400 text-xl"></i>
+            </div>
         </div>
+        <p class="text-sm text-white/50 mt-2">
+            This month's attendance
+        </p>
     </div>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+<!-- Charts Row -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+        <h3 class="text-lg font-semibold text-white mb-4">Payment Overview</h3>
+        <canvas id="paymentChart"></canvas>
+    </div>
+
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
         <h3 class="text-lg font-semibold text-white mb-4">Today's Menu</h3>
         @if (Model.TodayMenu != null && Model.TodayMenu.Any())
         {
             <div class="space-y-3">
                 @foreach (var item in Model.TodayMenu)
                 {
-                    <div class="flex justify-between items-center p-3 bg-white/10 border border-white/10 rounded-xl">
-                        <div>
-                            <span class="text-xs font-medium text-emerald-400 uppercase">@item.MealType</span>
-                            <p class="font-medium text-white">@item.DishName</p>
+                    <div class="flex justify-between items-center p-4 bg-white/10 border border-white/10 rounded-xl hover:bg-white/15 transition-all">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center @(item.MealType == MealType.Breakfast ? "bg-amber-500/30" : item.MealType == MealType.Lunch ? "bg-blue-500/30" : "bg-purple-500/30")">
+                                <i class="fas @(item.MealType == MealType.Breakfast ? "fa-sun text-amber-400" : item.MealType == MealType.Lunch ? "fa-utensils text-blue-400" : "fa-moon text-purple-400")"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs font-medium text-white/50 uppercase">@item.MealType</span>
+                                <p class="font-medium text-white">@item.DishName</p>
+                            </div>
                         </div>
-                        <span class="font-semibold text-emerald-400">Rs.@item.Price.ToString("N2")</span>
+                        <span class="font-semibold text-emerald-400">Rs.@item.Price.ToString("N0")</span>
                     </div>
                 }
             </div>
         }
         else
         {
-            <p class="text-white/50 text-center py-4">No menu available for today</p>
+            <div class="flex flex-col items-center justify-center py-8 text-white/50">
+                <i class="fas fa-utensils text-4xl mb-3 opacity-50"></i>
+                <p>No menu available for today</p>
+            </div>
         }
     </div>
+</div>
 
-    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+<!-- Quick Actions & Recent Payments -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+        <h3 class="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+        <div class="grid grid-cols-2 gap-4">
+            <a href="/User/Payments/PayNow" class="flex flex-col items-center p-4 bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-all hover:scale-105">
+                <i class="fas fa-credit-card text-emerald-400 text-2xl mb-2"></i>
+                <span class="text-sm text-white/80">Make Payment</span>
+            </a>
+            <a href="/User/Attendance/View" class="flex flex-col items-center p-4 bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-all hover:scale-105">
+                <i class="fas fa-calendar-alt text-blue-400 text-2xl mb-2"></i>
+                <span class="text-sm text-white/80">View Attendance</span>
+            </a>
+            <a href="/User/MyBill" class="flex flex-col items-center p-4 bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-all hover:scale-105">
+                <i class="fas fa-file-invoice-dollar text-purple-400 text-2xl mb-2"></i>
+                <span class="text-sm text-white/80">My Bills</span>
+            </a>
+            <a href="/User/Payments/History" class="flex flex-col items-center p-4 bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-all hover:scale-105">
+                <i class="fas fa-history text-amber-400 text-2xl mb-2"></i>
+                <span class="text-sm text-white/80">Payment History</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
         <h3 class="text-lg font-semibold text-white mb-4">Recent Payments</h3>
         @if (Model.RecentPayments != null && Model.RecentPayments.Any())
         {
             <div class="space-y-3">
                 @foreach (var payment in Model.RecentPayments)
                 {
-                    <div class="flex justify-between items-center p-3 bg-white/10 border border-white/10 rounded-xl">
-                        <div>
-                            <p class="text-sm text-white/70">@payment.Date.ToString("MMM dd, yyyy")</p>
-                            <p class="text-xs text-white/50">@payment.PaymentMode</p>
+                    <div class="flex justify-between items-center p-4 bg-white/10 border border-white/10 rounded-xl">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-emerald-500/30 rounded-full flex items-center justify-center">
+                                <i class="fas fa-check text-emerald-400"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-white">@payment.Date.ToString("MMM dd, yyyy")</p>
+                                <p class="text-xs text-white/50">via @payment.PaymentMode</p>
+                            </div>
                         </div>
-                        <span class="font-semibold text-emerald-400">Rs.@payment.Amount.ToString("N2")</span>
+                        <span class="font-semibold text-emerald-400">Rs.@payment.Amount.ToString("N0")</span>
                     </div>
                 }
             </div>
         }
         else
         {
-            <p class="text-white/50 text-center py-4">No recent payments</p>
+            <div class="flex flex-col items-center justify-center py-8 text-white/50">
+                <i class="fas fa-receipt text-4xl mb-3 opacity-50"></i>
+                <p>No recent payments</p>
+            </div>
         }
-        <a href="/User/Payments/PayNow" class="block mt-4 text-center bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white py-2 rounded-xl transition-all shadow-lg">
-            <i class="fas fa-credit-card mr-2"></i>Make Payment
-        </a>
     </div>
 </div>
+
+@section Scripts {
+<script>
+    // Chart.js global settings for dark theme
+    Chart.defaults.color = 'rgba(255, 255, 255, 0.7)';
+    Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+
+    // Payment Overview Doughnut Chart
+    const ctx = document.getElementById('paymentChart').getContext('2d');
+    const totalPaid = @Model.TotalPaid;
+    const balance = Math.max(0, @Model.BalanceDue);
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Paid', 'Due'],
+            datasets: [{
+                data: [totalPaid, balance],
+                backgroundColor: ['#10b981', '#ef4444'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { 
+                    position: 'bottom', 
+                    labels: { color: 'rgba(255,255,255,0.7)' } 
+                }
+            },
+            cutout: '65%'
+        }
+    });
+</script>
+}
