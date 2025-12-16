@@ -1,16 +1,45 @@
-@page
-@model MessManagement.Areas.User.Pages.Attendance.ViewModel
+@page "{id:int}"
+@model MessManagement.Areas.Admin.Pages.Members.DetailsModel
 @{
-    ViewData["Title"] = "My Attendance";
+    ViewData["Title"] = "Member Details";
 }
 
-<div class="mb-6">
-    <h1 class="text-2xl font-bold text-white">My Attendance</h1>
-    <p class="text-white/60">View your daily attendance and meal history</p>
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <a href="/Admin/Members" class="text-emerald-400 hover:text-emerald-300 text-sm mb-2 inline-block">
+            <i class="fas fa-arrow-left mr-1"></i>Back to Members
+        </a>
+        <h1 class="text-2xl font-bold text-white">Member Details</h1>
+        <p class="text-white/60">View attendance and billing details</p>
+    </div>
 </div>
 
+<!-- Member Info Card -->
+<div class="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl p-6 mb-6 shadow-xl">
+    <div class="flex justify-between items-start">
+        <div class="flex items-center gap-4">
+            <div class="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
+                <span class="text-2xl font-bold text-white">@Model.Member?.FullName[0]</span>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold text-white">@Model.Member?.FullName</h2>
+                <p class="text-white/70">Room: @Model.Member?.RoomNumber</p>
+                <p class="text-white/50 text-sm">@@Model.Member?.User?.Username</p>
+            </div>
+        </div>
+        <div class="text-right">
+            <span class="px-3 py-1 rounded-full text-sm font-medium @(Model.Member?.IsActive == true ? "bg-emerald-500/30 text-emerald-300 border border-emerald-500/50" : "bg-red-500/30 text-red-300 border border-red-500/50")">
+                @(Model.Member?.IsActive == true ? "Active" : "Inactive")
+            </span>
+            <p class="text-white/50 text-sm mt-2">Joined: @Model.Member?.JoinDate.ToString("MMM dd, yyyy")</p>
+        </div>
+    </div>
+</div>
+
+<!-- Month/Year Selection -->
 <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-4 mb-6">
-    <form method="get" class="flex items-end gap-4">
+    <form method="get" class="flex flex-wrap items-end gap-4">
+        <input type="hidden" name="id" value="@Model.Member?.MemberId" />
         <div>
             <label class="block text-sm text-emerald-400 mb-1">Month</label>
             <select name="month" class="bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
@@ -29,11 +58,13 @@
                 }
             </select>
         </div>
-        <button type="submit" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-4 py-2 rounded-xl transition-all shadow-lg">View</button>
+        <button type="submit" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-4 py-2 rounded-xl transition-all shadow-lg">
+            <i class="fas fa-search mr-2"></i>View
+        </button>
     </form>
 </div>
 
-<!-- Summary Stats -->
+<!-- Stats Grid -->
 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-6">
     <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-4 text-center">
         <p class="text-sm text-white/60">🍳 Breakfast</p>
@@ -52,25 +83,126 @@
         <p class="text-2xl font-bold text-emerald-400">@Model.TotalMeals</p>
     </div>
     <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-4 text-center">
-        <p class="text-sm text-white/60">✅ Present Days</p>
-        <p class="text-2xl font-bold text-emerald-400">@Model.PresentCount</p>
+        <p class="text-sm text-white/60">✅ Present</p>
+        <p class="text-2xl font-bold text-emerald-400">@Model.PresentDays</p>
     </div>
     <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-4 text-center">
-        <p class="text-sm text-white/60">❌ Absent Days</p>
-        <p class="text-2xl font-bold text-red-400">@Model.AbsentCount</p>
+        <p class="text-sm text-white/60">❌ Absent</p>
+        <p class="text-2xl font-bold text-red-400">@Model.AbsentDays</p>
     </div>
     <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-4 text-center">
-        <p class="text-sm text-white/60">📈 Attendance</p>
-        <p class="text-2xl font-bold text-cyan-400">@Model.AttendanceRate.ToString("N1")%</p>
+        <p class="text-sm text-white/60">💰 Balance</p>
+        <p class="text-2xl font-bold @(Model.Balance > 0 ? "text-red-400" : "text-emerald-400")">Rs.@Model.Balance.ToString("N0")</p>
     </div>
 </div>
 
-<!-- Attendance Table with Meal Details -->
+<!-- Bill and Payment Summary -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <!-- Charges Breakdown -->
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden">
+        <div class="bg-white/10 px-6 py-4 border-b border-white/20">
+            <h3 class="font-semibold text-white">
+                <i class="fas fa-receipt mr-2 text-emerald-400"></i>Bill Breakdown - @Model.MonthName @Model.SelectedYear
+            </h3>
+        </div>
+        <div class="p-6">
+            <table class="w-full">
+                <tbody class="divide-y divide-white/10">
+                    <tr>
+                        <td class="py-3 text-white/80">🍳 Breakfast</td>
+                        <td class="py-3 text-right text-white/60">@Model.BreakfastCount × Rs.@Model.BreakfastRate</td>
+                        <td class="py-3 text-right font-semibold text-amber-400">Rs.@Model.BreakfastCharges.ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td class="py-3 text-white/80">🍛 Lunch</td>
+                        <td class="py-3 text-right text-white/60">@Model.LunchCount × Rs.@Model.LunchRate</td>
+                        <td class="py-3 text-right font-semibold text-blue-400">Rs.@Model.LunchCharges.ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td class="py-3 text-white/80">🍽️ Dinner</td>
+                        <td class="py-3 text-right text-white/60">@Model.DinnerCount × Rs.@Model.DinnerRate</td>
+                        <td class="py-3 text-right font-semibold text-purple-400">Rs.@Model.DinnerCharges.ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td class="py-3 text-white/80">☕ Tea/Coffee</td>
+                        <td class="py-3 text-right text-white/60">@Model.TotalMeals × Rs.@Model.TeaRate</td>
+                        <td class="py-3 text-right font-semibold text-amber-400">Rs.@Model.TeaCharges.ToString("N2")</td>
+                    </tr>
+                    <tr class="bg-white/5">
+                        <td colspan="2" class="py-3 font-semibold text-white">Total Charges</td>
+                        <td class="py-3 text-right font-bold text-lg text-emerald-400">Rs.@Model.GrandTotal.ToString("N2")</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Payment Summary -->
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden">
+        <div class="bg-white/10 px-6 py-4 border-b border-white/20">
+            <h3 class="font-semibold text-white">
+                <i class="fas fa-wallet mr-2 text-blue-400"></i>Payment Summary
+            </h3>
+        </div>
+        <div class="p-6">
+            <table class="w-full">
+                <tbody class="divide-y divide-white/10">
+                    <tr>
+                        <td class="py-3 text-white/80">Total Charges</td>
+                        <td class="py-3 text-right font-semibold text-white">Rs.@Model.GrandTotal.ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td class="py-3 text-white/80">Amount Paid</td>
+                        <td class="py-3 text-right font-semibold text-emerald-400">Rs.@Model.AmountPaid.ToString("N2")</td>
+                    </tr>
+                    <tr class="bg-white/5">
+                        <td class="py-3 font-semibold text-white">Balance Due</td>
+                        <td class="py-3 text-right font-bold text-lg @(Model.Balance > 0 ? "text-red-400" : "text-emerald-400")">
+                            Rs.@Model.Balance.ToString("N2")
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            @if (Model.Balance <= 0)
+            {
+                <div class="mt-4 pt-4 border-t border-white/10">
+                    <div class="bg-emerald-500/20 border border-emerald-500/30 rounded-xl p-4 text-center">
+                        <i class="fas fa-check-circle text-emerald-400 text-2xl mb-2"></i>
+                        <p class="text-emerald-400 font-medium">Fully Paid</p>
+                    </div>
+                </div>
+            }
+
+            <!-- Payments List -->
+            @if (Model.Payments.Any())
+            {
+                <div class="mt-4 pt-4 border-t border-white/10">
+                    <h4 class="text-white/70 text-sm mb-3">Payments this month:</h4>
+                    <div class="space-y-2">
+                        @foreach (var payment in Model.Payments)
+                        {
+                            <div class="flex justify-between items-center bg-white/5 rounded-lg p-2">
+                                <div>
+                                    <span class="text-white text-sm">@payment.Date.ToString("MMM dd")</span>
+                                    <span class="text-white/50 text-xs ml-2">@payment.PaymentMode</span>
+                                </div>
+                                <span class="text-emerald-400 font-medium">Rs.@payment.Amount.ToString("N2")</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Attendance Records Table -->
 <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden">
     <div class="bg-white/10 px-6 py-4 border-b border-white/20">
         <h3 class="font-semibold text-white">
             <i class="fas fa-calendar-check mr-2 text-emerald-400"></i>
-            Daily Attendance Details - @System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(Model.SelectedMonth) @Model.SelectedYear
+            Daily Attendance - @Model.MonthName @Model.SelectedYear
         </h3>
     </div>
     <div class="overflow-x-auto">
@@ -92,9 +224,9 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-white/10">
-                @if (Model.AttendanceRecords != null && Model.AttendanceRecords.Any())
+                @if (Model.AttendanceRecords.Any())
                 {
-                    @foreach (var record in Model.AttendanceRecords.OrderByDescending(a => a.Date))
+                    @foreach (var record in Model.AttendanceRecords)
                     {
                         var mealCount = (record.BreakfastPresent ? 1 : 0) + (record.LunchPresent ? 1 : 0) + (record.DinnerPresent ? 1 : 0);
                         <tr class="hover:bg-white/5">

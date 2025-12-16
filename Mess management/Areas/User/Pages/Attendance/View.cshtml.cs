@@ -24,6 +24,12 @@ public class ViewModel : PageModel
     public int PresentCount { get; set; }
     public int AbsentCount { get; set; }
     public double AttendanceRate { get; set; }
+    
+    // Meal-wise counts
+    public int BreakfastCount { get; set; }
+    public int LunchCount { get; set; }
+    public int DinnerCount { get; set; }
+    public int TotalMeals { get; set; }
 
     public async Task OnGetAsync(int? month, int? year)
     {
@@ -42,8 +48,14 @@ public class ViewModel : PageModel
         
         AttendanceRecords = await _attendanceService.GetAttendanceForMemberAsync(member.MemberId, startDate, endDate);
         
-        PresentCount = AttendanceRecords.Count(a => a.Status == AttendanceStatus.Present);
-        AbsentCount = AttendanceRecords.Count(a => a.Status == AttendanceStatus.Absent);
+        // Calculate meal-wise counts
+        BreakfastCount = AttendanceRecords.Count(a => a.BreakfastPresent);
+        LunchCount = AttendanceRecords.Count(a => a.LunchPresent);
+        DinnerCount = AttendanceRecords.Count(a => a.DinnerPresent);
+        TotalMeals = BreakfastCount + LunchCount + DinnerCount;
+        
+        PresentCount = AttendanceRecords.Count(a => a.BreakfastPresent || a.LunchPresent || a.DinnerPresent);
+        AbsentCount = AttendanceRecords.Count(a => !a.BreakfastPresent && !a.LunchPresent && !a.DinnerPresent);
         
         var total = PresentCount + AbsentCount;
         AttendanceRate = total > 0 ? (double)PresentCount / total * 100 : 0;
