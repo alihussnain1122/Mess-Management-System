@@ -11,6 +11,9 @@ public class WeeklyMenu
     [Required]
     public DayOfWeek DayOfWeek { get; set; }
 
+    // Specific date for the menu (allows monthly planning)
+    public DateTime? MenuDate { get; set; }
+
     [Required]
     [StringLength(100)]
     public string DishName { get; set; } = string.Empty;
@@ -23,6 +26,10 @@ public class WeeklyMenu
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
+
+    // Computed property to get effective day
+    [NotMapped]
+    public DayOfWeek EffectiveDayOfWeek => MenuDate?.DayOfWeek ?? DayOfWeek;
 }
 
 public enum MealType

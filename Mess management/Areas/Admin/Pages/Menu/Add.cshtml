@@ -2,12 +2,18 @@
 @model MessManagement.Areas.Admin.Pages.Menu.AddModel
 @{
     ViewData["Title"] = "Add Dish";
+    var maxDate = DateTime.Now.AddDays(31).ToString("yyyy-MM-dd");
+    var minDate = DateTime.Now.ToString("yyyy-MM-dd");
 }
 
 <style>
     select option {
         background-color: #1f2937;
         color: white;
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        cursor: pointer;
     }
     .input-validation-error {
         border-color: rgb(239, 68, 68) !important;
@@ -36,13 +42,48 @@
         <div asp-validation-summary="ModelOnly" class="bg-red-500/15 border border-red-500/30 rounded-xl p-4 mb-4 text-red-400"></div>
 
         <form method="post" id="addDishForm">
-            <div class="mb-4 form-group">
+            <!-- Menu Type Selection -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-emerald-400 mb-2">Menu Type</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="cursor-pointer">
+                        <input type="radio" name="Input.IsSpecificDate" value="false" checked class="hidden" id="templateMenu">
+                        <div class="menu-type-option p-4 bg-white/10 border-2 border-emerald-500/50 rounded-xl text-center transition-all">
+                            <i class="fas fa-sync-alt text-2xl text-emerald-400 mb-2"></i>
+                            <p class="text-white font-medium">Weekly Template</p>
+                            <p class="text-white/50 text-xs">Repeats every week</p>
+                        </div>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input type="radio" name="Input.IsSpecificDate" value="true" class="hidden" id="specificDateMenu">
+                        <div class="menu-type-option p-4 bg-white/10 border-2 border-white/20 rounded-xl text-center transition-all">
+                            <i class="fas fa-calendar-day text-2xl text-blue-400 mb-2"></i>
+                            <p class="text-white font-medium">Specific Date</p>
+                            <p class="text-white/50 text-xs">One-time menu (up to 1 month)</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Day of Week (for template) -->
+            <div class="mb-4 form-group" id="dayOfWeekGroup">
                 <label asp-for="Input.DayOfWeek" class="block text-sm font-medium text-emerald-400 mb-1">
                     Day of Week <span class="text-red-400">*</span>
                 </label>
                 <select asp-for="Input.DayOfWeek" asp-items="Html.GetEnumSelectList<DayOfWeek>()" 
                         class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"></select>
                 <span asp-validation-for="Input.DayOfWeek" class="field-validation-error"></span>
+            </div>
+
+            <!-- Specific Date (for specific date menu) -->
+            <div class="mb-4 form-group hidden" id="menuDateGroup">
+                <label asp-for="Input.MenuDate" class="block text-sm font-medium text-blue-400 mb-1">
+                    Select Date <span class="text-red-400">*</span>
+                </label>
+                <input type="date" asp-for="Input.MenuDate" min="@minDate" max="@maxDate"
+                       class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" />
+                <span asp-validation-for="Input.MenuDate" class="field-validation-error"></span>
+                <p class="text-white/40 text-xs mt-1">You can add menu up to 1 month in advance</p>
             </div>
 
             <div class="mb-4 form-group">
@@ -87,9 +128,38 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
+        const templateMenu = document.getElementById('templateMenu');
+        const specificDateMenu = document.getElementById('specificDateMenu');
+        const dayOfWeekGroup = document.getElementById('dayOfWeekGroup');
+        const menuDateGroup = document.getElementById('menuDateGroup');
+        const menuTypeOptions = document.querySelectorAll('.menu-type-option');
+
+        function updateMenuType(isSpecificDate) {
+            menuTypeOptions.forEach(opt => {
+                opt.classList.remove('border-emerald-500/50', 'border-blue-500/50');
+                opt.classList.add('border-white/20');
+            });
+
+            if (isSpecificDate) {
+                dayOfWeekGroup.classList.add('hidden');
+                menuDateGroup.classList.remove('hidden');
+                specificDateMenu.closest('label').querySelector('.menu-type-option').classList.remove('border-white/20');
+                specificDateMenu.closest('label').querySelector('.menu-type-option').classList.add('border-blue-500/50');
+            } else {
+                dayOfWeekGroup.classList.remove('hidden');
+                menuDateGroup.classList.add('hidden');
+                templateMenu.closest('label').querySelector('.menu-type-option').classList.remove('border-white/20');
+                templateMenu.closest('label').querySelector('.menu-type-option').classList.add('border-emerald-500/50');
+            }
+        }
+
+        templateMenu.addEventListener('change', () => updateMenuType(false));
+        specificDateMenu.addEventListener('change', () => updateMenuType(true));
+
         document.getElementById('addDishForm').addEventListener('submit', function(e) {
             const dishName = document.querySelector('[name="Input.DishName"]').value.trim();
             const price = parseFloat(document.querySelector('[name="Input.Price"]').value);
+            const isSpecificDate = document.querySelector('input[name="Input.IsSpecificDate"]:checked')?.value === 'true';
             
             if (!dishName) {
                 e.preventDefault();
@@ -101,6 +171,15 @@
                 e.preventDefault();
                 Toast.error('Please enter a valid price (Rs.0.01 - Rs.10,000)');
                 return;
+            }
+
+            if (isSpecificDate) {
+                const menuDate = document.querySelector('[name="Input.MenuDate"]').value;
+                if (!menuDate) {
+                    e.preventDefault();
+                    Toast.error('Please select a date');
+                    return;
+                }
             }
             
             const btn = document.getElementById('submitBtn');

@@ -11,6 +11,9 @@ public static class DbInitializer
     {
         context.Database.EnsureCreated();
         
+        // Add MenuDate column if it doesn't exist
+        AddMenuDateColumnIfNotExists(context);
+        
         SeedAdminUser(context);
     }
 
@@ -19,9 +22,39 @@ public static class DbInitializer
         using var scope = serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<MessDbContext>();
         
-        await context.Database.MigrateAsync();
+        // Don't use MigrateAsync as it conflicts with existing tables
+        await context.Database.EnsureCreatedAsync();
+        
+        // Add MenuDate column if it doesn't exist
+        await AddMenuDateColumnIfNotExistsAsync(context);
         
         await SeedAdminUserAsync(context);
+    }
+    
+    private static void AddMenuDateColumnIfNotExists(MessDbContext context)
+    {
+        try
+        {
+            context.Database.ExecuteSqlRaw(@"
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('WeeklyMenus') AND name = 'MenuDate')
+                BEGIN
+                    ALTER TABLE [WeeklyMenus] ADD [MenuDate] datetime2 NULL;
+                END");
+        }
+        catch { /* Column might already exist */ }
+    }
+    
+    private static async Task AddMenuDateColumnIfNotExistsAsync(MessDbContext context)
+    {
+        try
+        {
+            await context.Database.ExecuteSqlRawAsync(@"
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('WeeklyMenus') AND name = 'MenuDate')
+                BEGIN
+                    ALTER TABLE [WeeklyMenus] ADD [MenuDate] datetime2 NULL;
+                END");
+        }
+        catch { /* Column might already exist */ }
     }
 
     private static void SeedAdminUser(MessDbContext context)

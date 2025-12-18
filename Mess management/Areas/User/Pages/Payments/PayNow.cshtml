@@ -38,21 +38,36 @@
         }
     </div>
 
+    @if (Model.BalanceDue <= 0)
+    {
+        <!-- No Dues Message -->
+        <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+            <div class="flex flex-col items-center justify-center h-full text-center py-8">
+                <div class="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-check-double text-4xl text-emerald-400"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">Your Dues are Zero!</h3>
+                <p class="text-white/60 mb-4">You have no outstanding balance to pay at this moment.</p>
+                <div class="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+                    <p class="text-amber-300 text-sm">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        Payment option will be available when you have pending dues.
+                    </p>
+                </div>
+                <a href="/User/Dashboard" class="mt-4 inline-flex items-center gap-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-400 px-6 py-2 rounded-xl transition-all">
+                    <i class="fas fa-home"></i>
+                    <span>Go to Dashboard</span>
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
     <!-- Unified Payment Form -->
-    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6 @(Model.BalanceDue <= 0 ? "opacity-50 pointer-events-none" : "")">
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
         <h3 class="text-lg font-semibold text-white mb-4"><i class="fas fa-wallet mr-2 text-emerald-400"></i>Choose Payment Method</h3>
         
-        @if (Model.BalanceDue <= 0)
-        {
-            <div class="mb-4 p-4 bg-blue-500/20 border border-blue-500/30 rounded-xl text-center">
-                <i class="fas fa-info-circle text-2xl text-blue-400 mb-2"></i>
-                <p class="text-blue-300 font-semibold">No Payment Required</p>
-                <p class="text-white/60 text-sm">You have no outstanding dues at this time.</p>
-            </div>
-        }
-        
         <form method="post" id="paymentForm">
-            <fieldset @(Model.BalanceDue <= 0 ? "disabled" : "")>
             <div class="space-y-4">
                 <!-- Amount Input -->
                 <div class="form-group">
@@ -62,7 +77,7 @@
                     <div class="relative">
                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 font-semibold">Rs.</span>
                         <input type="number" name="Amount" id="amountInput" step="0.01" min="1" max="100000" 
-                               value="@(Model.BalanceDue > 0 ? Model.BalanceDue : 0)" required 
+                               value="@Model.BalanceDue" required 
                                class="w-full bg-white/10 border border-white/20 rounded-xl pl-12 pr-3 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all" />
                     </div>
                 </div>
@@ -130,7 +145,6 @@
                     <span class="btn-spinner hidden"><i class="fas fa-spinner fa-spin mr-2"></i>Processing...</span>
                 </button>
             </div>
-            </fieldset>
         </form>
 
         <!-- Payment Info -->
@@ -144,9 +158,12 @@
             </div>
         </div>
     </div>
+    }
 </div>
 
 @section Scripts {
+    @if (Model.BalanceDue > 0)
+    {
     <script>
         const onlinePayment = document.getElementById('onlinePayment');
         const cashPayment = document.getElementById('cashPayment');
@@ -238,4 +255,5 @@
             }
         });
     </script>
+    }
 }

@@ -1,0 +1,174 @@
+@page
+@model MessManagement.Areas.User.Pages.Menu.IndexModel
+@{
+    ViewData["Title"] = "Menu";
+}
+
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-white"><i class="fas fa-utensils mr-3 text-emerald-400"></i>Mess Menu</h1>
+    <p class="text-white/60">View the mess menu for the week or month</p>
+</div>
+
+<!-- View Toggle -->
+<div class="flex flex-wrap gap-2 mb-6">
+    <a href="?ViewMode=weekly" class="px-4 py-2 rounded-xl font-medium transition-all @(Model.ViewMode == "weekly" ? "bg-emerald-500 text-white" : "bg-white/10 text-white/70 hover:bg-white/20")">
+        <i class="fas fa-calendar-week mr-2"></i>Weekly View
+    </a>
+    <a href="?ViewMode=monthly&month=@DateTime.Now.Month&year=@DateTime.Now.Year" class="px-4 py-2 rounded-xl font-medium transition-all @(Model.ViewMode == "monthly" ? "bg-blue-500 text-white" : "bg-white/10 text-white/70 hover:bg-white/20")">
+        <i class="fas fa-calendar-alt mr-2"></i>Monthly View
+    </a>
+</div>
+
+@if (Model.ViewMode == "weekly")
+{
+    <!-- Weekly View -->
+    <div class="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/30 rounded-xl p-3 mb-4">
+        <p class="text-emerald-300 text-sm">
+            <i class="fas fa-info-circle mr-2"></i>
+            <strong>Weekly Menu:</strong> This is the recurring weekly menu template. Specific dates may have different dishes.
+        </p>
+    </div>
+
+    @foreach (var day in Enum.GetValues<DayOfWeek>())
+    {
+        var isToday = day == DateTime.Now.DayOfWeek;
+        var dayMenus = Model.WeeklyMenuItems?.Where(m => m.DayOfWeek == day).ToList();
+        <div class="bg-white/15 backdrop-blur-xl rounded-2xl border @(isToday ? "border-emerald-500/50 ring-2 ring-emerald-500/30" : "border-white/20") mb-4 overflow-hidden">
+            <div class="bg-gradient-to-r @(isToday ? "from-emerald-500/40 to-teal-500/40" : "from-emerald-500/20 to-teal-500/20") border-b border-white/20 px-4 py-3 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <h3 class="font-semibold text-white">@day</h3>
+                    @if (isToday)
+                    {
+                        <span class="bg-emerald-500 text-white text-xs px-2 py-0.5 rounded-full">TODAY</span>
+                    }
+                </div>
+                <span class="text-sm text-emerald-300">Daily Cost: Rs.@((dayMenus?.Sum(m => m.Price) ?? 0).ToString("N2"))</span>
+            </div>
+            <div class="p-4">
+                @if (dayMenus != null && dayMenus.Any())
+                {
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        @foreach (var item in dayMenus.OrderBy(m => m.MealType))
+                        {
+                            var mealIcon = item.MealType switch {
+                                MessManagement.Models.MealType.Breakfast => "🍳",
+                                MessManagement.Models.MealType.Lunch => "🍛",
+                                MessManagement.Models.MealType.Dinner => "🍽️",
+                                _ => "🍴"
+                            };
+                            <div class="bg-white/10 border border-white/20 rounded-xl p-4">
+                                <span class="text-xs font-medium text-emerald-400 uppercase">@mealIcon @item.MealType</span>
+                                <h4 class="font-medium text-white mt-1">@item.DishName</h4>
+                                <p class="text-lg font-semibold text-emerald-400 mt-2">Rs.@item.Price.ToString("N2")</p>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-white/50 text-center py-4">No menu available for this day</p>
+                }
+            </div>
+        </div>
+    }
+}
+else
+{
+    <!-- Monthly View -->
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-4 mb-6">
+        <form method="get" class="flex flex-wrap items-end gap-4">
+            <input type="hidden" name="ViewMode" value="monthly" />
+            <div>
+                <label class="block text-sm text-blue-400 mb-1">Month</label>
+                <select name="month" class="bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    @for (int i = 1; i <= 12; i++)
+                    {
+                        <option value="@i" selected="@(Model.SelectedMonth == i)">@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i)</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm text-blue-400 mb-1">Year</label>
+                <select name="year" class="bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    @for (int y = DateTime.Now.Year; y <= DateTime.Now.Year + 1; y++)
+                    {
+                        <option value="@y" selected="@(Model.SelectedYear == y)">@y</option>
+                    }
+                </select>
+            </div>
+            <button type="submit" class="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white px-4 py-2 rounded-xl transition-all shadow-lg">
+                <i class="fas fa-search mr-2"></i>View Menu
+            </button>
+        </form>
+    </div>
+
+    <h2 class="text-xl font-semibold text-white mb-4">
+        <i class="fas fa-calendar-alt mr-2 text-blue-400"></i>@Model.MonthName Menu
+    </h2>
+
+    <div class="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border border-blue-500/30 rounded-xl p-3 mb-4">
+        <p class="text-blue-300 text-sm">
+            <i class="fas fa-info-circle mr-2"></i>
+            <span class="bg-blue-500/30 text-blue-300 text-xs px-2 py-0.5 rounded mr-2">SPECIAL</span> indicates a special menu for that specific date.
+        </p>
+    </div>
+
+    <!-- Calendar Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        @foreach (var dayMenu in Model.MonthlyMenuItems)
+        {
+            var hasSpecial = dayMenu.Meals.Any(m => m.IsSpecificDate);
+            <div class="bg-white/15 backdrop-blur-xl rounded-2xl border @(dayMenu.IsToday ? "border-emerald-500/50 ring-2 ring-emerald-500/30" : hasSpecial ? "border-blue-500/30" : "border-white/20") overflow-hidden">
+                <div class="bg-gradient-to-r @(dayMenu.IsToday ? "from-emerald-500/40 to-teal-500/40" : hasSpecial ? "from-blue-500/30 to-indigo-500/30" : "from-white/10 to-white/5") border-b border-white/20 px-3 py-2">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="text-white font-semibold">@dayMenu.Date.Day</span>
+                            <span class="text-white/60 text-sm ml-1">@dayMenu.DayName.Substring(0, 3)</span>
+                            @if (dayMenu.IsToday)
+                            {
+                                <span class="bg-emerald-500 text-white text-[10px] px-1.5 py-0.5 rounded-full ml-2">TODAY</span>
+                            }
+                            @if (hasSpecial)
+                            {
+                                <span class="bg-blue-500/30 text-blue-300 text-[10px] px-1.5 py-0.5 rounded-full ml-1">SPECIAL</span>
+                            }
+                        </div>
+                        <span class="text-xs text-emerald-400">Rs.@dayMenu.DayTotal.ToString("N0")</span>
+                    </div>
+                </div>
+                <div class="p-3 space-y-2">
+                    @if (dayMenu.Meals.Any())
+                    {
+                        @foreach (var meal in dayMenu.Meals)
+                        {
+                            var mealIcon = meal.MealType switch {
+                                MessManagement.Models.MealType.Breakfast => "🍳",
+                                MessManagement.Models.MealType.Lunch => "🍛",
+                                MessManagement.Models.MealType.Dinner => "🍽️",
+                                _ => "🍴"
+                            };
+                            <div class="flex justify-between items-center text-sm">
+                                <div class="flex items-center gap-1">
+                                    <span>@mealIcon</span>
+                                    <span class="text-white/80 truncate max-w-[100px]" title="@meal.DishName">@meal.DishName</span>
+                                </div>
+                                <span class="text-emerald-400 text-xs">Rs.@meal.Price.ToString("N0")</span>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-white/40 text-xs text-center py-2">No menu</p>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<style>
+    select option {
+        background-color: #1f2937;
+        color: white;
+    }
+</style>

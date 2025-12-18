@@ -6,7 +6,7 @@
 
 <div class="mb-6">
     <h1 class="text-2xl font-bold text-white">My Monthly Bills</h1>
-    <p class="text-white/60">View your monthly charges and payment summary</p>
+    <p class="text-white/60">View your monthly charges, dishes eaten, and payment summary</p>
 </div>
 
 <!-- Month/Year Selection -->
@@ -201,7 +201,7 @@
 </div>
 
 <!-- Payments This Month -->
-<div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden">
+<div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden mb-6">
     <div class="bg-white/10 px-6 py-4 border-b border-white/20 flex justify-between items-center">
         <h3 class="font-semibold text-white">
             <i class="fas fa-history mr-2 text-purple-400"></i>Payments This Month
@@ -247,3 +247,102 @@
         </table>
     </div>
 </div>
+
+<!-- Detailed Bill - Dishes Eaten Each Day -->
+<div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden">
+    <div class="bg-gradient-to-r from-amber-500/20 to-orange-500/20 px-6 py-4 border-b border-white/20 flex justify-between items-center">
+        <h3 class="font-semibold text-white">
+            <i class="fas fa-utensils mr-2 text-amber-400"></i>Detailed Bill - Dishes Eaten
+        </h3>
+        <span class="text-white/60 text-sm">@Model.DailyMeals.Count day(s) with meals</span>
+    </div>
+    <div class="overflow-x-auto">
+        @if (Model.DailyMeals.Any())
+        {
+            <table class="w-full">
+                <thead class="bg-white/5 border-b border-white/10">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-amber-400 uppercase">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-amber-400 uppercase">Day</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-amber-400 uppercase">🍳 Breakfast</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-amber-400 uppercase">🍛 Lunch</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-amber-400 uppercase">🍽️ Dinner</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-amber-400 uppercase">Day Total</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/10">
+                    @foreach (var day in Model.DailyMeals)
+                    {
+                        var breakfast = day.Meals.FirstOrDefault(m => m.MealType == MessManagement.Models.MealType.Breakfast);
+                        var lunch = day.Meals.FirstOrDefault(m => m.MealType == MessManagement.Models.MealType.Lunch);
+                        var dinner = day.Meals.FirstOrDefault(m => m.MealType == MessManagement.Models.MealType.Dinner);
+                        <tr class="hover:bg-white/5">
+                            <td class="px-6 py-4 text-white font-medium">@day.Date.ToString("MMM dd")</td>
+                            <td class="px-6 py-4 text-white/60">@day.DayName.Substring(0, 3)</td>
+                            <td class="px-6 py-4">
+                                @if (breakfast != null)
+                                {
+                                    <div>
+                                        <span class="text-white text-sm">@breakfast.DishName</span>
+                                        <span class="text-amber-400 text-xs ml-2">Rs.@breakfast.Price.ToString("N0")</span>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-white/30 text-sm">—</span>
+                                }
+                            </td>
+                            <td class="px-6 py-4">
+                                @if (lunch != null)
+                                {
+                                    <div>
+                                        <span class="text-white text-sm">@lunch.DishName</span>
+                                        <span class="text-blue-400 text-xs ml-2">Rs.@lunch.Price.ToString("N0")</span>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-white/30 text-sm">—</span>
+                                }
+                            </td>
+                            <td class="px-6 py-4">
+                                @if (dinner != null)
+                                {
+                                    <div>
+                                        <span class="text-white text-sm">@dinner.DishName</span>
+                                        <span class="text-purple-400 text-xs ml-2">Rs.@dinner.Price.ToString("N0")</span>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-white/30 text-sm">—</span>
+                                }
+                            </td>
+                            <td class="px-6 py-4 text-right font-semibold text-emerald-400">Rs.@day.DayTotal.ToString("N0")</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot class="bg-white/5 border-t border-white/20">
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-right font-semibold text-white">Total Meal Charges</td>
+                        <td class="px-6 py-4 text-right font-bold text-lg text-emerald-400">Rs.@Model.DailyMeals.Sum(d => d.DayTotal).ToString("N2")</td>
+                    </tr>
+                </tfoot>
+            </table>
+        }
+        else
+        {
+            <div class="p-8 text-center">
+                <i class="fas fa-calendar-times text-4xl text-white/30 mb-4"></i>
+                <p class="text-white/50">No meals recorded for this month</p>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    select option {
+        background-color: #1f2937;
+        color: white;
+    }
+</style>

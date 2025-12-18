@@ -4,10 +4,10 @@
     ViewData["Title"] = "Menu";
 }
 
-<div class="mb-6 flex justify-between items-center">
+<div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
     <div>
-        <h1 class="text-2xl font-bold text-white">Weekly Menu</h1>
-        <p class="text-white/60">Manage the weekly mess menu</p>
+        <h1 class="text-2xl font-bold text-white">Menu Management</h1>
+        <p class="text-white/60">Manage weekly template and specific date menus</p>
     </div>
     <a href="/Admin/Menu/Add" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-4 py-2 rounded-xl flex items-center transition-all shadow-lg">
         <i class="fas fa-plus mr-2"></i>
@@ -15,40 +15,116 @@
     </a>
 </div>
 
-@foreach (var day in Enum.GetValues<DayOfWeek>())
+<!-- View Toggle -->
+<div class="flex gap-2 mb-6">
+    <a href="?ViewMode=template" class="px-4 py-2 rounded-xl font-medium transition-all @(Model.ViewMode == "template" ? "bg-emerald-500 text-white" : "bg-white/10 text-white/70 hover:bg-white/20")">
+        <i class="fas fa-sync-alt mr-2"></i>Weekly Template
+    </a>
+    <a href="?ViewMode=specific" class="px-4 py-2 rounded-xl font-medium transition-all @(Model.ViewMode == "specific" ? "bg-blue-500 text-white" : "bg-white/10 text-white/70 hover:bg-white/20")">
+        <i class="fas fa-calendar-day mr-2"></i>Specific Dates
+    </a>
+</div>
+
+@if (Model.ViewMode == "template")
 {
-    var dayMenus = Model.MenuItems?.Where(m => m.DayOfWeek == day).ToList();
-    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 mb-4 overflow-hidden">
-        <div class="bg-gradient-to-r from-emerald-500/30 to-teal-500/30 border-b border-white/20 px-4 py-3 flex justify-between items-center">
-            <h3 class="font-semibold text-white">@day</h3>
-            <span class="text-sm text-emerald-300">Total: Rs.@((dayMenus?.Sum(m => m.Price) ?? 0).ToString("N2"))</span>
-        </div>
-        <div class="p-4">
-            @if (dayMenus != null && dayMenus.Any())
-            {
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    @foreach (var item in dayMenus.OrderBy(m => m.MealType))
-                    {
-                        <div class="bg-white/10 border border-white/20 rounded-xl p-4">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <span class="text-xs font-medium text-emerald-400 uppercase">@item.MealType</span>
-                                    <h4 class="font-medium text-white mt-1">@item.DishName</h4>
-                                    <p class="text-lg font-semibold text-emerald-400 mt-2">Rs.@item.Price.ToString("N2")</p>
-                                </div>
-                                <div class="flex gap-2">
-                                    <a href="/Admin/Menu/Edit/@item.Id" class="text-blue-400 hover:text-blue-300 transition-colors"><i class="fas fa-edit"></i></a>
-                                    <a href="/Admin/Menu/Delete/@item.Id" class="text-red-400 hover:text-red-300 transition-colors"><i class="fas fa-trash"></i></a>
+    <!-- Weekly Template Menu -->
+    <div class="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/30 rounded-xl p-3 mb-4">
+        <p class="text-emerald-300 text-sm">
+            <i class="fas fa-info-circle mr-2"></i>
+            <strong>Weekly Template:</strong> These menus repeat every week. Max 3 dishes per day (Breakfast, Lunch, Dinner).
+        </p>
+    </div>
+
+    @foreach (var day in Enum.GetValues<DayOfWeek>())
+    {
+        var dayMenus = Model.TemplateMenuItems?.Where(m => m.DayOfWeek == day).ToList();
+        <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 mb-4 overflow-hidden">
+            <div class="bg-gradient-to-r from-emerald-500/30 to-teal-500/30 border-b border-white/20 px-4 py-3 flex justify-between items-center">
+                <h3 class="font-semibold text-white">@day</h3>
+                <span class="text-sm text-emerald-300">Total: Rs.@((dayMenus?.Sum(m => m.Price) ?? 0).ToString("N2"))</span>
+            </div>
+            <div class="p-4">
+                @if (dayMenus != null && dayMenus.Any())
+                {
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        @foreach (var item in dayMenus.OrderBy(m => m.MealType))
+                        {
+                            <div class="bg-white/10 border border-white/20 rounded-xl p-4">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <span class="text-xs font-medium text-emerald-400 uppercase">@item.MealType</span>
+                                        <h4 class="font-medium text-white mt-1">@item.DishName</h4>
+                                        <p class="text-lg font-semibold text-emerald-400 mt-2">Rs.@item.Price.ToString("N2")</p>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <a href="/Admin/Menu/Edit/@item.Id" class="text-blue-400 hover:text-blue-300 transition-colors"><i class="fas fa-edit"></i></a>
+                                        <a href="/Admin/Menu/Delete/@item.Id" class="text-red-400 hover:text-red-300 transition-colors"><i class="fas fa-trash"></i></a>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    }
-                </div>
-            }
-            else
-            {
-                <p class="text-white/50 text-center py-4">No dishes added for this day</p>
-            }
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-white/50 text-center py-4">No dishes added for this day</p>
+                }
+            </div>
         </div>
+    }
+}
+else
+{
+    <!-- Specific Date Menus -->
+    <div class="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border border-blue-500/30 rounded-xl p-3 mb-4">
+        <p class="text-blue-300 text-sm">
+            <i class="fas fa-info-circle mr-2"></i>
+            <strong>Specific Date Menus:</strong> One-time menus for specific dates. These override the weekly template for that date.
+        </p>
     </div>
+
+    @if (Model.SpecificDateMenuItems != null && Model.SpecificDateMenuItems.Any())
+    {
+        var groupedByDate = Model.SpecificDateMenuItems.GroupBy(m => m.MenuDate!.Value.Date);
+        @foreach (var dateGroup in groupedByDate)
+        {
+            <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 mb-4 overflow-hidden">
+                <div class="bg-gradient-to-r from-blue-500/30 to-indigo-500/30 border-b border-white/20 px-4 py-3 flex justify-between items-center">
+                    <div>
+                        <h3 class="font-semibold text-white">@dateGroup.Key.ToString("dddd, MMMM dd, yyyy")</h3>
+                        <span class="text-xs text-blue-300">@dateGroup.Key.DayOfWeek</span>
+                    </div>
+                    <span class="text-sm text-blue-300">Total: Rs.@(dateGroup.Sum(m => m.Price).ToString("N2"))</span>
+                </div>
+                <div class="p-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        @foreach (var item in dateGroup.OrderBy(m => m.MealType))
+                        {
+                            <div class="bg-white/10 border border-blue-500/20 rounded-xl p-4">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <span class="text-xs font-medium text-blue-400 uppercase">@item.MealType</span>
+                                        <h4 class="font-medium text-white mt-1">@item.DishName</h4>
+                                        <p class="text-lg font-semibold text-blue-400 mt-2">Rs.@item.Price.ToString("N2")</p>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <a href="/Admin/Menu/Edit/@item.Id" class="text-blue-400 hover:text-blue-300 transition-colors"><i class="fas fa-edit"></i></a>
+                                        <a href="/Admin/Menu/Delete/@item.Id" class="text-red-400 hover:text-red-300 transition-colors"><i class="fas fa-trash"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-8 text-center">
+            <i class="fas fa-calendar-times text-4xl text-white/30 mb-4"></i>
+            <p class="text-white/50">No specific date menus added yet.</p>
+            <p class="text-white/30 text-sm mt-2">Click "Add Dish" and select "Specific Date" to add a menu for a particular date.</p>
+        </div>
+    }
 }

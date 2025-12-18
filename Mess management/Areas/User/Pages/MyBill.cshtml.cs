@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using MessManagement.Data;
 using MessManagement.Models;
 using MessManagement.Helpers;
+using MessManagement.ViewModels;
 using System.Security.Claims;
 using System.Globalization;
 
@@ -59,6 +60,9 @@ public class MyBillModel : PageModel
     public decimal Balance { get; set; }
     public List<Payment> Payments { get; set; } = new();
 
+    // Detailed Bill with Dishes
+    public List<DailyMealDetail> DailyMeals { get; set; } = new();
+
     public async Task<IActionResult> OnGetAsync(int? month, int? year)
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -86,6 +90,14 @@ public class MyBillModel : PageModel
             .Where(a => a.MemberId == member.MemberId && a.Date >= startDate && a.Date <= endDate)
             .ToListAsync();
 
+        // Get all menus (template and specific dates)
+        var specificMenus = await _context.WeeklyMenus
+            .Where(m => m.MenuDate != null && m.MenuDate >= startDate && m.MenuDate <= endDate)
+            .ToListAsync();
+        var templateMenus = await _context.WeeklyMenus
+            .Where(m => m.MenuDate == null)
+            .ToListAsync();
+
         // Meal-wise counts
         BreakfastCount = attendance.Count(a => a.BreakfastPresent);
         LunchCount = attendance.Count(a => a.LunchPresent);
@@ -106,6 +118,70 @@ public class MyBillModel : PageModel
         WaterCharges = WaterCount * WaterRate;  // Rs.0 (FREE)
         TeaCharges = TeaCount * TeaRate;        // Rs.100 per meal
         GrandTotal = MealCharges + WaterCharges + TeaCharges;
+
+        // Build detailed daily meal list with dishes
+        foreach (var att in attendance.OrderBy(a => a.Date))
+        {
+            var dayDetail = new DailyMealDetail
+            {
+                Date = att.Date,
+                DayName = att.Date.DayOfWeek.ToString(),
+                Meals = new List<MealDetail>()
+            };
+
+            // Get menu for this date
+            var menuForDate = specificMenus.Where(m => m.MenuDate!.Value.Date == att.Date.Date).ToList();
+            if (!menuForDate.Any())
+            {
+                menuForDate = templateMenus.Where(m => m.DayOfWeek == att.Date.DayOfWeek).ToList();
+            }
+
+            // Breakfast
+            if (att.BreakfastPresent)
+            {
+                var breakfastDish = menuForDate.FirstOrDefault(m => m.MealType == MealType.Breakfast);
+                dayDetail.Meals.Add(new MealDetail
+                {
+                    MealType = MealType.Breakfast,
+                    DishName = breakfastDish?.DishName ?? "Breakfast",
+                    Price = breakfastDish?.Price ?? BreakfastRate,
+                    WasPresent = true
+                });
+            }
+
+            // Lunch
+            if (att.LunchPresent)
+            {
+                var lunchDish = menuForDate.FirstOrDefault(m => m.MealType == MealType.Lunch);
+                dayDetail.Meals.Add(new MealDetail
+                {
+                    MealType = MealType.Lunch,
+                    DishName = lunchDish?.DishName ?? "Lunch",
+                    Price = lunchDish?.Price ?? LunchRate,
+                    WasPresent = true
+                });
+            }
+
+            // Dinner
+            if (att.DinnerPresent)
+            {
+                var dinnerDish = menuForDate.FirstOrDefault(m => m.MealType == MealType.Dinner);
+                dayDetail.Meals.Add(new MealDetail
+                {
+                    MealType = MealType.Dinner,
+                    DishName = dinnerDish?.DishName ?? "Dinner",
+                    Price = dinnerDish?.Price ?? DinnerRate,
+                    WasPresent = true
+                });
+            }
+
+            dayDetail.DayTotal = dayDetail.Meals.Sum(m => m.Price);
+            
+            if (dayDetail.Meals.Any())
+            {
+                DailyMeals.Add(dayDetail);
+            }
+        }
 
         // Get payments for this month
         Payments = await _context.Payments

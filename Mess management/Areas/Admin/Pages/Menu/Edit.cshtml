@@ -2,12 +2,18 @@
 @model MessManagement.Areas.Admin.Pages.Menu.EditModel
 @{
     ViewData["Title"] = "Edit Dish";
+    var today = DateTime.Today;
+    var maxDate = today.AddMonths(1);
 }
 
 <style>
     select option {
         background-color: #1f2937;
         color: white;
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        cursor: pointer;
     }
 </style>
 
@@ -25,10 +31,51 @@
         <form method="post" id="editMenuForm">
             <input type="hidden" asp-for="Input.Id" />
 
-            <div class="mb-4 form-group">
+            <!-- Menu Type Toggle -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-emerald-400 mb-3">Menu Type</label>
+                <div class="flex gap-4">
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="Input.IsSpecificDate" value="false" @(Model.Input.IsSpecificDate ? "" : "checked") 
+                               class="w-4 h-4 text-emerald-500 bg-white/10 border-white/30 focus:ring-emerald-500" onchange="toggleMenuType()">
+                        <span class="ml-2 text-white/90">Weekly Template</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="Input.IsSpecificDate" value="true" @(Model.Input.IsSpecificDate ? "checked" : "") 
+                               class="w-4 h-4 text-emerald-500 bg-white/10 border-white/30 focus:ring-emerald-500" onchange="toggleMenuType()">
+                        <span class="ml-2 text-white/90">Specific Date</span>
+                    </label>
+                </div>
+                <p class="text-white/50 text-xs mt-1">
+                    <span id="menuTypeHint">
+                        @if(Model.Input.IsSpecificDate)
+                        {
+                            <text>This menu is for a specific date only.</text>
+                        }
+                        else
+                        {
+                            <text>This menu repeats every week on the selected day.</text>
+                        }
+                    </span>
+                </p>
+            </div>
+
+            <!-- Day of Week (for template) -->
+            <div class="mb-4 form-group" id="dayOfWeekGroup" style="display: @(Model.Input.IsSpecificDate ? "none" : "block")">
                 <label class="block text-sm font-medium text-emerald-400 mb-1">Day of Week <span class="text-red-400">*</span></label>
-                <select asp-for="Input.DayOfWeek" asp-items="Html.GetEnumSelectList<DayOfWeek>()" required class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"></select>
+                <select asp-for="Input.DayOfWeek" asp-items="Html.GetEnumSelectList<DayOfWeek>()" class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"></select>
                 <span asp-validation-for="Input.DayOfWeek" class="text-red-400 text-xs mt-1 block"></span>
+            </div>
+
+            <!-- Specific Date (for date-specific menu) -->
+            <div class="mb-4 form-group" id="menuDateGroup" style="display: @(Model.Input.IsSpecificDate ? "block" : "none")">
+                <label class="block text-sm font-medium text-emerald-400 mb-1">Menu Date <span class="text-red-400">*</span></label>
+                <input type="date" asp-for="Input.MenuDate" 
+                       min="@today.ToString("yyyy-MM-dd")" 
+                       max="@maxDate.ToString("yyyy-MM-dd")"
+                       class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                <span asp-validation-for="Input.MenuDate" class="text-red-400 text-xs mt-1 block"></span>
+                <p class="text-white/50 text-xs mt-1">You can add menu for up to 1 month from today.</p>
             </div>
 
             <div class="mb-4 form-group">
@@ -63,7 +110,25 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
+        function toggleMenuType() {
+            const isSpecificDate = document.querySelector('input[name="Input.IsSpecificDate"]:checked').value === 'true';
+            const dayOfWeekGroup = document.getElementById('dayOfWeekGroup');
+            const menuDateGroup = document.getElementById('menuDateGroup');
+            const menuTypeHint = document.getElementById('menuTypeHint');
+            
+            if (isSpecificDate) {
+                dayOfWeekGroup.style.display = 'none';
+                menuDateGroup.style.display = 'block';
+                menuTypeHint.textContent = 'This menu is for a specific date only.';
+            } else {
+                dayOfWeekGroup.style.display = 'block';
+                menuDateGroup.style.display = 'none';
+                menuTypeHint.textContent = 'This menu repeats every week on the selected day.';
+            }
+        }
+        
         document.getElementById('editMenuForm').addEventListener('submit', function(e) {
+            const isSpecificDate = document.querySelector('input[name="Input.IsSpecificDate"]:checked').value === 'true';
             const dishName = document.querySelector('[name="Input.DishName"]').value.trim();
             const price = document.querySelector('[name="Input.Price"]').value;
             
@@ -85,6 +150,19 @@
                     background: 'rgba(239, 68, 68, 0.95)', color: '#fff'
                 });
                 return;
+            }
+            
+            if (isSpecificDate) {
+                const menuDate = document.querySelector('[name="Input.MenuDate"]').value;
+                if (!menuDate) {
+                    e.preventDefault();
+                    Swal.fire({
+                        toast: true, position: 'top-end', icon: 'error',
+                        title: 'Please select a date for the menu', showConfirmButton: false, timer: 3000,
+                        background: 'rgba(239, 68, 68, 0.95)', color: '#fff'
+                    });
+                    return;
+                }
             }
 
             const btn = document.getElementById('submitBtn');
