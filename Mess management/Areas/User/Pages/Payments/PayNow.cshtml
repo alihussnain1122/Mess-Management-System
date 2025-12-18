@@ -9,7 +9,8 @@
     <p class="text-white/60">Pay your mess dues securely</p>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <!-- Payment Summary -->
     <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
         <h3 class="text-lg font-semibold text-white mb-4"><i class="fas fa-receipt mr-2 text-blue-400"></i>Payment Summary</h3>
         <div class="space-y-3">
@@ -37,10 +38,23 @@
         }
     </div>
 
-    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
-        <h3 class="text-lg font-semibold text-white mb-4"><i class="fas fa-money-bill-wave mr-2 text-emerald-400"></i>Payment Form</h3>
+    <!-- Unified Payment Form -->
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6 @(Model.BalanceDue <= 0 ? "opacity-50 pointer-events-none" : "")">
+        <h3 class="text-lg font-semibold text-white mb-4"><i class="fas fa-wallet mr-2 text-emerald-400"></i>Choose Payment Method</h3>
+        
+        @if (Model.BalanceDue <= 0)
+        {
+            <div class="mb-4 p-4 bg-blue-500/20 border border-blue-500/30 rounded-xl text-center">
+                <i class="fas fa-info-circle text-2xl text-blue-400 mb-2"></i>
+                <p class="text-blue-300 font-semibold">No Payment Required</p>
+                <p class="text-white/60 text-sm">You have no outstanding dues at this time.</p>
+            </div>
+        }
+        
         <form method="post" id="paymentForm">
+            <fieldset @(Model.BalanceDue <= 0 ? "disabled" : "")>
             <div class="space-y-4">
+                <!-- Amount Input -->
                 <div class="form-group">
                     <label class="block text-sm font-medium text-emerald-400 mb-1">
                         Amount (Rs.) <span class="text-red-400">*</span>
@@ -51,104 +65,169 @@
                                value="@(Model.BalanceDue > 0 ? Model.BalanceDue : 0)" required 
                                class="w-full bg-white/10 border border-white/20 rounded-xl pl-12 pr-3 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all" />
                     </div>
-                    <p class="text-white/40 text-xs mt-1">Minimum: Rs.1, Maximum: Rs.100,000</p>
                 </div>
+
+                <!-- Payment Method Selection -->
                 <div class="form-group">
-                    <label class="block text-sm font-medium text-emerald-400 mb-1">
+                    <label class="block text-sm font-medium text-emerald-400 mb-2">
                         Payment Method <span class="text-red-400">*</span>
                     </label>
-                    <select name="PaymentMethod" required class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all">
-                        <option value="">-- Select Payment Method --</option>
-                        <option value="Cash">💵 Cash</option>
-                        <option value="Bank Transfer">🏦 Bank Transfer</option>
-                        <option value="JazzCash">📱 JazzCash</option>
-                        <option value="Easypaisa">📱 Easypaisa</option>
-                    </select>
+                    <div class="grid grid-cols-1 gap-3">
+                        <!-- Online Payment Option -->
+                        <label class="payment-option cursor-pointer">
+                            <input type="radio" name="PaymentType" value="Online" class="hidden" id="onlinePayment">
+                            <div class="relative p-4 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border-2 border-indigo-500/30 rounded-xl transition-all hover:border-indigo-400 peer-checked:border-indigo-400">
+                                <div class="absolute top-2 right-2 bg-emerald-500 text-white text-[10px] px-2 py-0.5 rounded-full font-semibold">
+                                    <i class="fas fa-star mr-1"></i>RECOMMENDED
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-indigo-500/30 rounded-xl flex items-center justify-center">
+                                        <i class="fab fa-stripe text-xl text-indigo-400"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <span class="text-white font-semibold">💳 Pay Online (Stripe)</span>
+                                        <p class="text-white/50 text-xs mt-0.5">Instant • No approval needed • Secure</p>
+                                    </div>
+                                    <div class="flex gap-1">
+                                        <i class="fab fa-cc-visa text-white/40"></i>
+                                        <i class="fab fa-cc-mastercard text-white/40"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- Cash Payment Option -->
+                        <label class="payment-option cursor-pointer">
+                            <input type="radio" name="PaymentType" value="Cash" class="hidden" id="cashPayment">
+                            <div class="p-4 bg-amber-500/10 border-2 border-amber-500/30 rounded-xl transition-all hover:border-amber-400">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-amber-500/30 rounded-xl flex items-center justify-center">
+                                        <i class="fas fa-money-bill-wave text-xl text-amber-400"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <span class="text-white font-semibold">💵 Cash Payment</span>
+                                        <p class="text-white/50 text-xs mt-0.5">Manual • Requires admin approval (1-24 hrs)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="block text-sm font-medium text-emerald-400 mb-1">Transaction ID (Optional)</label>
-                    <input type="text" name="TransactionId" placeholder="Enter reference/transaction number"
-                           class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all" />
-                    <p class="text-white/40 text-xs mt-1">For online payments, enter the transaction reference</p>
+
+                <!-- Notes (Only for Cash) -->
+                <div class="form-group hidden" id="notesGroup">
+                    <label class="block text-sm font-medium text-amber-400 mb-1">Notes (Optional)</label>
+                    <input type="text" name="TransactionId" id="notesInput" placeholder="Any additional notes for admin"
+                           class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" />
                 </div>
-                <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white py-3 rounded-xl font-semibold transition-all shadow-lg">
-                    <span class="btn-text"><i class="fas fa-check mr-2"></i>Submit Payment Request</span>
-                    <span class="btn-spinner hidden"><i class="fas fa-spinner fa-spin mr-2"></i>Submitting...</span>
+
+                <!-- Hidden field for actual payment method -->
+                <input type="hidden" name="PaymentMethod" id="paymentMethodHidden" value="">
+
+                <!-- Submit Button -->
+                <button type="submit" id="submitBtn" disabled class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 disabled:from-gray-500 disabled:to-gray-600 disabled:cursor-not-allowed text-white py-3 rounded-xl font-semibold transition-all shadow-lg">
+                    <span class="btn-text"><i class="fas fa-arrow-right mr-2"></i>Select Payment Method</span>
+                    <span class="btn-spinner hidden"><i class="fas fa-spinner fa-spin mr-2"></i>Processing...</span>
                 </button>
             </div>
+            </fieldset>
         </form>
-        <div class="mt-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-xl">
-            <p class="text-sm text-blue-300">
-                <i class="fas fa-info-circle mr-1"></i>
-                <strong>Note:</strong> Your payment will be marked as <span class="text-amber-400 font-semibold">Pending</span> until verified by the admin.
-            </p>
+
+        <!-- Payment Info -->
+        <div class="mt-4 p-3 bg-white/5 border border-white/10 rounded-xl">
+            <div class="flex items-start gap-2">
+                <i class="fas fa-shield-alt text-emerald-400 mt-0.5"></i>
+                <div>
+                    <p class="text-white/80 text-sm font-medium">Secure Payment</p>
+                    <p class="text-white/50 text-xs">All transactions are encrypted and secure</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
+        const onlinePayment = document.getElementById('onlinePayment');
+        const cashPayment = document.getElementById('cashPayment');
+        const notesGroup = document.getElementById('notesGroup');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = submitBtn.querySelector('.btn-text');
+        const paymentMethodHidden = document.getElementById('paymentMethodHidden');
+        const amountInput = document.getElementById('amountInput');
+
+        // Payment option selection styling and logic
+        function selectPaymentOption(option) {
+            // Remove selection from all
+            document.querySelectorAll('.payment-option > div').forEach(el => {
+                el.classList.remove('border-indigo-400', 'border-amber-400', 'ring-2', 'ring-indigo-500/50', 'ring-amber-500/50');
+            });
+
+            if (option === 'Online') {
+                const selectedDiv = onlinePayment.closest('label').querySelector('div');
+                selectedDiv.classList.add('border-indigo-400', 'ring-2', 'ring-indigo-500/50');
+                notesGroup.classList.add('hidden');
+                paymentMethodHidden.value = 'Stripe';
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('from-gray-500', 'to-gray-600');
+                submitBtn.classList.add('from-indigo-600', 'to-purple-600', 'hover:from-indigo-700', 'hover:to-purple-700');
+                btnText.innerHTML = '<i class="fab fa-stripe mr-2"></i>Pay with Stripe';
+            } else if (option === 'Cash') {
+                const selectedDiv = cashPayment.closest('label').querySelector('div');
+                selectedDiv.classList.add('border-amber-400', 'ring-2', 'ring-amber-500/50');
+                notesGroup.classList.remove('hidden');
+                paymentMethodHidden.value = 'Cash';
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('from-gray-500', 'to-gray-600', 'from-indigo-600', 'to-purple-600', 'hover:from-indigo-700', 'hover:to-purple-700');
+                submitBtn.classList.add('from-amber-500', 'to-orange-500', 'hover:from-amber-600', 'hover:to-orange-600');
+                btnText.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Submit Cash Request';
+            }
+        }
+
+        onlinePayment.addEventListener('change', () => selectPaymentOption('Online'));
+        cashPayment.addEventListener('change', () => selectPaymentOption('Cash'));
+
+        // Form submission
         document.getElementById('paymentForm').addEventListener('submit', function(e) {
-            const amount = parseFloat(document.getElementById('amountInput').value);
-            const method = document.querySelector('[name="PaymentMethod"]').value;
+            const amount = parseFloat(amountInput.value);
+            const paymentType = document.querySelector('input[name="PaymentType"]:checked')?.value;
             
             // Validate amount
             if (!amount || amount < 1) {
                 e.preventDefault();
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'error',
-                    title: 'Please enter a valid amount (minimum Rs.1)',
-                    showConfirmButton: false,
-                    timer: 3000,
-                    background: 'rgba(239, 68, 68, 0.95)',
-                    color: '#fff'
-                });
+                Toast.error('Please enter a valid amount (minimum Rs.1)');
                 return;
             }
             
             if (amount > 100000) {
                 e.preventDefault();
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'error',
-                    title: 'Amount cannot exceed Rs.100,000',
-                    showConfirmButton: false,
-                    timer: 3000,
-                    background: 'rgba(239, 68, 68, 0.95)',
-                    color: '#fff'
-                });
+                Toast.error('Amount cannot exceed Rs.100,000');
                 return;
             }
             
-            // Validate payment method
-            if (!method) {
+            // Validate payment method selection
+            if (!paymentType) {
                 e.preventDefault();
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'error',
-                    title: 'Please select a payment method',
-                    showConfirmButton: false,
-                    timer: 3000,
-                    background: 'rgba(239, 68, 68, 0.95)',
-                    color: '#fff'
-                });
+                Toast.error('Please select a payment method');
+                return;
+            }
+
+            // If Online payment, redirect to Stripe
+            if (paymentType === 'Online') {
+                e.preventDefault();
+                window.location.href = '/User/Payments/StripeCheckout?Amount=' + amount;
                 return;
             }
             
-            // Show loading state
-            const btn = document.getElementById('submitBtn');
-            btn.disabled = true;
-            btn.classList.add('opacity-75', 'cursor-not-allowed');
-            btn.querySelector('.btn-text').classList.add('hidden');
-            btn.querySelector('.btn-spinner').classList.remove('hidden');
+            // For Cash payment, show loading state
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+            btnText.classList.add('hidden');
+            submitBtn.querySelector('.btn-spinner').classList.remove('hidden');
         });
 
         // Real-time amount validation
-        document.getElementById('amountInput').addEventListener('input', function() {
+        amountInput.addEventListener('input', function() {
             const value = parseFloat(this.value);
             if (value < 1 || value > 100000) {
                 this.classList.add('border-red-500', 'bg-red-500/10');

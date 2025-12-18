@@ -1,0 +1,181 @@
+@page
+@model MessManagement.Areas.User.Pages.Payments.StripeCheckoutModel
+@{
+    ViewData["Title"] = "Stripe Payment";
+}
+
+<div class="mb-6">
+    <a href="/User/Payments/PayNow" class="text-emerald-400 hover:text-emerald-300 transition-colors">
+        <i class="fas fa-arrow-left mr-2"></i>Back to Payment Options
+    </a>
+</div>
+
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-white"><i class="fab fa-stripe mr-3 text-indigo-400"></i>Pay with Stripe</h1>
+    <p class="text-white/60">Secure online payment via credit/debit card</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Payment Summary -->
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+        <h3 class="text-lg font-semibold text-white mb-4"><i class="fas fa-receipt mr-2 text-blue-400"></i>Payment Summary</h3>
+        <div class="space-y-3">
+            <div class="flex justify-between items-center p-3 bg-white/10 border border-white/10 rounded-xl">
+                <span class="text-white/70">Member Name</span>
+                <span class="font-semibold text-white">@Model.MemberName</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-white/10 border border-white/10 rounded-xl">
+                <span class="text-white/70">This Month's Cost</span>
+                <span class="font-semibold text-white">Rs.@Model.MonthCost.ToString("N2")</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-white/10 border border-white/10 rounded-xl">
+                <span class="text-white/70">Already Paid</span>
+                <span class="font-semibold text-emerald-400">Rs.@Model.TotalPaid.ToString("N2")</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-indigo-500/20 rounded-xl border border-indigo-500/30">
+                <span class="font-semibold text-indigo-300">Balance Due</span>
+                <span class="font-bold text-xl text-indigo-400">Rs.@Model.BalanceDue.ToString("N2")</span>
+            </div>
+        </div>
+
+        <!-- Stripe Features -->
+        <div class="mt-6 p-4 bg-white/5 rounded-xl border border-white/10">
+            <h4 class="text-white font-medium mb-3"><i class="fas fa-shield-alt text-emerald-400 mr-2"></i>Secure Payment</h4>
+            <ul class="text-white/60 text-sm space-y-2">
+                <li><i class="fas fa-check text-emerald-400 mr-2"></i>256-bit SSL Encryption</li>
+                <li><i class="fas fa-check text-emerald-400 mr-2"></i>PCI DSS Compliant</li>
+                <li><i class="fas fa-check text-emerald-400 mr-2"></i>Instant Confirmation</li>
+                <li><i class="fas fa-check text-emerald-400 mr-2"></i>No Hidden Charges</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Payment Form -->
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+        <h3 class="text-lg font-semibold text-white mb-4"><i class="fas fa-credit-card mr-2 text-indigo-400"></i>Enter Payment Amount</h3>
+        
+        <div class="space-y-4">
+            <div class="form-group">
+                <label class="block text-sm font-medium text-indigo-300 mb-2">
+                    Amount (Rs.) <span class="text-red-400">*</span>
+                </label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-white/50 font-semibold">Rs.</span>
+                    <input type="number" id="paymentAmount" step="1" min="10" max="100000" 
+                           value="@(Model.Amount ?? Model.BalanceDue)" 
+                           class="w-full bg-white/10 border border-white/20 rounded-xl pl-14 pr-4 py-4 text-white text-xl font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" />
+                </div>
+                <p class="text-white/40 text-xs mt-2">Minimum: Rs.10 | Maximum: Rs.100,000</p>
+            </div>
+
+            <!-- Quick Amount Buttons -->
+            <div class="grid grid-cols-3 gap-2">
+                <button type="button" onclick="setAmount(500)" class="quick-amount-btn bg-white/10 hover:bg-white/20 border border-white/20 text-white py-2 rounded-lg transition-all">
+                    Rs.500
+                </button>
+                <button type="button" onclick="setAmount(1000)" class="quick-amount-btn bg-white/10 hover:bg-white/20 border border-white/20 text-white py-2 rounded-lg transition-all">
+                    Rs.1,000
+                </button>
+                <button type="button" onclick="setAmount(2000)" class="quick-amount-btn bg-white/10 hover:bg-white/20 border border-white/20 text-white py-2 rounded-lg transition-all">
+                    Rs.2,000
+                </button>
+                @if (Model.BalanceDue > 0)
+                {
+                    <button type="button" onclick="setAmount(@Model.BalanceDue)" class="col-span-3 bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 text-indigo-300 py-2 rounded-lg transition-all">
+                        Pay Full Balance (Rs.@Model.BalanceDue.ToString("N0"))
+                    </button>
+                }
+            </div>
+
+            <!-- Pay Button -->
+            <button type="button" id="checkoutBtn" onclick="redirectToStripe()" 
+                    class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white py-4 rounded-xl font-semibold text-lg transition-all shadow-lg hover:shadow-indigo-500/30 flex items-center justify-center gap-2">
+                <span id="btnText"><i class="fab fa-stripe mr-2"></i>Pay with Stripe</span>
+                <span id="btnSpinner" class="hidden"><i class="fas fa-spinner fa-spin mr-2"></i>Redirecting to Stripe...</span>
+            </button>
+
+            <!-- Accepted Cards -->
+            <div class="flex items-center justify-center gap-4 pt-4">
+                <i class="fab fa-cc-visa text-3xl text-white/40"></i>
+                <i class="fab fa-cc-mastercard text-3xl text-white/40"></i>
+                <i class="fab fa-cc-amex text-3xl text-white/40"></i>
+                <i class="fab fa-cc-discover text-3xl text-white/40"></i>
+            </div>
+        </div>
+
+        <!-- Test Mode Notice -->
+        <div class="mt-4 p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+            <p class="text-sm text-amber-300">
+                <i class="fas fa-flask mr-1"></i>
+                <strong>Test Mode:</strong> Use card number <code class="bg-white/10 px-2 py-1 rounded">4242 4242 4242 4242</code> with any future expiry and CVC.
+            </p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    function setAmount(amount) {
+        document.getElementById('paymentAmount').value = amount;
+    }
+
+    async function redirectToStripe() {
+        const amount = parseFloat(document.getElementById('paymentAmount').value);
+        
+        // Validate
+        if (!amount || amount < 10) {
+            Toast.error('Minimum payment amount is Rs.10');
+            return;
+        }
+        
+        if (amount > 100000) {
+            Toast.error('Maximum payment amount is Rs.100,000');
+            return;
+        }
+
+        // Show loading
+        const btn = document.getElementById('checkoutBtn');
+        btn.disabled = true;
+        document.getElementById('btnText').classList.add('hidden');
+        document.getElementById('btnSpinner').classList.remove('hidden');
+
+        try {
+            const response = await fetch('/User/Payments/StripeCheckout?handler=CreateCheckoutSession', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                },
+                body: `amount=${amount}`
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to create checkout session');
+            }
+
+            const data = await response.json();
+            
+            if (data.url) {
+                // Redirect to Stripe Checkout
+                window.location.href = data.url;
+            } else {
+                throw new Error('No checkout URL received');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Toast.error('Failed to initiate payment. Please try again.');
+            
+            // Reset button
+            btn.disabled = false;
+            document.getElementById('btnText').classList.remove('hidden');
+            document.getElementById('btnSpinner').classList.add('hidden');
+        }
+    }
+</script>
+
+<!-- Anti-forgery token for AJAX -->
+<form id="tokenForm">
+    @Html.AntiForgeryToken()
+</form>
+}

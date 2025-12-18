@@ -1,0 +1,91 @@
+@page
+@model MessManagement.Areas.User.Pages.Payments.StripeSuccessModel
+@{
+    ViewData["Title"] = "Payment Successful";
+}
+
+<div class="min-h-[70vh] flex items-center justify-center">
+    <div class="w-full max-w-lg">
+        <!-- Success Card -->
+        <div class="bg-white/15 backdrop-blur-xl rounded-3xl border border-white/20 p-8 text-center">
+            <!-- Success Animation -->
+            <div class="relative mb-6">
+                <div class="w-24 h-24 mx-auto bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/30 animate-pulse">
+                    <i class="fas fa-check text-white text-4xl"></i>
+                </div>
+                <div class="absolute -top-2 -right-2 w-32 h-32 mx-auto border-4 border-emerald-500/30 rounded-full animate-ping opacity-20"></div>
+            </div>
+
+            <h1 class="text-3xl font-bold text-white mb-2">Payment Successful!</h1>
+            <p class="text-white/60 mb-6">Your payment has been processed successfully</p>
+
+            <!-- Payment Details -->
+            <div class="bg-white/10 rounded-2xl p-6 mb-6 text-left">
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center pb-3 border-b border-white/10">
+                        <span class="text-white/60">Amount Paid</span>
+                        <span class="text-2xl font-bold text-emerald-400">Rs.@Model.Amount.ToString("N2")</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-white/60">Member</span>
+                        <span class="text-white font-medium">@Model.MemberName</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-white/60">Transaction ID</span>
+                        <span class="text-white/80 text-sm font-mono">@Model.TransactionId[..Math.Min(20, Model.TransactionId.Length)]...</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-white/60">Date & Time</span>
+                        <span class="text-white/80">@Model.PaymentDate.ToString("MMM dd, yyyy HH:mm")</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-white/60">Payment Method</span>
+                        <span class="text-indigo-400 font-medium"><i class="fab fa-stripe mr-1"></i>Stripe</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-white/60">Status</span>
+                        <span class="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-sm font-medium">
+                            <i class="fas fa-check-circle mr-1"></i>Verified
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Notice -->
+            <div class="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-6 text-left">
+                <p class="text-blue-300 text-sm">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Your payment has been automatically verified and added to your account. No admin approval required for online payments.
+                </p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="grid grid-cols-2 gap-4">
+                <a href="/User/Payments/History" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-history"></i>
+                    View History
+                </a>
+                <a href="/User/Dashboard" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white py-3 rounded-xl font-medium transition-all shadow-lg flex items-center justify-center gap-2">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+            </div>
+        </div>
+
+        <!-- Receipt Download (Optional) -->
+        <div class="mt-4 text-center">
+            <button onclick="window.print()" class="text-white/50 hover:text-white/80 transition-colors text-sm">
+                <i class="fas fa-print mr-1"></i>Print Receipt
+            </button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Show success toast
+    document.addEventListener('DOMContentLoaded', function() {
+        Toast.success('Payment of Rs.@Model.Amount.ToString("N0") completed successfully!');
+    });
+</script>
+}

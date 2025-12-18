@@ -1,0 +1,68 @@
+@page
+@model MessManagement.Areas.User.Pages.Payments.StripeCancelModel
+@{
+    ViewData["Title"] = "Payment Cancelled";
+}
+
+<div class="min-h-[70vh] flex items-center justify-center">
+    <div class="w-full max-w-lg">
+        <!-- Cancel Card -->
+        <div class="bg-white/15 backdrop-blur-xl rounded-3xl border border-white/20 p-8 text-center">
+            <!-- Cancel Icon -->
+            <div class="w-24 h-24 mx-auto bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center shadow-lg shadow-amber-500/30 mb-6">
+                <i class="fas fa-times text-white text-4xl"></i>
+            </div>
+
+            <h1 class="text-3xl font-bold text-white mb-2">Payment Cancelled</h1>
+            <p class="text-white/60 mb-6">Your payment was not completed</p>
+
+            <!-- Info Message -->
+            <div class="bg-white/10 rounded-2xl p-6 mb-6 text-left">
+                <p class="text-white/70 text-center">
+                    No worries! Your payment was cancelled and no charges were made to your account. 
+                    You can try again whenever you're ready.
+                </p>
+            </div>
+
+            <!-- Reasons -->
+            <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 mb-6 text-left">
+                <p class="text-amber-300 text-sm font-medium mb-2">
+                    <i class="fas fa-lightbulb mr-2"></i>Common reasons for cancellation:
+                </p>
+                <ul class="text-amber-200/70 text-sm space-y-1 ml-6">
+                    <li>• Changed your mind about the amount</li>
+                    <li>• Want to use a different payment method</li>
+                    <li>• Browser was closed accidentally</li>
+                    <li>• Card details need verification</li>
+                </ul>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="grid grid-cols-2 gap-4">
+                <a href="/User/Payments/PayNow" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-redo"></i>
+                    Try Again
+                </a>
+                <a href="/User/Dashboard" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white py-3 rounded-xl font-medium transition-all shadow-lg flex items-center justify-center gap-2">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+            </div>
+        </div>
+
+        <!-- Help Link -->
+        <div class="mt-4 text-center">
+            <p class="text-white/40 text-sm">
+                Need help? Contact mess admin for assistance.
+            </p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Toast.warning('Payment was cancelled. No charges were made.');
+    });
+</script>
+}

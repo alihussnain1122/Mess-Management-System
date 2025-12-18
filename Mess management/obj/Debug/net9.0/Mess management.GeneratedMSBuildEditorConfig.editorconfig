@@ -148,6 +148,18 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcVXNlclxQYWdlc1xQYXltZW50c1xQYXlOb3cuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/EAD_Project/Mess management/Areas/User/Pages/Payments/StripeCancel.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcVXNlclxQYWdlc1xQYXltZW50c1xTdHJpcGVDYW5jZWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EAD_Project/Mess management/Areas/User/Pages/Payments/StripeCheckout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcVXNlclxQYWdlc1xQYXltZW50c1xTdHJpcGVDaGVja291dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EAD_Project/Mess management/Areas/User/Pages/Payments/StripeSuccess.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcVXNlclxQYWdlc1xQYXltZW50c1xTdHJpcGVTdWNjZXNzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/EAD_Project/Mess management/Areas/User/Pages/Shared/_UserLayout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcVXNlclxQYWdlc1xTaGFyZWRcX1VzZXJMYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
