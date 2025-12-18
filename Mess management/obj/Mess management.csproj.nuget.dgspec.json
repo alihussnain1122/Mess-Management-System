@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "d:\\EAD_Project\\Mess management\\Mess management.csproj": {}
+    "D:\\EAD_Project\\Mess management\\Mess management.csproj": {}
   },
   "projects": {
-    "d:\\EAD_Project\\Mess management\\Mess management.csproj": {
+    "D:\\EAD_Project\\Mess management\\Mess management.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "d:\\EAD_Project\\Mess management\\Mess management.csproj",
+        "projectUniqueName": "D:\\EAD_Project\\Mess management\\Mess management.csproj",
         "projectName": "Mess management",
-        "projectPath": "d:\\EAD_Project\\Mess management\\Mess management.csproj",
+        "projectPath": "D:\\EAD_Project\\Mess management\\Mess management.csproj",
         "packagesPath": "C:\\Users\\Ali Hussnain\\.nuget\\packages\\",
-        "outputPath": "d:\\EAD_Project\\Mess management\\obj\\",
+        "outputPath": "D:\\EAD_Project\\Mess management\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Ali Hussnain\\AppData\\Roaming\\NuGet\\NuGet.Config"
