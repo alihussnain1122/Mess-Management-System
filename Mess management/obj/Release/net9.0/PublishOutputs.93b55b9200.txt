@@ -1,0 +1,109 @@
+D:\EAD_Project\Mess management\publish\Mess management.exe
+D:\EAD_Project\Mess management\publish\publish\publish\web.config
+D:\EAD_Project\Mess management\publish\publish\web.config
+D:\EAD_Project\Mess management\publish\web.config
+D:\EAD_Project\Mess management\publish\appsettings.Development.json
+D:\EAD_Project\Mess management\publish\appsettings.json
+D:\EAD_Project\Mess management\publish\appsettings.Production.json
+D:\EAD_Project\Mess management\publish\publish\appsettings.Development.json
+D:\EAD_Project\Mess management\publish\publish\appsettings.json
+D:\EAD_Project\Mess management\publish\publish\Mess management.deps.json
+D:\EAD_Project\Mess management\publish\publish\Mess management.runtimeconfig.json
+D:\EAD_Project\Mess management\publish\publish\Mess management.staticwebassets.endpoints.json
+D:\EAD_Project\Mess management\publish\publish\publish\appsettings.Development.json
+D:\EAD_Project\Mess management\publish\publish\publish\appsettings.json
+D:\EAD_Project\Mess management\publish\publish\publish\Mess management.deps.json
+D:\EAD_Project\Mess management\publish\publish\publish\Mess management.runtimeconfig.json
+D:\EAD_Project\Mess management\publish\publish\publish\Mess management.staticwebassets.endpoints.json
+D:\EAD_Project\Mess management\publish\LatoFont\Lato-Black.ttf
+D:\EAD_Project\Mess management\publish\LatoFont\Lato-BlackItalic.ttf
+D:\EAD_Project\Mess management\publish\LatoFont\Lato-Bold.ttf
+D:\EAD_Project\Mess management\publish\LatoFont\Lato-BoldItalic.ttf
+D:\EAD_Project\Mess management\publish\LatoFont\Lato-ExtraBold.ttf
+D:\EAD_Project\Mess management\publish\LatoFont\Lato-ExtraBoldItalic.ttf
+D:\EAD_Project\Mess management\publish\LatoFont\Lato-ExtraLight.ttf
+D:\EAD_Project\Mess management\publish\LatoFont\Lato-ExtraLightItalic.ttf
+D:\EAD_Project\Mess management\publish\LatoFont\Lato-Italic.ttf
+D:\EAD_Project\Mess management\publish\LatoFont\Lato-Light.ttf
+D:\EAD_Project\Mess management\publish\LatoFont\Lato-LightItalic.ttf
+D:\EAD_Project\Mess management\publish\LatoFont\Lato-Medium.ttf
+D:\EAD_Project\Mess management\publish\LatoFont\Lato-MediumItalic.ttf
+D:\EAD_Project\Mess management\publish\LatoFont\Lato-Regular.ttf
+D:\EAD_Project\Mess management\publish\LatoFont\Lato-SemiBold.ttf
+D:\EAD_Project\Mess management\publish\LatoFont\Lato-SemiBoldItalic.ttf
+D:\EAD_Project\Mess management\publish\LatoFont\Lato-Thin.ttf
+D:\EAD_Project\Mess management\publish\LatoFont\Lato-ThinItalic.ttf
+D:\EAD_Project\Mess management\publish\LatoFont\OFL.txt
+D:\EAD_Project\Mess management\publish\Mess management.dll
+D:\EAD_Project\Mess management\publish\Mess management.runtimeconfig.json
+D:\EAD_Project\Mess management\publish\Mess management.pdb
+D:\EAD_Project\Mess management\publish\Azure.Core.dll
+D:\EAD_Project\Mess management\publish\Azure.Identity.dll
+D:\EAD_Project\Mess management\publish\ClosedXML.dll
+D:\EAD_Project\Mess management\publish\DocumentFormat.OpenXml.dll
+D:\EAD_Project\Mess management\publish\ExcelNumberFormat.dll
+D:\EAD_Project\Mess management\publish\Irony.dll
+D:\EAD_Project\Mess management\publish\Microsoft.Bcl.AsyncInterfaces.dll
+D:\EAD_Project\Mess management\publish\Microsoft.Data.SqlClient.dll
+D:\EAD_Project\Mess management\publish\Microsoft.EntityFrameworkCore.dll
+D:\EAD_Project\Mess management\publish\Microsoft.EntityFrameworkCore.Abstractions.dll
+D:\EAD_Project\Mess management\publish\Microsoft.EntityFrameworkCore.Relational.dll
+D:\EAD_Project\Mess management\publish\Microsoft.EntityFrameworkCore.SqlServer.dll
+D:\EAD_Project\Mess management\publish\Microsoft.Identity.Client.dll
+D:\EAD_Project\Mess management\publish\Microsoft.Identity.Client.Extensions.Msal.dll
+D:\EAD_Project\Mess management\publish\Microsoft.IdentityModel.Abstractions.dll
+D:\EAD_Project\Mess management\publish\Microsoft.IdentityModel.JsonWebTokens.dll
+D:\EAD_Project\Mess management\publish\Microsoft.IdentityModel.Logging.dll
+D:\EAD_Project\Mess management\publish\Microsoft.IdentityModel.Protocols.dll
+D:\EAD_Project\Mess management\publish\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+D:\EAD_Project\Mess management\publish\Microsoft.IdentityModel.Tokens.dll
+D:\EAD_Project\Mess management\publish\Microsoft.SqlServer.Server.dll
+D:\EAD_Project\Mess management\publish\Microsoft.Win32.SystemEvents.dll
+D:\EAD_Project\Mess management\publish\Newtonsoft.Json.dll
+D:\EAD_Project\Mess management\publish\QuestPDF.dll
+D:\EAD_Project\Mess management\publish\SixLabors.Fonts.dll
+D:\EAD_Project\Mess management\publish\Stripe.net.dll
+D:\EAD_Project\Mess management\publish\System.ClientModel.dll
+D:\EAD_Project\Mess management\publish\System.Configuration.ConfigurationManager.dll
+D:\EAD_Project\Mess management\publish\System.Drawing.Common.dll
+D:\EAD_Project\Mess management\publish\System.IdentityModel.Tokens.Jwt.dll
+D:\EAD_Project\Mess management\publish\System.IO.Packaging.dll
+D:\EAD_Project\Mess management\publish\System.Memory.Data.dll
+D:\EAD_Project\Mess management\publish\System.Runtime.Caching.dll
+D:\EAD_Project\Mess management\publish\System.Security.Cryptography.ProtectedData.dll
+D:\EAD_Project\Mess management\publish\System.Security.Permissions.dll
+D:\EAD_Project\Mess management\publish\System.Windows.Extensions.dll
+D:\EAD_Project\Mess management\publish\XLParser.dll
+D:\EAD_Project\Mess management\publish\runtimes\unix\lib\net6.0\Microsoft.Data.SqlClient.dll
+D:\EAD_Project\Mess management\publish\runtimes\win\lib\net6.0\Microsoft.Data.SqlClient.dll
+D:\EAD_Project\Mess management\publish\runtimes\win-arm\native\Microsoft.Data.SqlClient.SNI.dll
+D:\EAD_Project\Mess management\publish\runtimes\win-arm64\native\Microsoft.Data.SqlClient.SNI.dll
+D:\EAD_Project\Mess management\publish\runtimes\win-x64\native\Microsoft.Data.SqlClient.SNI.dll
+D:\EAD_Project\Mess management\publish\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
+D:\EAD_Project\Mess management\publish\runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll
+D:\EAD_Project\Mess management\publish\runtimes\linux-arm64\native\libQuestPdfSkia.so
+D:\EAD_Project\Mess management\publish\runtimes\linux-arm64\native\libqpdf.so
+D:\EAD_Project\Mess management\publish\runtimes\linux-musl-x64\native\libQuestPdfSkia.so
+D:\EAD_Project\Mess management\publish\runtimes\linux-musl-x64\native\libqpdf.so
+D:\EAD_Project\Mess management\publish\runtimes\linux-x64\native\libQuestPdfSkia.so
+D:\EAD_Project\Mess management\publish\runtimes\linux-x64\native\libqpdf.so
+D:\EAD_Project\Mess management\publish\runtimes\osx-arm64\native\libQuestPdfSkia.dylib
+D:\EAD_Project\Mess management\publish\runtimes\osx-arm64\native\libqpdf.dylib
+D:\EAD_Project\Mess management\publish\runtimes\osx-x64\native\libQuestPdfSkia.dylib
+D:\EAD_Project\Mess management\publish\runtimes\osx-x64\native\libqpdf.dylib
+D:\EAD_Project\Mess management\publish\runtimes\win-x64\native\QuestPdfSkia.dll
+D:\EAD_Project\Mess management\publish\runtimes\win-x64\native\libgcc_s_seh-1.dll
+D:\EAD_Project\Mess management\publish\runtimes\win-x64\native\libstdc++-6.dll
+D:\EAD_Project\Mess management\publish\runtimes\win-x64\native\libwinpthread-1.dll
+D:\EAD_Project\Mess management\publish\runtimes\win-x64\native\qpdf.dll
+D:\EAD_Project\Mess management\publish\runtimes\win-x86\native\QuestPdfSkia.dll
+D:\EAD_Project\Mess management\publish\runtimes\win-x86\native\libgcc_s_dw2-1.dll
+D:\EAD_Project\Mess management\publish\runtimes\win-x86\native\libstdc++-6.dll
+D:\EAD_Project\Mess management\publish\runtimes\win-x86\native\libwinpthread-1.dll
+D:\EAD_Project\Mess management\publish\runtimes\win-x86\native\qpdf.dll
+D:\EAD_Project\Mess management\publish\runtimes\unix\lib\net6.0\System.Drawing.Common.dll
+D:\EAD_Project\Mess management\publish\runtimes\win\lib\net6.0\System.Drawing.Common.dll
+D:\EAD_Project\Mess management\publish\runtimes\win\lib\net6.0\System.Runtime.Caching.dll
+D:\EAD_Project\Mess management\publish\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
+D:\EAD_Project\Mess management\publish\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
+D:\EAD_Project\Mess management\publish\Mess management.deps.json

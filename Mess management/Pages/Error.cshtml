@@ -52,6 +52,22 @@
                     </div>
                 }
 
+                @if (!string.IsNullOrEmpty(Model.ExceptionMessage))
+                {
+                    <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6 text-left">
+                        <p class="text-red-400 text-xs uppercase tracking-wider mb-1">Error Details</p>
+                        <p class="text-white/70 text-sm mb-2"><strong>Path:</strong> @Model.ExceptionPath</p>
+                        <p class="text-white/70 text-sm mb-2"><strong>Message:</strong> @Model.ExceptionMessage</p>
+                        @if (!string.IsNullOrEmpty(Model.ExceptionStackTrace))
+                        {
+                            <details class="mt-2">
+                                <summary class="text-white/50 text-xs cursor-pointer hover:text-white/70">Show Stack Trace</summary>
+                                <pre class="text-white/50 text-xs mt-2 overflow-x-auto whitespace-pre-wrap max-h-48 overflow-y-auto">@Model.ExceptionStackTrace</pre>
+                            </details>
+                        }
+                    </div>
+                }
+
                 <!-- Action Buttons -->
                 <div class="flex flex-col sm:flex-row gap-3 justify-center">
                     <a href="javascript:history.back()" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-6 py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2">

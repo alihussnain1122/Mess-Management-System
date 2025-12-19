@@ -7,6 +7,21 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure Logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
+// Add file logging for production
+if (!builder.Environment.IsDevelopment())
+{
+    var logPath = Path.Combine(builder.Environment.ContentRootPath, "logs");
+    if (!Directory.Exists(logPath))
+    {
+        Directory.CreateDirectory(logPath);
+    }
+}
+
 // Add services to the container
 builder.Services.AddRazorPages();
 
@@ -71,8 +86,22 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
     app.UseHsts();
-    app.UseHttpsRedirection();
 }
+
+// Global exception handling middleware
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (Exception ex)
+    {
+        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Unhandled exception occurred. Path: {Path}", context.Request.Path);
+        throw;
+    }
+});
 
 app.UseStaticFiles();
 

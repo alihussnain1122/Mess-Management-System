@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>MessManagement</RootNamespace>
+    <!-- Ensure web.config is transformed during publish -->
+    <IsTransformWebConfigDisabled>false</IsTransformWebConfigDisabled>
   </PropertyGroup>
 
   <ItemGroup>
