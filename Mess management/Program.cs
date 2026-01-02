@@ -4,10 +4,7 @@ using MessManagement.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using DotNetEnv;
 
-// Load environment variables from .env
-Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,21 +26,9 @@ if (!builder.Environment.IsDevelopment())
 // Add services to the container
 builder.Services.AddRazorPages();
 
-// Get secrets from environment variables
-var connectionString = Environment.GetEnvironmentVariable("DefaultConnection");
-var stripeSecretKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
-var stripePublishableKey = Environment.GetEnvironmentVariable("STRIPE_PUBLISHABLE_KEY");
-var stripeWebhookSecret = Environment.GetEnvironmentVariable("STRIPE_WEBHOOK_SECRET");
-var emailSmtpHost = Environment.GetEnvironmentVariable("EMAIL_SMTP_HOST");
-var emailSmtpPort = Environment.GetEnvironmentVariable("EMAIL_SMTP_PORT");
-var emailUsername = Environment.GetEnvironmentVariable("EMAIL_USERNAME");
-var emailPassword = Environment.GetEnvironmentVariable("EMAIL_PASSWORD");
-var emailFrom = Environment.GetEnvironmentVariable("EMAIL_FROM");
-var emailFromName = Environment.GetEnvironmentVariable("EMAIL_FROM_NAME");
-
-// Configure Entity Framework with SQL Server using env connection string
+// Configure Entity Framework with SQL Server using appsettings.json
 builder.Services.AddDbContext<MessDbContext>(options =>
-    options.UseSqlServer(connectionString)
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
            .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning)));
 
 // Register Services (Repository-Service Pattern)
@@ -59,13 +44,8 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IPdfService, PdfService>();
 builder.Services.AddScoped<IExcelExportService, ExcelExportService>();
 
-// Configure Stripe Settings using environment variables
-builder.Services.Configure<StripeSettings>(options =>
-{
-    options.SecretKey = stripeSecretKey;
-    options.PublishableKey = stripePublishableKey;
-    options.WebhookSecret = stripeWebhookSecret;
-});
+// Configure Stripe Settings from appsettings.json
+builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 
 // Configure Cookie Authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -78,17 +58,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.SlidingExpiration = true;
     });
 
-// Optionally, you can register email settings as a singleton or configuration object if needed
-// Example:
-// builder.Services.Configure<EmailSettings>(options =>
-// {
-//     options.SmtpHost = emailSmtpHost;
-//     options.SmtpPort = emailSmtpPort;
-//     options.Username = emailUsername;
-//     options.Password = emailPassword;
-//     options.FromEmail = emailFrom;
-//     options.FromName = emailFromName;
-// });
+
 
 builder.Services.AddAuthorization(options =>
 {
