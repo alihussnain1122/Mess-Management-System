@@ -17,6 +17,7 @@ public class MessDbContext : DbContext
     public DbSet<WaterTea> WaterTeaRecords { get; set; } = null!;
     public DbSet<PasswordResetToken> PasswordResetTokens { get; set; } = null!;
     public DbSet<PasswordHistory> PasswordHistories { get; set; } = null!;
+    public DbSet<Suggestion> Suggestions { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -85,6 +86,25 @@ public class MessDbContext : DbContext
                   .WithMany(m => m.WaterTeaRecords)
                   .HasForeignKey(w => w.MemberId)
                   .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Suggestion Configuration
+        modelBuilder.Entity<Suggestion>(entity =>
+        {
+            entity.HasIndex(s => s.MemberId);
+            entity.HasIndex(s => s.Status);
+            entity.HasIndex(s => s.CreatedAt);
+            entity.Property(s => s.Category).HasConversion<string>();
+            entity.Property(s => s.Status).HasConversion<string>();
+            entity.Property(s => s.Priority).HasConversion<string>();
+            entity.HasOne(s => s.Member)
+                  .WithMany()
+                  .HasForeignKey(s => s.MemberId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(s => s.RespondedByUser)
+                  .WithMany()
+                  .HasForeignKey(s => s.RespondedByUserId)
+                  .OnDelete(DeleteBehavior.Restrict);
         });
 
         // Seed Menu Data only - Admin user is seeded by DbInitializer

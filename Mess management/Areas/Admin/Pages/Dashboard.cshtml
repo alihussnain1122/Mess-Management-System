@@ -97,9 +97,15 @@
                 <i class="fas fa-user-plus text-purple-400 text-2xl mb-2"></i>
                 <span class="text-sm text-white/80">Add Member</span>
             </a>
-            <a href="/Admin/Reports/Daily" class="flex flex-col items-center p-4 bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-all hover:scale-105">
-                <i class="fas fa-chart-line text-amber-400 text-2xl mb-2"></i>
-                <span class="text-sm text-white/80">View Reports</span>
+            <a href="/Admin/Suggestions" class="relative flex flex-col items-center p-4 bg-gradient-to-br from-pink-500/20 to-rose-500/20 border border-pink-500/30 rounded-xl hover:from-pink-500/30 hover:to-rose-500/30 transition-all hover:scale-105">
+                @if (Model.PendingSuggestionsCount > 0)
+                {
+                    <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full animate-pulse">
+                        @Model.PendingSuggestionsCount
+                    </span>
+                }
+                <i class="fas fa-comments text-pink-400 text-2xl mb-2"></i>
+                <span class="text-sm text-white/80">Suggestions</span>
             </a>
         </div>
     </div>

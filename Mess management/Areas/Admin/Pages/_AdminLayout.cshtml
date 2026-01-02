@@ -47,6 +47,23 @@
             background: rgba(255, 255, 255, 0.2);
             border-radius: 3px;
         }
+
+        /* Mobile sidebar transitions */
+        .sidebar-overlay {
+            transition: opacity 0.3s ease;
+        }
+        
+        .sidebar-panel {
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-closed {
+            transform: translateX(-100%);
+        }
+        
+        .sidebar-open {
+            transform: translateX(0);
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -58,20 +75,47 @@
     </div>
 
     <div class="relative z-10 flex min-h-screen">
-        <!-- Sidebar -->
-        <aside class="w-64 bg-black/30 backdrop-blur-xl text-white fixed h-full border-r border-white/10">
-            <div class="p-5 border-b border-white/10">
+        <!-- Mobile Header -->
+        <div class="lg:hidden fixed top-0 left-0 right-0 z-40 bg-black/30 backdrop-blur-xl border-b border-white/10">
+            <div class="flex items-center justify-between p-4">
                 <div class="flex items-center space-x-3">
                     <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center">
                         <i class="fas fa-utensils text-white"></i>
                     </div>
                     <div>
-                        <h1 class="text-lg font-bold">MessManager</h1>
+                        <h1 class="text-lg font-bold text-white">MessManager</h1>
                         <p class="text-xs text-white/50">Admin Panel</p>
                     </div>
                 </div>
+                <button id="mobile-menu-btn" class="p-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
             </div>
-            <nav class="mt-6 px-3">
+        </div>
+
+        <!-- Mobile Sidebar Overlay -->
+        <div id="sidebar-overlay" class="sidebar-overlay lg:hidden fixed inset-0 bg-black/50 z-40 hidden"></div>
+
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar-panel w-64 bg-black/30 backdrop-blur-xl text-white fixed h-full border-r border-white/10 z-50 lg:translate-x-0 sidebar-closed lg:transform-none">
+            <div class="p-5 border-b border-white/10">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-utensils text-white"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-lg font-bold">MessManager</h1>
+                            <p class="text-xs text-white/50">Admin Panel</p>
+                        </div>
+                    </div>
+                    <!-- Close button for mobile -->
+                    <button id="close-sidebar-btn" class="lg:hidden p-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <nav class="mt-6 px-3 overflow-y-auto" style="max-height: calc(100vh - 200px);">
                 <p class="text-xs text-white/40 uppercase tracking-wider mb-3 px-3">Main Menu</p>
                 <a href="/Admin/Dashboard" class="sidebar-link flex items-center px-4 py-3 rounded-lg text-white/80 hover:text-white mb-1">
                     <i class="fas fa-tachometer-alt w-6 text-emerald-400"></i>
@@ -105,8 +149,12 @@
                     <i class="fas fa-file-excel w-6 text-green-400"></i>
                     <span>Excel Exports</span>
                 </a>
+                <a href="/Admin/Suggestions" class="sidebar-link flex items-center px-4 py-3 rounded-lg text-white/80 hover:text-white mb-1">
+                    <i class="fas fa-comments w-6 text-pink-400"></i>
+                    <span>Suggestions</span>
+                </a>
             </nav>
-            <div class="absolute bottom-0 w-full p-3 border-t border-white/10">
+            <div class="absolute bottom-0 w-full p-3">
                 <a href="/Account/ChangePassword" class="sidebar-link flex items-center px-4 py-3 rounded-lg text-white/80 hover:text-white mb-1">
                     <i class="fas fa-key w-6 text-yellow-400"></i>
                     <span>Change Password</span>
@@ -119,10 +167,64 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 ml-64 p-8">
+        <main class="flex-1 lg:ml-64 p-4 sm:p-6 lg:p-8 pt-20 lg:pt-8">
             @RenderBody()
         </main>
     </div>
+
+    <!-- Mobile Sidebar Toggle Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const menuBtn = document.getElementById('mobile-menu-btn');
+            const closeBtn = document.getElementById('close-sidebar-btn');
+
+            function openSidebar() {
+                sidebar.classList.remove('sidebar-closed');
+                sidebar.classList.add('sidebar-open');
+                overlay.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeSidebar() {
+                sidebar.classList.remove('sidebar-open');
+                sidebar.classList.add('sidebar-closed');
+                overlay.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+
+            if (menuBtn) {
+                menuBtn.addEventListener('click', openSidebar);
+            }
+
+            if (closeBtn) {
+                closeBtn.addEventListener('click', closeSidebar);
+            }
+
+            if (overlay) {
+                overlay.addEventListener('click', closeSidebar);
+            }
+
+            // Close sidebar on navigation link click (mobile)
+            const sidebarLinks = sidebar.querySelectorAll('a');
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth < 1024) {
+                        closeSidebar();
+                    }
+                });
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 1024) {
+                    overlay.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+    </script>
 
     <!-- Toast Notification Script -->
     <script>

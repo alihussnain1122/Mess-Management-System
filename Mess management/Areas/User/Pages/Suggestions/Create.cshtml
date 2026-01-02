@@ -1,0 +1,149 @@
+@page
+@model MessManagement.Areas.User.Pages.Suggestions.CreateModel
+@{
+    ViewData["Title"] = "New Suggestion";
+}
+
+<div class="mb-6">
+    <div class="flex items-center gap-2 mb-2">
+        <a href="/User/Suggestions" class="text-emerald-400 hover:text-emerald-300 transition-colors">
+            <i class="fas fa-arrow-left mr-1"></i>Back to Suggestions
+        </a>
+    </div>
+    <h1 class="text-2xl font-bold text-white">Submit New Suggestion</h1>
+    <p class="text-white/60">Share your feedback, suggestions, or complaints with the admin</p>
+</div>
+
+<div class="max-w-2xl">
+    <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden">
+        <div class="bg-gradient-to-r from-emerald-500/20 to-teal-500/20 px-6 py-4 border-b border-white/20">
+            <h3 class="font-semibold text-white">
+                <i class="fas fa-edit mr-2 text-emerald-400"></i>Suggestion Form
+            </h3>
+        </div>
+        <div class="p-6">
+            <form method="post" class="space-y-6">
+                <!-- Category Selection -->
+                <div>
+                    <label class="block text-sm font-medium text-emerald-400 mb-2">Category *</label>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                        @foreach (var category in Enum.GetValues<MessManagement.Models.SuggestionCategory>())
+                        {
+                            <label class="relative cursor-pointer">
+                                <input type="radio" name="Input.Category" value="@category" 
+                                       class="peer sr-only" @(Model.Input.Category == category ? "checked" : "") />
+                                <div class="p-3 rounded-xl border border-white/20 bg-white/5 peer-checked:bg-emerald-500/20 peer-checked:border-emerald-500/50 hover:bg-white/10 transition-all text-center">
+                                    <span class="text-lg">@GetCategoryIcon(category)</span>
+                                    <p class="text-white text-sm mt-1">@category</p>
+                                </div>
+                            </label>
+                        }
+                    </div>
+                    <span asp-validation-for="Input.Category" class="text-red-400 text-sm"></span>
+                </div>
+
+                <!-- Subject -->
+                <div>
+                    <label asp-for="Input.Subject" class="block text-sm font-medium text-emerald-400 mb-2">Subject *</label>
+                    <input asp-for="Input.Subject" type="text" 
+                           class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                           placeholder="Brief title for your suggestion" />
+                    <span asp-validation-for="Input.Subject" class="text-red-400 text-sm"></span>
+                </div>
+
+                <!-- Message -->
+                <div>
+                    <label asp-for="Input.Message" class="block text-sm font-medium text-emerald-400 mb-2">Message *</label>
+                    <textarea asp-for="Input.Message" rows="6"
+                              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
+                              placeholder="Describe your suggestion, feedback, or complaint in detail..."></textarea>
+                    <div class="flex justify-between mt-1">
+                        <span asp-validation-for="Input.Message" class="text-red-400 text-sm"></span>
+                        <span class="text-white/40 text-sm"><span id="charCount">0</span>/1000</span>
+                    </div>
+                </div>
+
+                <!-- Anonymous Option -->
+                <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input asp-for="Input.IsAnonymous" type="checkbox" 
+                               class="mt-1 w-5 h-5 rounded border-white/20 bg-white/10 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-0" />
+                        <div>
+                            <span class="text-white font-medium">Submit Anonymously</span>
+                            <p class="text-white/50 text-sm mt-1">
+                                <i class="fas fa-user-secret mr-1"></i>Your name will be hidden from the admin. 
+                                Use this for sensitive feedback.
+                            </p>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="flex gap-3 pt-4">
+                    <button type="submit" 
+                            class="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-6 py-3 rounded-xl transition-all shadow-lg font-medium">
+                        <i class="fas fa-paper-plane mr-2"></i>Submit Suggestion
+                    </button>
+                    <a href="/User/Suggestions" 
+                       class="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-xl transition-all border border-white/20">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tips Card -->
+    <div class="mt-6 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-2xl p-4 border border-blue-500/20">
+        <h4 class="text-blue-400 font-medium mb-2">
+            <i class="fas fa-lightbulb mr-2"></i>Tips for Effective Feedback
+        </h4>
+        <ul class="text-white/60 text-sm space-y-1">
+            <li>• Be specific about the issue or suggestion</li>
+            <li>• Provide examples if possible (e.g., date, meal type)</li>
+            <li>• Suggest potential solutions if you have any</li>
+            <li>• Keep the tone constructive and respectful</li>
+            <li>• Use anonymous option for sensitive topics</li>
+        </ul>
+    </div>
+</div>
+
+@functions {
+    string GetCategoryIcon(MessManagement.Models.SuggestionCategory category)
+    {
+        return category switch
+        {
+            MessManagement.Models.SuggestionCategory.Menu => "🍽️",
+            MessManagement.Models.SuggestionCategory.Quality => "⭐",
+            MessManagement.Models.SuggestionCategory.Service => "🛎️",
+            MessManagement.Models.SuggestionCategory.Hygiene => "🧹",
+            MessManagement.Models.SuggestionCategory.Pricing => "💰",
+            MessManagement.Models.SuggestionCategory.Complaint => "⚠️",
+            MessManagement.Models.SuggestionCategory.Appreciation => "❤️",
+            MessManagement.Models.SuggestionCategory.Timing => "⏰",
+            MessManagement.Models.SuggestionCategory.Staff => "👥",
+            MessManagement.Models.SuggestionCategory.General => "💬",
+            _ => "📝"
+        };
+    }
+}
+
+@section Scripts {
+    <script>
+        // Character counter
+        const textarea = document.querySelector('textarea[name="Input.Message"]');
+        const charCount = document.getElementById('charCount');
+        
+        textarea.addEventListener('input', function() {
+            charCount.textContent = this.value.length;
+            if (this.value.length > 1000) {
+                charCount.classList.add('text-red-400');
+            } else {
+                charCount.classList.remove('text-red-400');
+            }
+        });
+        
+        // Initialize count
+        charCount.textContent = textarea.value.length;
+    </script>
+}

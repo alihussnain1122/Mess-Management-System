@@ -1,0 +1,265 @@
+@page "{id:int}"
+@model MessManagement.Areas.Admin.Pages.Suggestions.DetailsModel
+@{
+    ViewData["Title"] = "Suggestion Details";
+}
+
+<div class="mb-6">
+    <div class="flex items-center gap-2 mb-2">
+        <a href="/Admin/Suggestions" class="text-emerald-400 hover:text-emerald-300 transition-colors">
+            <i class="fas fa-arrow-left mr-1"></i>Back to Suggestions
+        </a>
+    </div>
+    <h1 class="text-2xl font-bold text-white">Suggestion Details</h1>
+    <p class="text-white/60">View complete suggestion information and response history</p>
+</div>
+
+@if (Model.Suggestion != null)
+{
+    <div class="max-w-4xl">
+        <!-- Status Banner -->
+        <div class="mb-6 p-4 rounded-2xl @GetStatusBanner(Model.Suggestion.Status)">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <i class="fas @GetStatusIcon(Model.Suggestion.Status) text-2xl"></i>
+                    <div>
+                        <p class="font-semibold">Status: @Model.Suggestion.Status</p>
+                        <p class="text-sm opacity-80">@GetStatusMessage(Model.Suggestion.Status)</p>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <a href="/Admin/Suggestions/Respond/@Model.Suggestion.SuggestionId" 
+                       class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all">
+                        <i class="fas fa-edit mr-1"></i>Edit Response
+                    </a>
+                    <form method="post" asp-page-handler="Delete" asp-route-id="@Model.Suggestion.SuggestionId" 
+                          onsubmit="return confirm('Are you sure you want to delete this suggestion?');">
+                        <button type="submit" class="bg-red-500/20 hover:bg-red-500/40 text-red-400 px-4 py-2 rounded-lg text-sm font-medium transition-all">
+                            <i class="fas fa-trash mr-1"></i>Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Main Content -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Suggestion Card -->
+                <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden">
+                    <div class="bg-white/10 px-6 py-4 border-b border-white/20">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="px-2 py-1 rounded-lg text-xs font-medium @GetCategoryColor(Model.Suggestion.Category)">
+                                @GetCategoryIcon(Model.Suggestion.Category) @Model.Suggestion.Category
+                            </span>
+                            @if (Model.Suggestion.IsAnonymous)
+                            {
+                                <span class="px-2 py-1 rounded-lg text-xs font-medium bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                                    <i class="fas fa-user-secret mr-1"></i>Anonymous
+                                </span>
+                            }
+                        </div>
+                        <h2 class="text-xl font-bold text-white">@Model.Suggestion.Subject</h2>
+                    </div>
+                    <div class="p-6">
+                        <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+                            <p class="text-white/90 whitespace-pre-wrap">@Model.Suggestion.Message</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Response Card -->
+                @if (!string.IsNullOrEmpty(Model.Suggestion.AdminResponse))
+                {
+                    <div class="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 rounded-2xl border border-emerald-500/20 overflow-hidden">
+                        <div class="bg-emerald-500/10 px-6 py-4 border-b border-emerald-500/20">
+                            <h3 class="font-semibold text-emerald-400">
+                                <i class="fas fa-reply mr-2"></i>Admin Response
+                            </h3>
+                        </div>
+                        <div class="p-6">
+                            <p class="text-white/90 whitespace-pre-wrap">@Model.Suggestion.AdminResponse</p>
+                            <div class="mt-4 pt-4 border-t border-emerald-500/20 flex items-center justify-between text-sm">
+                                @if (!string.IsNullOrEmpty(Model.AdminName))
+                                {
+                                    <span class="text-white/50">
+                                        <i class="fas fa-user-shield mr-1"></i>Responded by: @Model.AdminName
+                                    </span>
+                                }
+                                @if (Model.Suggestion.RespondedAt.HasValue)
+                                {
+                                    <span class="text-white/50">
+                                        <i class="fas fa-clock mr-1"></i>@Model.Suggestion.RespondedAt.Value.ToString("MMM dd, yyyy hh:mm tt")
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="bg-amber-500/10 rounded-2xl border border-amber-500/20 p-6 text-center">
+                        <div class="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-exclamation-triangle text-amber-400 text-2xl"></i>
+                        </div>
+                        <h3 class="text-amber-400 font-medium mb-1">No Response Yet</h3>
+                        <p class="text-white/60 text-sm mb-4">This suggestion hasn't been responded to yet.</p>
+                        <a href="/Admin/Suggestions/Respond/@Model.Suggestion.SuggestionId" 
+                           class="inline-block bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-6 py-2 rounded-xl">
+                            <i class="fas fa-reply mr-2"></i>Respond Now
+                        </a>
+                    </div>
+                }
+            </div>
+
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <!-- Member Info -->
+                <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+                    <h3 class="font-semibold text-white mb-4">
+                        <i class="fas fa-user mr-2 text-blue-400"></i>Submitted By
+                    </h3>
+                    @if (!Model.Suggestion.IsAnonymous && Model.Suggestion.Member != null)
+                    {
+                        <div class="flex items-center gap-3">
+                            <div class="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                                @Model.Suggestion.Member.FullName.Substring(0, 1).ToUpper()
+                            </div>
+                            <div>
+                                <p class="text-white font-medium">@Model.Suggestion.Member.FullName</p>
+                                <p class="text-white/60 text-sm">Room @Model.Suggestion.Member.RoomNumber</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-white/10">
+                            <a href="/Admin/Members/Details/@Model.Suggestion.Member.MemberId" 
+                               class="text-emerald-400 hover:text-emerald-300 text-sm">
+                                <i class="fas fa-external-link-alt mr-1"></i>View Member Profile
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="flex items-center gap-3">
+                            <div class="w-14 h-14 bg-purple-500/20 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user-secret text-purple-400 text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-purple-400 font-medium">Anonymous</p>
+                                <p class="text-white/60 text-sm">Identity hidden</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Timestamps -->
+                <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+                    <h3 class="font-semibold text-white mb-4">
+                        <i class="fas fa-history mr-2 text-purple-400"></i>Timeline
+                    </h3>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-white/60">Submitted</span>
+                            <span class="text-white">@Model.Suggestion.CreatedAt.ToString("MMM dd, yyyy")</span>
+                        </div>
+                        @if (Model.Suggestion.UpdatedAt.HasValue)
+                        {
+                            <div class="flex justify-between">
+                                <span class="text-white/60">Last Updated</span>
+                                <span class="text-white">@Model.Suggestion.UpdatedAt.Value.ToString("MMM dd, yyyy")</span>
+                            </div>
+                        }
+                        @if (Model.Suggestion.RespondedAt.HasValue)
+                        {
+                            <div class="flex justify-between">
+                                <span class="text-white/60">Responded</span>
+                                <span class="text-emerald-400">@Model.Suggestion.RespondedAt.Value.ToString("MMM dd, yyyy")</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+                    <h3 class="font-semibold text-white mb-4">
+                        <i class="fas fa-bolt mr-2 text-amber-400"></i>Quick Actions
+                    </h3>
+                    <div class="space-y-2">
+                        <a href="/Admin/Suggestions/Respond/@Model.Suggestion.SuggestionId" 
+                           class="w-full bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-400 px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center justify-center">
+                            <i class="fas fa-reply mr-2"></i>Respond / Update
+                        </a>
+                        <a href="/Admin/Suggestions" 
+                           class="w-full bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center justify-center">
+                            <i class="fas fa-list mr-2"></i>All Suggestions
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@functions {
+    string GetCategoryColor(MessManagement.Models.SuggestionCategory category)
+    {
+        return category switch
+        {
+            MessManagement.Models.SuggestionCategory.Menu => "bg-amber-500/20 text-amber-400 border border-amber-500/30",
+            MessManagement.Models.SuggestionCategory.Quality => "bg-blue-500/20 text-blue-400 border border-blue-500/30",
+            MessManagement.Models.SuggestionCategory.Complaint => "bg-red-500/20 text-red-400 border border-red-500/30",
+            MessManagement.Models.SuggestionCategory.Appreciation => "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30",
+            _ => "bg-white/10 text-white/70 border border-white/20"
+        };
+    }
+
+    string GetCategoryIcon(MessManagement.Models.SuggestionCategory category)
+    {
+        return category switch
+        {
+            MessManagement.Models.SuggestionCategory.Menu => "🍽️",
+            MessManagement.Models.SuggestionCategory.Quality => "⭐",
+            MessManagement.Models.SuggestionCategory.Complaint => "⚠️",
+            MessManagement.Models.SuggestionCategory.Appreciation => "❤️",
+            _ => "💬"
+        };
+    }
+
+    string GetStatusBanner(MessManagement.Models.SuggestionStatus status)
+    {
+        return status switch
+        {
+            MessManagement.Models.SuggestionStatus.Pending => "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30",
+            MessManagement.Models.SuggestionStatus.UnderReview => "bg-blue-500/20 text-blue-400 border border-blue-500/30",
+            MessManagement.Models.SuggestionStatus.Resolved => "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30",
+            MessManagement.Models.SuggestionStatus.Rejected => "bg-red-500/20 text-red-400 border border-red-500/30",
+            MessManagement.Models.SuggestionStatus.Implemented => "bg-purple-500/20 text-purple-400 border border-purple-500/30",
+            _ => "bg-white/10 text-white/70 border border-white/20"
+        };
+    }
+
+    string GetStatusIcon(MessManagement.Models.SuggestionStatus status)
+    {
+        return status switch
+        {
+            MessManagement.Models.SuggestionStatus.Pending => "fa-clock",
+            MessManagement.Models.SuggestionStatus.UnderReview => "fa-search",
+            MessManagement.Models.SuggestionStatus.Resolved => "fa-check-circle",
+            MessManagement.Models.SuggestionStatus.Rejected => "fa-times-circle",
+            MessManagement.Models.SuggestionStatus.Implemented => "fa-star",
+            _ => "fa-question-circle"
+        };
+    }
+
+    string GetStatusMessage(MessManagement.Models.SuggestionStatus status)
+    {
+        return status switch
+        {
+            MessManagement.Models.SuggestionStatus.Pending => "Waiting to be reviewed",
+            MessManagement.Models.SuggestionStatus.UnderReview => "Currently being reviewed",
+            MessManagement.Models.SuggestionStatus.Resolved => "Has been addressed",
+            MessManagement.Models.SuggestionStatus.Rejected => "Could not be implemented",
+            MessManagement.Models.SuggestionStatus.Implemented => "Successfully implemented",
+            _ => "Status unknown"
+        };
+    }
+}

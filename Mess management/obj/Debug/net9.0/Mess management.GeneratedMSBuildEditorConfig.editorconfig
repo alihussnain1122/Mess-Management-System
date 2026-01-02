@@ -108,6 +108,18 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cUGFnZXNcU2VuZEJpbGxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/EAD_Project/Mess management/Areas/Admin/Pages/Suggestions/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cUGFnZXNcU3VnZ2VzdGlvbnNcRGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EAD_Project/Mess management/Areas/Admin/Pages/Suggestions/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cUGFnZXNcU3VnZ2VzdGlvbnNcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EAD_Project/Mess management/Areas/Admin/Pages/Suggestions/Respond.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cUGFnZXNcU3VnZ2VzdGlvbnNcUmVzcG9uZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/EAD_Project/Mess management/Areas/Admin/Pages/_AdminLayout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cUGFnZXNcX0FkbWluTGF5b3V0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
@@ -170,6 +182,18 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/EAD_Project/Mess management/Areas/User/Pages/Shared/_UserLayout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcVXNlclxQYWdlc1xTaGFyZWRcX1VzZXJMYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EAD_Project/Mess management/Areas/User/Pages/Suggestions/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcVXNlclxQYWdlc1xTdWdnZXN0aW9uc1xDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EAD_Project/Mess management/Areas/User/Pages/Suggestions/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcVXNlclxQYWdlc1xTdWdnZXN0aW9uc1xEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EAD_Project/Mess management/Areas/User/Pages/Suggestions/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcVXNlclxQYWdlc1xTdWdnZXN0aW9uc1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/EAD_Project/Mess management/Areas/User/Pages/_ViewImports.cshtml]
