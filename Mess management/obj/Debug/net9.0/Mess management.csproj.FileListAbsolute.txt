@@ -266,7 +266,6 @@ D:\EAD_Project\Mess management\bin\Debug\net9.0\runtimes\win-arm64\native\Micros
 D:\EAD_Project\Mess management\bin\Debug\net9.0\runtimes\win-x64\native\Microsoft.Data.SqlClient.SNI.dll
 D:\EAD_Project\Mess management\bin\Debug\net9.0\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
 D:\EAD_Project\Mess management\bin\Debug\net9.0\runtimes\win\lib\net6.0\System.Runtime.Caching.dll
-D:\EAD_Project\Mess management\obj\Debug\net9.0\compressed\3k88n22hos-9umn1jlojx.gz
 D:\EAD_Project\Mess management\bin\Debug\net9.0\publish\web.config
 D:\EAD_Project\Mess management\bin\Debug\net9.0\web.config
 D:\EAD_Project\Mess management\bin\Debug\net9.0\publish\appsettings.Development.json
@@ -278,3 +277,4 @@ D:\EAD_Project\Mess management\bin\Debug\net9.0\publish\Mess management.staticwe
 D:\EAD_Project\mess management\bin\Debug\net9.0\DotNetEnv.dll
 D:\EAD_Project\mess management\bin\Debug\net9.0\Sprache.dll
 D:\EAD_Project\Mess management\obj\Debug\net9.0\compressed\oxbk4ya85w-u7eyd99wd4.gz
+D:\EAD_Project\Mess management\obj\Debug\net9.0\compressed\3k88n22hos-lmbab5hmcw.gz

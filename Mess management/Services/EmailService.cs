@@ -58,7 +58,7 @@ public class EmailService : IEmailService
 
     public async Task SendPaymentReminderAsync(string toEmail, string memberName, decimal amount, DateTime dueDate)
     {
-        var subject = "Payment Reminder - Mess Management";
+        var subject = "Payment Reminder - DineSync";
         var body = GetEmailTemplate("Payment Reminder", $@"
             <p>Dear <strong>{memberName}</strong>,</p>
             <p>This is a friendly reminder that your mess payment of <strong>Rs.{amount:N2}</strong> is due on <strong>{dueDate:dd MMM yyyy}</strong>.</p>
@@ -75,7 +75,7 @@ public class EmailService : IEmailService
 
     public async Task SendPaymentConfirmationAsync(string toEmail, string memberName, decimal amount, string paymentMode)
     {
-        var subject = "Payment Confirmation - Mess Management";
+        var subject = "Payment Confirmation - DineSync";
         var body = GetEmailTemplate("Payment Confirmed", $@"
             <p>Dear <strong>{memberName}</strong>,</p>
             <p>Your payment has been successfully received. Here are the details:</p>
@@ -92,10 +92,10 @@ public class EmailService : IEmailService
 
     public async Task SendWelcomeEmailAsync(string toEmail, string memberName, string username)
     {
-        var subject = "Welcome to Mess Management System";
+        var subject = "Welcome to DineSync";
         var body = GetEmailTemplate("Welcome!", $@"
             <p>Dear <strong>{memberName}</strong>,</p>
-            <p>Welcome to our Mess Management System! Your account has been created successfully.</p>
+            <p>Welcome to DineSync! Your account has been created successfully.</p>
             <div style='margin: 20px 0; padding: 15px; background: #dbeafe; border-radius: 8px; border-left: 4px solid #3b82f6;'>
                 <p style='margin: 0; color: #1e40af;'><strong>Username:</strong> {username}</p>
                 <p style='margin: 5px 0 0 0; color: #1e40af;'>You can now log in to view your attendance, menu, and payment history.</p>
@@ -109,7 +109,7 @@ public class EmailService : IEmailService
 
     public async Task SendPasswordResetCodeAsync(string toEmail, string userName, string code)
     {
-        var subject = "Password Reset Code - Mess Management";
+        var subject = "Password Reset Code - DineSync";
         var body = GetEmailTemplate("Password Reset", $@"
             <p>Dear <strong>{userName}</strong>,</p>
             <p>We received a request to reset your password. Use the verification code below to proceed:</p>
@@ -259,7 +259,7 @@ public class EmailService : IEmailService
                 return false;
             }
 
-            var subject = $"Monthly Bill - {bill.MonthName} {bill.Year} | Mess Management";
+            var subject = $"Monthly Bill - {bill.MonthName} {bill.Year} | DineSync";
             
             var statusColor = bill.Balance > 0 ? "#dc2626" : "#10b981";
             var statusBg = bill.Balance > 0 ? "#fef2f2" : "#d1fae5";
@@ -350,14 +350,14 @@ public class EmailService : IEmailService
 </head>
 <body style='font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;'>
     <div style='background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;'>
-        <h1 style='color: white; margin: 0; font-size: 24px;'>🍽️ Mess Management</h1>
+        <h1 style='color: white; margin: 0; font-size: 24px;'>🍽️ DineSync</h1>
     </div>
     <div style='background: white; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;'>
         <h2 style='color: #10b981; margin-top: 0;'>{title}</h2>
         {content}
         <hr style='border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;'>
         <p style='color: #9ca3af; font-size: 12px; text-align: center;'>
-            This is an automated message from Mess Management System.<br>
+            This is an automated message from DineSync.<br>
             Please do not reply to this email.
         </p>
     </div>

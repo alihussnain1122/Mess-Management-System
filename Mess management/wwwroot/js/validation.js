@@ -1,5 +1,5 @@
 /**
- * Mess Management System - Validation & UI Enhancement Library
+ * DineSync - Validation & UI Enhancement Library
  * Professional client-side validation, toast notifications, and confirmation dialogs
  * Styled to match the landing page and login page design
  */

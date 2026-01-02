@@ -443,7 +443,7 @@ public class PdfService : IPdfService
             {
                 row.RelativeItem().Column(col =>
                 {
-                    col.Item().Text("🍽️ Mess Management System").FontSize(18).Bold().FontColor("#10b981");
+                    col.Item().Text("🍽️ DineSync").FontSize(18).Bold().FontColor("#10b981");
                     col.Item().Text("Monthly Bill / Statement").FontSize(14).SemiBold();
                 });
                 row.ConstantItem(120).AlignRight().Column(col =>
@@ -473,7 +473,7 @@ public class PdfService : IPdfService
             {
                 row.RelativeItem().Column(col =>
                 {
-                    col.Item().Text("🍽️ Mess Management System").FontSize(20).Bold().FontColor("#10b981");
+                    col.Item().Text("🍽️ DineSync").FontSize(20).Bold().FontColor("#10b981");
                     col.Item().Text(title).FontSize(16).SemiBold();
                 });
                 row.ConstantItem(100).Text($"Generated: {DateTime.Now:dd MMM yyyy}").FontSize(9).AlignRight();
@@ -489,7 +489,7 @@ public class PdfService : IPdfService
             column.Item().LineHorizontal(1).LineColor("#e5e7eb");
             column.Item().PaddingTop(10).Row(row =>
             {
-                row.RelativeItem().Text("Mess Management System - Confidential").FontSize(9).FontColor("#9ca3af");
+                row.RelativeItem().Text("DineSync - Confidential").FontSize(9).FontColor("#9ca3af");
                 row.RelativeItem().AlignRight().Text(x =>
                 {
                     x.Span("Page ").FontSize(9).FontColor("#9ca3af");
