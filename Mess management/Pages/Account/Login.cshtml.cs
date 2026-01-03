@@ -6,9 +6,11 @@ using MessManagement.Helpers;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MessManagement.Pages.Account;
 
+[AllowAnonymous] // Explicitly allow unauthenticated access to login page
 public class LoginModel : PageModel
 {
     private readonly IUserService _userService;

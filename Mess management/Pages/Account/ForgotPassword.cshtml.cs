@@ -5,9 +5,11 @@ using MessManagement.Interfaces;
 using MessManagement.Models;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MessManagement.Pages.Account;
 
+[AllowAnonymous] // Explicitly allow unauthenticated access for password recovery
 public class ForgotPasswordModel : PageModel
 {
     private readonly MessDbContext _context;

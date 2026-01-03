@@ -61,7 +61,7 @@ namespace MessManagement.Migrations
                     b.HasIndex("MemberId", "Date")
                         .IsUnique();
 
-                    b.ToTable("Attendances");
+                    b.ToTable("Attendances", (string)null);
                 });
 
             modelBuilder.Entity("MessManagement.Models.Member", b =>
@@ -98,7 +98,7 @@ namespace MessManagement.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Members");
+                    b.ToTable("Members", (string)null);
                 });
 
             modelBuilder.Entity("MessManagement.Models.PasswordHistory", b =>
@@ -127,7 +127,7 @@ namespace MessManagement.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PasswordHistories");
+                    b.ToTable("PasswordHistories", (string)null);
                 });
 
             modelBuilder.Entity("MessManagement.Models.PasswordResetToken", b =>
@@ -159,7 +159,7 @@ namespace MessManagement.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PasswordResetTokens");
+                    b.ToTable("PasswordResetTokens", (string)null);
                 });
 
             modelBuilder.Entity("MessManagement.Models.Payment", b =>
@@ -204,7 +204,7 @@ namespace MessManagement.Migrations
 
                     b.HasIndex("MemberId");
 
-                    b.ToTable("Payments");
+                    b.ToTable("Payments", (string)null);
                 });
 
             modelBuilder.Entity("MessManagement.Models.Suggestion", b =>
@@ -269,7 +269,7 @@ namespace MessManagement.Migrations
 
                     b.HasIndex("Status");
 
-                    b.ToTable("Suggestions");
+                    b.ToTable("Suggestions", (string)null);
                 });
 
             modelBuilder.Entity("MessManagement.Models.User", b =>
@@ -309,7 +309,7 @@ namespace MessManagement.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("MessManagement.Models.WaterTea", b =>
@@ -346,7 +346,7 @@ namespace MessManagement.Migrations
                     b.HasIndex("MemberId", "Date")
                         .IsUnique();
 
-                    b.ToTable("WaterTeaRecords");
+                    b.ToTable("WaterTeaRecords", (string)null);
                 });
 
             modelBuilder.Entity("MessManagement.Models.WeeklyMenu", b =>
@@ -386,7 +386,7 @@ namespace MessManagement.Migrations
 
                     b.HasIndex("DayOfWeek", "MealType");
 
-                    b.ToTable("WeeklyMenus");
+                    b.ToTable("WeeklyMenus", (string)null);
 
                     b.HasData(
                         new

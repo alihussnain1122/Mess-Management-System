@@ -14,6 +14,9 @@ public static class DbInitializer
         // Add MenuDate column if it doesn't exist
         AddMenuDateColumnIfNotExists(context);
         
+        // Add RowVersion column for concurrency control if it doesn't exist
+        AddRowVersionColumnIfNotExists(context);
+        
         SeedAdminUser(context);
     }
 
@@ -27,6 +30,9 @@ public static class DbInitializer
         
         // Add MenuDate column if it doesn't exist
         await AddMenuDateColumnIfNotExistsAsync(context);
+        
+        // Add RowVersion column for concurrency control if it doesn't exist
+        await AddRowVersionColumnIfNotExistsAsync(context);
         
         await SeedAdminUserAsync(context);
     }
@@ -52,6 +58,34 @@ public static class DbInitializer
                 IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('WeeklyMenus') AND name = 'MenuDate')
                 BEGIN
                     ALTER TABLE [WeeklyMenus] ADD [MenuDate] datetime2 NULL;
+                END");
+        }
+        catch { /* Column might already exist */ }
+    }
+    
+    private static void AddRowVersionColumnIfNotExists(MessDbContext context)
+    {
+        try
+        {
+            // Add RowVersion column for optimistic concurrency control on Members table
+            context.Database.ExecuteSqlRaw(@"
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Members') AND name = 'RowVersion')
+                BEGIN
+                    ALTER TABLE [Members] ADD [RowVersion] rowversion NULL;
+                END");
+        }
+        catch { /* Column might already exist */ }
+    }
+    
+    private static async Task AddRowVersionColumnIfNotExistsAsync(MessDbContext context)
+    {
+        try
+        {
+            // Add RowVersion column for optimistic concurrency control on Members table
+            await context.Database.ExecuteSqlRawAsync(@"
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Members') AND name = 'RowVersion')
+                BEGIN
+                    ALTER TABLE [Members] ADD [RowVersion] rowversion NULL;
                 END");
         }
         catch { /* Column might already exist */ }

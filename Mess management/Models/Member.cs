@@ -20,6 +20,11 @@ public class Member
 
     public bool IsActive { get; set; } = true;
 
+    // Concurrency token for optimistic concurrency control
+    // EF Core will check this value during updates to prevent lost updates
+    [Timestamp]
+    public byte[]? RowVersion { get; set; }
+
     // Foreign Key
     public int UserId { get; set; }
 

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using MessManagement.Models;
+using MessManagement.Helpers; // For custom validation attributes
 
 namespace MessManagement.ViewModels;
 
@@ -7,6 +8,7 @@ public class LoginViewModel
 {
     [Required(ErrorMessage = "Username is required")]
     [StringLength(50)]
+    [NoSpecialCharacters("_", ErrorMessage = "Username can only contain letters, numbers, and underscores")]
     public string Username { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Password is required")]
@@ -20,11 +22,13 @@ public class RegisterViewModel
 {
     [Required(ErrorMessage = "Username is required")]
     [StringLength(50, MinimumLength = 3)]
+    [NoSpecialCharacters("_", ErrorMessage = "Username can only contain letters, numbers, and underscores")]
     public string Username { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Password is required")]
     [StringLength(100, MinimumLength = 6)]
     [DataType(DataType.Password)]
+    [StrongPassword(MinLength = 6, RequireUppercase = true, RequireLowercase = true, RequireDigit = true)]
     public string Password { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Confirm Password is required")]
@@ -34,6 +38,7 @@ public class RegisterViewModel
 
     [Required(ErrorMessage = "Full Name is required")]
     [StringLength(100)]
+    [NoSpecialCharacters(" -'", ErrorMessage = "Full Name contains invalid characters")]
     public string FullName { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Room Number is required")]

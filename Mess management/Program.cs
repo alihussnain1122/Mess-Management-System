@@ -31,7 +31,20 @@ builder.Services.AddDbContext<MessDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
            .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning)));
 
-// Register Services (Repository-Service Pattern)
+// ============================================
+// DEPENDENCY INJECTION - ALL THREE LIFETIMES
+// ============================================
+
+// SINGLETON: One instance for entire application lifetime
+// Use for: Application settings, Caching, Shared state
+builder.Services.AddSingleton<IAppSettingsService, AppSettingsService>();
+
+// TRANSIENT: New instance every time it's requested
+// Use for: Lightweight, stateless services
+builder.Services.AddTransient<IGuidGeneratorService, GuidGeneratorService>();
+
+// SCOPED: One instance per HTTP request (most common for web apps)
+// Use for: Database contexts, Services that need request-level state
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IMemberService, MemberService>();
 builder.Services.AddScoped<IMenuService, MenuService>();

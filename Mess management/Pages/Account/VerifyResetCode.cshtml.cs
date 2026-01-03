@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using MessManagement.Data;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MessManagement.Pages.Account
 {
+    [AllowAnonymous] // Explicitly allow unauthenticated access for password reset verification
     public class VerifyResetCodeModel : PageModel
     {
         private readonly MessDbContext _context;
