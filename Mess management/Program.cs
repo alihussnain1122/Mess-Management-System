@@ -4,7 +4,7 @@ using MessManagement.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.AspNetCore.Authentication.Cookies;
-
+using Microsoft.AspNetCore.CookiePolicy;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +25,11 @@ if (!builder.Environment.IsDevelopment())
 
 // Add services to the container
 builder.Services.AddRazorPages();
+
+// ============================================
+// MEMORY CACHING (Performance Optimization)
+// ============================================
+builder.Services.AddMemoryCache();
 
 // Configure Entity Framework with SQL Server using appsettings.json
 builder.Services.AddDbContext<MessDbContext>(options =>
@@ -60,7 +65,9 @@ builder.Services.AddScoped<IExcelExportService, ExcelExportService>();
 // Configure Stripe Settings from appsettings.json
 builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 
-// Configure Cookie Authentication
+// ============================================
+// COOKIE AUTHENTICATION (with Security Hardening)
+// ============================================
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -69,10 +76,31 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Account/AccessDenied";
         options.ExpireTimeSpan = TimeSpan.FromDays(7);
         options.SlidingExpiration = true;
+        
+        // ============================================
+        // SECURITY HARDENING - Cookie Settings
+        // ============================================
+        options.Cookie.HttpOnly = true;           // Prevents JavaScript access (XSS protection)
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // HTTPS only
+        options.Cookie.SameSite = SameSiteMode.Strict;  // CSRF protection
+        options.Cookie.Name = ".DineSync.Auth";   // Custom cookie name
+        options.Cookie.IsEssential = true;        // Required for authentication
     });
 
+// ============================================
+// COOKIE POLICY (GDPR Compliance)
+// ============================================
+builder.Services.Configure<CookiePolicyOptions>(options =>
+{
+    options.CheckConsentNeeded = context => false; // Set to true for GDPR consent
+    options.MinimumSameSitePolicy = SameSiteMode.Strict;
+    options.HttpOnly = HttpOnlyPolicy.Always;
+    options.Secure = CookieSecurePolicy.Always;
+});
 
-
+// ============================================
+// AUTHORIZATION POLICIES
+// ============================================
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
@@ -97,14 +125,25 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// Configure the HTTP request pipeline
-if (!app.Environment.IsDevelopment())
+// ============================================
+// MIDDLEWARE PIPELINE (Order is CRITICAL!)
+// ============================================
+
+// 1. Exception handling must be FIRST
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage(); // Detailed errors in development
+}
+else
 {
     app.UseExceptionHandler("/Error");
-    app.UseHsts();
+    app.UseHsts(); // HTTP Strict Transport Security
+    
+    // 2. HTTPS Redirection - Only in production (requires HTTPS to be configured)
+    app.UseHttpsRedirection();
 }
 
-// Global exception handling middleware
+// 3. Global exception logging middleware
 app.Use(async (context, next) =>
 {
     try
@@ -115,17 +154,26 @@ app.Use(async (context, next) =>
     {
         var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "Unhandled exception occurred. Path: {Path}", context.Request.Path);
-        throw;
+        throw; // Re-throw to let UseExceptionHandler handle it
     }
 });
 
+// 4. Cookie Policy (GDPR compliance)
+app.UseCookiePolicy();
+
+// 5. Static files (before routing for performance)
 app.UseStaticFiles();
 
+// 6. Routing
 app.UseRouting();
 
+// 7. Authentication (must be after UseRouting, before UseAuthorization)
 app.UseAuthentication();
+
+// 8. Authorization (must be after UseAuthentication)
 app.UseAuthorization();
 
+// 9. Map endpoints
 app.MapRazorPages();
 
 app.Run();

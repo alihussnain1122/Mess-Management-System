@@ -5,7 +5,10 @@ public interface IEmailService
     Task SendEmailAsync(string toEmail, string subject, string body);
     Task SendPaymentReminderAsync(string toEmail, string memberName, decimal amount, DateTime dueDate);
     Task SendPaymentConfirmationAsync(string toEmail, string memberName, decimal amount, string paymentMode);
-    Task SendWelcomeEmailAsync(string toEmail, string memberName, string username);
+    /// <summary>
+    /// Sends welcome email with login credentials to new member.
+    /// </summary>
+    Task SendWelcomeEmailAsync(string toEmail, string memberName, string username, string password);
     Task SendPasswordResetCodeAsync(string toEmail, string userName, string code);
     Task SendMonthlyBillAsync(string toEmail, string memberName, MonthlyBillEmailModel bill);
     Task<bool> SendMonthlyBillWithPdfAsync(string toEmail, string memberName, MonthlyBillEmailModel bill, byte[] pdfAttachment, string fileName);

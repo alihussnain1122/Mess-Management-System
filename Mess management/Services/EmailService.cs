@@ -90,16 +90,26 @@ public class EmailService : IEmailService
         await SendEmailAsync(toEmail, subject, body);
     }
 
-    public async Task SendWelcomeEmailAsync(string toEmail, string memberName, string username)
+    /// <summary>
+    /// Sends welcome email with login credentials to new member.
+    /// Includes username and temporary password for first login.
+    /// </summary>
+    public async Task SendWelcomeEmailAsync(string toEmail, string memberName, string username, string password)
     {
-        var subject = "Welcome to DineSync";
+        var subject = "Welcome to DineSync - Your Login Credentials";
         var body = GetEmailTemplate("Welcome!", $@"
             <p>Dear <strong>{memberName}</strong>,</p>
             <p>Welcome to DineSync! Your account has been created successfully.</p>
-            <div style='margin: 20px 0; padding: 15px; background: #dbeafe; border-radius: 8px; border-left: 4px solid #3b82f6;'>
+            <div style='margin: 20px 0; padding: 20px; background: #dbeafe; border-radius: 8px; border-left: 4px solid #3b82f6;'>
+                <h3 style='margin: 0 0 15px 0; color: #1e40af;'>🔐 Your Login Credentials</h3>
                 <p style='margin: 0; color: #1e40af;'><strong>Username:</strong> {username}</p>
-                <p style='margin: 5px 0 0 0; color: #1e40af;'>You can now log in to view your attendance, menu, and payment history.</p>
+                <p style='margin: 8px 0 0 0; color: #1e40af;'><strong>Password:</strong> {password}</p>
             </div>
+            <div style='margin: 20px 0; padding: 15px; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;'>
+                <p style='margin: 0; color: #92400e;'><strong>⚠️ Security Notice:</strong></p>
+                <p style='margin: 5px 0 0 0; color: #92400e;'>Please change your password after your first login for security purposes.</p>
+            </div>
+            <p>You can now log in to view your attendance, menu, and payment history.</p>
             <p>If you have any questions, please contact the mess administrator.</p>
             <p>Best regards,<br>Mess Management Team</p>
         ");

@@ -276,3 +276,4 @@ D:\EAD_Project\mess management\bin\Debug\net9.0\DotNetEnv.dll
 D:\EAD_Project\mess management\bin\Debug\net9.0\Sprache.dll
 D:\EAD_Project\Mess management\obj\Debug\net9.0\compressed\oxbk4ya85w-u7eyd99wd4.gz
 D:\EAD_Project\Mess management\obj\Debug\net9.0\compressed\3k88n22hos-lmbab5hmcw.gz
+D:\EAD_Project\Mess management\bin\Debug\net9.0\appsettings.Production.json

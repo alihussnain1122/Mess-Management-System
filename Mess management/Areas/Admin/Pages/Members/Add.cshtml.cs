@@ -31,6 +31,13 @@ public class AddModel : PageModel
         if (!ModelState.IsValid)
             return Page();
 
+        // Check if username already exists before creating
+        if (await _userService.UserExistsAsync(Input.Username))
+        {
+            ModelState.AddModelError("Input.Username", "This username is already taken. Please choose a different username.");
+            return Page();
+        }
+
         var user = await _userService.CreateUserAsync(Input.Username, Input.Password, UserRole.User, Input.Email);
 
         var member = new Member
@@ -42,10 +49,10 @@ public class AddModel : PageModel
 
         await _memberService.AddMemberAsync(member);
 
-        // Send welcome email if email is configured
+        // Send welcome email with login credentials if email is configured
         if (!string.IsNullOrEmpty(Input.Email))
         {
-            await _emailService.SendWelcomeEmailAsync(Input.Email, Input.FullName, Input.Username);
+            await _emailService.SendWelcomeEmailAsync(Input.Email, Input.FullName, Input.Username, Input.Password);
         }
 
         TempData["ToastSuccess"] = $"Member {Input.FullName} added successfully!";

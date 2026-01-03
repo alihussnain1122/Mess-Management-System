@@ -2,6 +2,10 @@ using MessManagement.Models;
 
 namespace MessManagement.Interfaces;
 
+/// <summary>
+/// Interface for user authentication and management operations.
+/// Demonstrates Interface Segregation Principle (ISP) from SOLID.
+/// </summary>
 public interface IUserService
 {
     Task<User?> GetUserByIdAsync(int id);
@@ -14,4 +18,8 @@ public interface IUserService
     Task<IEnumerable<User>> GetAllUsersAsync();
     Task<bool> DeleteUserAsync(int userId);
     Task<bool> IsPasswordInHistoryAsync(int userId, string password);
+    
+    // Account Lockout methods for security
+    Task<(bool IsLocked, DateTime? LockoutEnd)> IsAccountLockedAsync(string username);
+    Task<bool> UnlockAccountAsync(int userId);
 }

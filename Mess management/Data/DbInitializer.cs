@@ -17,6 +17,9 @@ public static class DbInitializer
         // Add RowVersion column for concurrency control if it doesn't exist
         AddRowVersionColumnIfNotExists(context);
         
+        // Add account lockout columns for security (brute-force prevention)
+        AddLockoutColumnsIfNotExists(context);
+        
         SeedAdminUser(context);
     }
 
@@ -33,6 +36,9 @@ public static class DbInitializer
         
         // Add RowVersion column for concurrency control if it doesn't exist
         await AddRowVersionColumnIfNotExistsAsync(context);
+        
+        // Add account lockout columns for security (brute-force prevention)
+        await AddLockoutColumnsIfNotExistsAsync(context);
         
         await SeedAdminUserAsync(context);
     }
@@ -89,6 +95,66 @@ public static class DbInitializer
                 END");
         }
         catch { /* Column might already exist */ }
+    }
+    
+    /// <summary>
+    /// Adds account lockout columns to the Users table for security.
+    /// These columns support brute-force attack prevention.
+    /// </summary>
+    private static void AddLockoutColumnsIfNotExists(MessDbContext context)
+    {
+        try
+        {
+            context.Database.ExecuteSqlRaw(@"
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Users') AND name = 'FailedLoginAttempts')
+                BEGIN
+                    ALTER TABLE [Users] ADD [FailedLoginAttempts] int NOT NULL DEFAULT 0;
+                END
+                
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Users') AND name = 'LockoutEnd')
+                BEGIN
+                    ALTER TABLE [Users] ADD [LockoutEnd] datetime2 NULL;
+                END
+                
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Users') AND name = 'LockoutEnabled')
+                BEGIN
+                    ALTER TABLE [Users] ADD [LockoutEnabled] bit NOT NULL DEFAULT 1;
+                END
+                
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Users') AND name = 'LastLoginAt')
+                BEGIN
+                    ALTER TABLE [Users] ADD [LastLoginAt] datetime2 NULL;
+                END");
+        }
+        catch { /* Columns might already exist */ }
+    }
+    
+    private static async Task AddLockoutColumnsIfNotExistsAsync(MessDbContext context)
+    {
+        try
+        {
+            await context.Database.ExecuteSqlRawAsync(@"
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Users') AND name = 'FailedLoginAttempts')
+                BEGIN
+                    ALTER TABLE [Users] ADD [FailedLoginAttempts] int NOT NULL DEFAULT 0;
+                END
+                
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Users') AND name = 'LockoutEnd')
+                BEGIN
+                    ALTER TABLE [Users] ADD [LockoutEnd] datetime2 NULL;
+                END
+                
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Users') AND name = 'LockoutEnabled')
+                BEGIN
+                    ALTER TABLE [Users] ADD [LockoutEnabled] bit NOT NULL DEFAULT 1;
+                END
+                
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Users') AND name = 'LastLoginAt')
+                BEGIN
+                    ALTER TABLE [Users] ADD [LastLoginAt] datetime2 NULL;
+                END");
+        }
+        catch { /* Columns might already exist */ }
     }
 
     private static void SeedAdminUser(MessDbContext context)

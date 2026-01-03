@@ -10,6 +10,10 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace MessManagement.Pages.Account;
 
+/// <summary>
+/// Login page with account lockout protection.
+/// After 5 failed attempts, account is locked for 15 minutes.
+/// </summary>
 [AllowAnonymous] // Explicitly allow unauthenticated access to login page
 public class LoginModel : PageModel
 {
@@ -25,6 +29,16 @@ public class LoginModel : PageModel
 
     public string? ErrorMessage { get; set; }
     public string? ReturnUrl { get; set; }
+    
+    /// <summary>
+    /// Indicates if the account is currently locked out.
+    /// </summary>
+    public bool IsLockedOut { get; set; }
+    
+    /// <summary>
+    /// Time remaining until lockout expires.
+    /// </summary>
+    public TimeSpan? LockoutTimeRemaining { get; set; }
 
     public void OnGet(string? returnUrl = null)
     {
@@ -40,11 +54,32 @@ public class LoginModel : PageModel
             return Page();
         }
 
+        // Check if account is locked before attempting authentication
+        var (isLocked, lockoutEnd) = await _userService.IsAccountLockedAsync(Input.Username);
+        if (isLocked && lockoutEnd.HasValue)
+        {
+            IsLockedOut = true;
+            LockoutTimeRemaining = lockoutEnd.Value - DateTime.UtcNow;
+            ErrorMessage = $"Account is locked. Please try again in {Math.Ceiling(LockoutTimeRemaining.Value.TotalMinutes)} minutes.";
+            return Page();
+        }
+
         var user = await _userService.AuthenticateAsync(Input.Username, Input.Password);
 
         if (user == null)
         {
-            ErrorMessage = "Invalid username or password";
+            // Check if account got locked after this failed attempt
+            var (nowLocked, newLockoutEnd) = await _userService.IsAccountLockedAsync(Input.Username);
+            if (nowLocked && newLockoutEnd.HasValue)
+            {
+                IsLockedOut = true;
+                LockoutTimeRemaining = newLockoutEnd.Value - DateTime.UtcNow;
+                ErrorMessage = $"Too many failed attempts. Account locked for {Math.Ceiling(LockoutTimeRemaining.Value.TotalMinutes)} minutes.";
+            }
+            else
+            {
+                ErrorMessage = "Invalid username or password";
+            }
             return Page();
         }
 
