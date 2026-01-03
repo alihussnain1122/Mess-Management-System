@@ -1,20 +1,6 @@
 D:\EAD_Project\Mess management\publish\Mess management.exe
-D:\EAD_Project\Mess management\publish\publish\publish\web.config
-D:\EAD_Project\Mess management\publish\publish\web.config
 D:\EAD_Project\Mess management\publish\web.config
-D:\EAD_Project\Mess management\publish\appsettings.Development.json
 D:\EAD_Project\Mess management\publish\appsettings.json
-D:\EAD_Project\Mess management\publish\appsettings.Production.json
-D:\EAD_Project\Mess management\publish\publish\appsettings.Development.json
-D:\EAD_Project\Mess management\publish\publish\appsettings.json
-D:\EAD_Project\Mess management\publish\publish\Mess management.deps.json
-D:\EAD_Project\Mess management\publish\publish\Mess management.runtimeconfig.json
-D:\EAD_Project\Mess management\publish\publish\Mess management.staticwebassets.endpoints.json
-D:\EAD_Project\Mess management\publish\publish\publish\appsettings.Development.json
-D:\EAD_Project\Mess management\publish\publish\publish\appsettings.json
-D:\EAD_Project\Mess management\publish\publish\publish\Mess management.deps.json
-D:\EAD_Project\Mess management\publish\publish\publish\Mess management.runtimeconfig.json
-D:\EAD_Project\Mess management\publish\publish\publish\Mess management.staticwebassets.endpoints.json
 D:\EAD_Project\Mess management\publish\LatoFont\Lato-Black.ttf
 D:\EAD_Project\Mess management\publish\LatoFont\Lato-BlackItalic.ttf
 D:\EAD_Project\Mess management\publish\LatoFont\Lato-Bold.ttf
@@ -41,6 +27,7 @@ D:\EAD_Project\Mess management\publish\Azure.Core.dll
 D:\EAD_Project\Mess management\publish\Azure.Identity.dll
 D:\EAD_Project\Mess management\publish\ClosedXML.dll
 D:\EAD_Project\Mess management\publish\DocumentFormat.OpenXml.dll
+D:\EAD_Project\Mess management\publish\DotNetEnv.dll
 D:\EAD_Project\Mess management\publish\ExcelNumberFormat.dll
 D:\EAD_Project\Mess management\publish\Irony.dll
 D:\EAD_Project\Mess management\publish\Microsoft.Bcl.AsyncInterfaces.dll
@@ -62,6 +49,7 @@ D:\EAD_Project\Mess management\publish\Microsoft.Win32.SystemEvents.dll
 D:\EAD_Project\Mess management\publish\Newtonsoft.Json.dll
 D:\EAD_Project\Mess management\publish\QuestPDF.dll
 D:\EAD_Project\Mess management\publish\SixLabors.Fonts.dll
+D:\EAD_Project\Mess management\publish\Sprache.dll
 D:\EAD_Project\Mess management\publish\Stripe.net.dll
 D:\EAD_Project\Mess management\publish\System.ClientModel.dll
 D:\EAD_Project\Mess management\publish\System.Configuration.ConfigurationManager.dll

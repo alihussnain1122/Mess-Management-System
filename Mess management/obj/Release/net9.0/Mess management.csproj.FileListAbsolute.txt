@@ -1,4 +1,3 @@
-D:\EAD_Project\Mess management\bin\Release\net9.0\appsettings.Development.json
 D:\EAD_Project\Mess management\bin\Release\net9.0\appsettings.json
 D:\EAD_Project\Mess management\bin\Release\net9.0\Mess management.staticwebassets.runtime.json
 D:\EAD_Project\Mess management\bin\Release\net9.0\Mess management.staticwebassets.endpoints.json
@@ -196,7 +195,6 @@ D:\EAD_Project\Mess management\obj\Release\net9.0\scopedcss\projectbundle\Mess m
 D:\EAD_Project\Mess management\obj\Release\net9.0\compressed\soet1e4vij-b9sayid5wm.gz
 D:\EAD_Project\Mess management\obj\Release\net9.0\compressed\pdi7u0jyzz-61n19gt1b8.gz
 D:\EAD_Project\Mess management\obj\Release\net9.0\compressed\270s5hrfwq-xtxxf3hu2r.gz
-D:\EAD_Project\Mess management\obj\Release\net9.0\compressed\3k88n22hos-9umn1jlojx.gz
 D:\EAD_Project\Mess management\obj\Release\net9.0\compressed\uxol3or8g9-bqjiyaj88i.gz
 D:\EAD_Project\Mess management\obj\Release\net9.0\compressed\ij24lx4x7x-c2jlpeoesf.gz
 D:\EAD_Project\Mess management\obj\Release\net9.0\compressed\hv99zocz0v-erw9l3u2r3.gz
@@ -268,17 +266,8 @@ D:\EAD_Project\Mess management\obj\Release\net9.0\refint\Mess management.dll
 D:\EAD_Project\Mess management\obj\Release\net9.0\Mess management.pdb
 D:\EAD_Project\Mess management\obj\Release\net9.0\Mess management.genruntimeconfig.cache
 D:\EAD_Project\Mess management\obj\Release\net9.0\ref\Mess management.dll
-D:\EAD_Project\Mess management\bin\Release\net9.0\publish\web.config
 D:\EAD_Project\Mess management\bin\Release\net9.0\web.config
-D:\EAD_Project\Mess management\bin\Release\net9.0\publish\appsettings.Development.json
-D:\EAD_Project\Mess management\bin\Release\net9.0\publish\appsettings.json
-D:\EAD_Project\Mess management\bin\Release\net9.0\publish\Mess management.deps.json
-D:\EAD_Project\Mess management\bin\Release\net9.0\publish\Mess management.runtimeconfig.json
-D:\EAD_Project\Mess management\bin\Release\net9.0\publish\Mess management.staticwebassets.endpoints.json
-D:\EAD_Project\Mess management\bin\Release\net9.0\publish\publish\web.config
-D:\EAD_Project\Mess management\bin\Release\net9.0\appsettings.Production.json
-D:\EAD_Project\Mess management\bin\Release\net9.0\publish\publish\appsettings.Development.json
-D:\EAD_Project\Mess management\bin\Release\net9.0\publish\publish\appsettings.json
-D:\EAD_Project\Mess management\bin\Release\net9.0\publish\publish\Mess management.deps.json
-D:\EAD_Project\Mess management\bin\Release\net9.0\publish\publish\Mess management.runtimeconfig.json
-D:\EAD_Project\Mess management\bin\Release\net9.0\publish\publish\Mess management.staticwebassets.endpoints.json
+D:\EAD_Project\mess management\bin\Release\net9.0\DotNetEnv.dll
+D:\EAD_Project\mess management\bin\Release\net9.0\Sprache.dll
+D:\EAD_Project\mess management\obj\Release\net9.0\compressed\oxbk4ya85w-u7eyd99wd4.gz
+D:\EAD_Project\mess management\obj\Release\net9.0\compressed\3k88n22hos-lmbab5hmcw.gz
