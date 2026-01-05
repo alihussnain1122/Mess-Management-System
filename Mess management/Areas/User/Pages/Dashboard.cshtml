@@ -142,17 +142,45 @@
             <div class="space-y-3">
                 @foreach (var payment in Model.RecentPayments)
                 {
+                    var isPending = payment.Status == PaymentStatus.Pending;
+                    
                     <div class="flex justify-between items-center p-4 bg-white/10 border border-white/10 rounded-xl">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-emerald-500/30 rounded-full flex items-center justify-center">
-                                <i class="fas fa-check text-emerald-400"></i>
-                            </div>
+                            @if (isPending)
+                            {
+                                <div class="w-10 h-10 bg-amber-500/30 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-clock text-amber-400"></i>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="w-10 h-10 bg-emerald-500/30 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-check text-emerald-400"></i>
+                                </div>
+                            }
                             <div>
                                 <p class="text-sm font-medium text-white">@payment.Date.ToString("MMM dd, yyyy")</p>
-                                <p class="text-xs text-white/50">via @payment.PaymentMode</p>
+                                <p class="text-xs text-white/50">
+                                    via @payment.PaymentMode 
+                                    @if (isPending)
+                                    {
+                                        <span class="ml-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-500/20 text-amber-400">Pending</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="ml-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-500/20 text-emerald-400">Completed</span>
+                                    }
+                                </p>
                             </div>
                         </div>
-                        <span class="font-semibold text-emerald-400">Rs.@payment.Amount.ToString("N0")</span>
+                        @if (isPending)
+                        {
+                            <span class="font-semibold text-amber-400">Rs.@payment.Amount.ToString("N0")</span>
+                        }
+                        else
+                        {
+                            <span class="font-semibold text-emerald-400">Rs.@payment.Amount.ToString("N0")</span>
+                        }
                     </div>
                 }
             </div>

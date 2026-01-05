@@ -7,6 +7,7 @@ public interface IAttendanceService
 {
     Task<IEnumerable<Attendance>> GetAttendanceForMemberAsync(int memberId, DateTime? startDate = null, DateTime? endDate = null);
     Task<IEnumerable<Attendance>> GetAttendanceForDateAsync(DateTime date);
+    Task<IEnumerable<Attendance>> GetAttendanceByDateRangeAsync(DateTime startDate, DateTime endDate);
     Task<Attendance?> GetAttendanceByIdAsync(int id);
     Task<Attendance?> GetAttendanceAsync(int memberId, DateTime date);
     

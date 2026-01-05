@@ -1,6 +1,7 @@
 D:\EAD_Project\mess management\publish\Mess management.exe
 D:\EAD_Project\mess management\publish\web.config
 D:\EAD_Project\mess management\publish\appsettings.json
+D:\EAD_Project\mess management\publish\appsettings.Production.json
 D:\EAD_Project\mess management\publish\LatoFont\Lato-Black.ttf
 D:\EAD_Project\mess management\publish\LatoFont\Lato-BlackItalic.ttf
 D:\EAD_Project\mess management\publish\LatoFont\Lato-Bold.ttf

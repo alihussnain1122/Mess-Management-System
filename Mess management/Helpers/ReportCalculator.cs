@@ -60,4 +60,44 @@ public static class ReportCalculator
             .GroupBy(p => p.Mode)
             .ToDictionary(g => g.Key, g => Math.Round(g.Sum(p => p.Amount), 2));
     }
+
+    /// <summary>
+    /// Calculate meal cost from actual attendance and menu prices
+    /// </summary>
+    public static decimal CalculateMealCostFromMenu(
+        List<(DateTime Date, bool BreakfastPresent, bool LunchPresent, bool DinnerPresent)> attendance,
+        List<(DateTime? MenuDate, DayOfWeek DayOfWeek, Models.MealType MealType, decimal Price)> menus)
+    {
+        decimal totalCost = 0;
+
+        foreach (var att in attendance)
+        {
+            // Find menu for this date (specific date menu takes precedence over template)
+            var menuForDate = menus.Where(m => m.MenuDate.HasValue && m.MenuDate.Value.Date == att.Date.Date).ToList();
+            if (!menuForDate.Any())
+            {
+                menuForDate = menus.Where(m => !m.MenuDate.HasValue && m.DayOfWeek == att.Date.DayOfWeek).ToList();
+            }
+
+            if (att.BreakfastPresent)
+            {
+                var breakfast = menuForDate.FirstOrDefault(m => m.MealType == Models.MealType.Breakfast);
+                totalCost += breakfast.Price > 0 ? breakfast.Price : Constants.DefaultBreakfastRate;
+            }
+
+            if (att.LunchPresent)
+            {
+                var lunch = menuForDate.FirstOrDefault(m => m.MealType == Models.MealType.Lunch);
+                totalCost += lunch.Price > 0 ? lunch.Price : Constants.DefaultLunchRate;
+            }
+
+            if (att.DinnerPresent)
+            {
+                var dinner = menuForDate.FirstOrDefault(m => m.MealType == Models.MealType.Dinner);
+                totalCost += dinner.Price > 0 ? dinner.Price : Constants.DefaultDinnerRate;
+            }
+        }
+
+        return Math.Round(totalCost, 2);
+    }
 }

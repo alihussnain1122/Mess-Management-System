@@ -110,10 +110,39 @@ public class MyBillModel : PageModel
         WaterCount = TotalMeals;  // FREE with every meal
         TeaCount = TotalMeals;    // Rs.100 per meal
 
-        // Calculate charges
-        BreakfastCharges = BreakfastCount * BreakfastRate;
-        LunchCharges = LunchCount * LunchRate;
-        DinnerCharges = DinnerCount * DinnerRate;
+        // Calculate actual charges from menu prices
+        BreakfastCharges = 0;
+        LunchCharges = 0;
+        DinnerCharges = 0;
+        
+        foreach (var att in attendance)
+        {
+            // Get menu for this date
+            var menuForDate = specificMenus.Where(m => m.MenuDate!.Value.Date == att.Date.Date).ToList();
+            if (!menuForDate.Any())
+            {
+                menuForDate = templateMenus.Where(m => m.DayOfWeek == att.Date.DayOfWeek).ToList();
+            }
+
+            if (att.BreakfastPresent)
+            {
+                var breakfast = menuForDate.FirstOrDefault(m => m.MealType == MealType.Breakfast);
+                BreakfastCharges += breakfast?.Price ?? BreakfastRate;
+            }
+
+            if (att.LunchPresent)
+            {
+                var lunch = menuForDate.FirstOrDefault(m => m.MealType == MealType.Lunch);
+                LunchCharges += lunch?.Price ?? LunchRate;
+            }
+
+            if (att.DinnerPresent)
+            {
+                var dinner = menuForDate.FirstOrDefault(m => m.MealType == MealType.Dinner);
+                DinnerCharges += dinner?.Price ?? DinnerRate;
+            }
+        }
+        
         MealCharges = BreakfastCharges + LunchCharges + DinnerCharges;
         WaterCharges = WaterCount * WaterRate;  // Rs.0 (FREE)
         TeaCharges = TeaCount * TeaRate;        // Rs.100 per meal

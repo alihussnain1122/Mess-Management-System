@@ -1,30 +1,30 @@
 {
   "format": 1,
   "restore": {
-    "D:\\EAD_Project\\Mess management\\Mess management.csproj": {}
+    "D:\\EAD_Project\\mess management\\Mess management.csproj": {}
   },
   "projects": {
-    "D:\\EAD_Project\\Mess management\\Mess management.csproj": {
+    "D:\\EAD_Project\\mess management\\Mess management.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\EAD_Project\\Mess management\\Mess management.csproj",
+        "projectUniqueName": "D:\\EAD_Project\\mess management\\Mess management.csproj",
         "projectName": "Mess management",
-        "projectPath": "D:\\EAD_Project\\Mess management\\Mess management.csproj",
+        "projectPath": "D:\\EAD_Project\\mess management\\Mess management.csproj",
         "packagesPath": "C:\\Users\\Ali Hussnain\\.nuget\\packages\\",
-        "outputPath": "D:\\EAD_Project\\Mess management\\obj\\",
+        "outputPath": "D:\\EAD_Project\\mess management\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Ali Hussnain\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
-          "net9.0"
+          "net8.0"
         ],
         "sources": {
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net9.0": {
-            "targetAlias": "net9.0",
+          "net8.0": {
+            "targetAlias": "net8.0",
             "projectReferences": {}
           }
         },
@@ -41,8 +41,8 @@
         "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
-        "net9.0": {
-          "targetAlias": "net9.0",
+        "net8.0": {
+          "targetAlias": "net8.0",
           "dependencies": {
             "ClosedXML": {
               "target": "Package",
@@ -54,23 +54,23 @@
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[9.0.0, )"
+              "version": "[8.0.11, )"
             },
             "Microsoft.EntityFrameworkCore.Design": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[9.0.0, )"
+              "version": "[8.0.11, )"
             },
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
-              "version": "[9.0.0, )"
+              "version": "[8.0.11, )"
             },
             "Microsoft.EntityFrameworkCore.Tools": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[9.0.0, )"
+              "version": "[8.0.11, )"
             },
             "QuestPDF": {
               "target": "Package",
@@ -92,6 +92,12 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[8.0.22, 8.0.22]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"

@@ -53,6 +53,7 @@ public class MessDbContext : DbContext
         modelBuilder.Entity<Attendance>(entity =>
         {
             entity.HasIndex(a => new { a.MemberId, a.Date }).IsUnique();
+            entity.HasIndex(a => a.Date); // Optimize date range queries for dashboard
             // BreakfastPresent, LunchPresent, DinnerPresent are stored as boolean columns
             // Status is a computed property (NotMapped)
             entity.HasOne(a => a.Member)

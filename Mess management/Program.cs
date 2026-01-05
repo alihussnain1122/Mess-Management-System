@@ -33,8 +33,14 @@ builder.Services.AddMemoryCache();
 
 // Configure Entity Framework with SQL Server using appsettings.json
 builder.Services.AddDbContext<MessDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-           .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning)));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlOptions => {
+            sqlOptions.CommandTimeout(120); // Increase timeout to 120 seconds
+            sqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(30),
+                errorNumbersToAdd: null); // Retry on transient failures
+        }));
 
 // ============================================
 // DEPENDENCY INJECTION - ALL THREE LIFETIMES
@@ -81,8 +87,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         // SECURITY HARDENING - Cookie Settings
         // ============================================
         options.Cookie.HttpOnly = true;           // Prevents JavaScript access (XSS protection)
-        options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // HTTPS only
-        options.Cookie.SameSite = SameSiteMode.Strict;  // CSRF protection
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // Works with both HTTP and HTTPS
+        options.Cookie.SameSite = SameSiteMode.Lax;  // Allows login redirects to work
         options.Cookie.Name = ".DineSync.Auth";   // Custom cookie name
         options.Cookie.IsEssential = true;        // Required for authentication
     });
@@ -93,9 +99,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
     options.CheckConsentNeeded = context => false; // Set to true for GDPR consent
-    options.MinimumSameSitePolicy = SameSiteMode.Strict;
+    options.MinimumSameSitePolicy = SameSiteMode.Lax;
     options.HttpOnly = HttpOnlyPolicy.Always;
-    options.Secure = CookieSecurePolicy.Always;
+    options.Secure = CookieSecurePolicy.SameAsRequest;
 });
 
 // ============================================

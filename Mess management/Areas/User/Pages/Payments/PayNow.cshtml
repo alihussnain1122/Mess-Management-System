@@ -67,7 +67,7 @@
     <div class="bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
         <h3 class="text-lg font-semibold text-white mb-4"><i class="fas fa-wallet mr-2 text-emerald-400"></i>Choose Payment Method</h3>
         
-        <form method="post" id="paymentForm">
+        <form method="post" id="paymentForm" data-no-ajax>
             <div class="space-y-4">
                 <!-- Amount Input -->
                 <div class="form-group">
@@ -89,9 +89,9 @@
                     </label>
                     <div class="grid grid-cols-1 gap-3">
                         <!-- Online Payment Option -->
-                        <label class="payment-option cursor-pointer">
-                            <input type="radio" name="PaymentType" value="Online" class="hidden" id="onlinePayment">
-                            <div class="relative p-4 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border-2 border-indigo-500/30 rounded-xl transition-all hover:border-indigo-400 peer-checked:border-indigo-400">
+                        <label class="payment-option cursor-pointer block">
+                            <input type="radio" name="PaymentType" value="Online" class="peer hidden" id="onlinePayment">
+                            <div class="relative p-4 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border-2 border-indigo-500/30 rounded-xl transition-all hover:border-indigo-400 peer-checked:border-indigo-400 peer-checked:ring-2 peer-checked:ring-indigo-500/50">
                                 <div class="absolute top-2 right-2 bg-emerald-500 text-white text-[10px] px-2 py-0.5 rounded-full font-semibold">
                                     <i class="fas fa-star mr-1"></i>RECOMMENDED
                                 </div>
@@ -112,9 +112,9 @@
                         </label>
 
                         <!-- Cash Payment Option -->
-                        <label class="payment-option cursor-pointer">
-                            <input type="radio" name="PaymentType" value="Cash" class="hidden" id="cashPayment">
-                            <div class="p-4 bg-amber-500/10 border-2 border-amber-500/30 rounded-xl transition-all hover:border-amber-400">
+                        <label class="payment-option cursor-pointer block">
+                            <input type="radio" name="PaymentType" value="Cash" class="peer hidden" id="cashPayment">
+                            <div class="p-4 bg-amber-500/10 border-2 border-amber-500/30 rounded-xl transition-all hover:border-amber-400 peer-checked:border-amber-400 peer-checked:ring-2 peer-checked:ring-amber-500/50">
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 bg-amber-500/30 rounded-xl flex items-center justify-center">
                                         <i class="fas fa-money-bill-wave text-xl text-amber-400"></i>
@@ -174,24 +174,24 @@
         const amountInput = document.getElementById('amountInput');
 
         // Payment option selection styling and logic
-        function selectPaymentOption(option) {
-            // Remove selection from all
-            document.querySelectorAll('.payment-option > div').forEach(el => {
-                el.classList.remove('border-indigo-400', 'border-amber-400', 'ring-2', 'ring-indigo-500/50', 'ring-amber-500/50');
-            });
-
-            if (option === 'Online') {
-                const selectedDiv = onlinePayment.closest('label').querySelector('div');
-                selectedDiv.classList.add('border-indigo-400', 'ring-2', 'ring-indigo-500/50');
+        function updatePaymentUI() {
+            const selectedPayment = document.querySelector('input[name="PaymentType"]:checked');
+            
+            if (!selectedPayment) {
+                submitBtn.disabled = true;
+                return;
+            }
+            
+            const paymentType = selectedPayment.value;
+            
+            if (paymentType === 'Online') {
                 notesGroup.classList.add('hidden');
                 paymentMethodHidden.value = 'Stripe';
                 submitBtn.disabled = false;
-                submitBtn.classList.remove('from-gray-500', 'to-gray-600');
+                submitBtn.classList.remove('from-gray-500', 'to-gray-600', 'from-amber-500', 'to-orange-500', 'hover:from-amber-600', 'hover:to-orange-600');
                 submitBtn.classList.add('from-indigo-600', 'to-purple-600', 'hover:from-indigo-700', 'hover:to-purple-700');
                 btnText.innerHTML = '<i class="fab fa-stripe mr-2"></i>Pay with Stripe';
-            } else if (option === 'Cash') {
-                const selectedDiv = cashPayment.closest('label').querySelector('div');
-                selectedDiv.classList.add('border-amber-400', 'ring-2', 'ring-amber-500/50');
+            } else if (paymentType === 'Cash') {
                 notesGroup.classList.remove('hidden');
                 paymentMethodHidden.value = 'Cash';
                 submitBtn.disabled = false;
@@ -201,8 +201,8 @@
             }
         }
 
-        onlinePayment.addEventListener('change', () => selectPaymentOption('Online'));
-        cashPayment.addEventListener('change', () => selectPaymentOption('Cash'));
+        onlinePayment.addEventListener('change', updatePaymentUI);
+        cashPayment.addEventListener('change', updatePaymentUI);
 
         // Form submission
         document.getElementById('paymentForm').addEventListener('submit', function(e) {

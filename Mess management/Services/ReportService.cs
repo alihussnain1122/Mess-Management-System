@@ -80,10 +80,35 @@ public class ReportService : IReportService
         var totalLunches = attendances.Count(a => a.LunchPresent);
         var totalDinners = attendances.Count(a => a.DinnerPresent);
 
-        // Calculate expected revenue based on meal rates
-        var expectedRevenue = (totalBreakfasts * Constants.DefaultBreakfastRate) +
-                             (totalLunches * Constants.DefaultLunchRate) +
-                             (totalDinners * Constants.DefaultDinnerRate);
+        // Get all menus for the month
+        var specificMenus = await _context.WeeklyMenus
+            .Where(m => m.MenuDate != null && m.MenuDate >= startDate && m.MenuDate <= endDate)
+            .ToListAsync();
+        var templateMenus = await _context.WeeklyMenus
+            .Where(m => m.MenuDate == null)
+            .ToListAsync();
+
+        // Calculate expected revenue based on actual menu prices
+        decimal expectedRevenue = 0;
+        foreach (var att in attendances)
+        {
+            var menuForDate = specificMenus.Where(m => m.MenuDate!.Value.Date == att.Date.Date).ToList();
+            if (!menuForDate.Any())
+            {
+                menuForDate = templateMenus.Where(m => m.DayOfWeek == att.Date.DayOfWeek).ToList();
+            }
+
+            if (att.BreakfastPresent)
+                expectedRevenue += menuForDate.FirstOrDefault(m => m.MealType == Models.MealType.Breakfast)?.Price ?? Constants.DefaultBreakfastRate;
+            if (att.LunchPresent)
+                expectedRevenue += menuForDate.FirstOrDefault(m => m.MealType == Models.MealType.Lunch)?.Price ?? Constants.DefaultLunchRate;
+            if (att.DinnerPresent)
+                expectedRevenue += menuForDate.FirstOrDefault(m => m.MealType == Models.MealType.Dinner)?.Price ?? Constants.DefaultDinnerRate;
+        }
+
+        // Add tea charges
+        var totalMeals = totalBreakfasts + totalLunches + totalDinners;
+        expectedRevenue += totalMeals * Constants.DefaultTeaCost;
 
         return new MonthlyReport
         {
@@ -107,10 +132,40 @@ public class ReportService : IReportService
         var mealSummary = await _attendanceService.GetMealWiseAttendanceSummaryAsync(memberId, month, year);
         var paymentSummary = await _paymentService.GetPaymentSummaryAsync(memberId, month, year);
 
-        // Calculate meal costs based on individual meal rates
-        var breakfastCost = mealSummary.BreakfastCount * Constants.DefaultBreakfastRate;
-        var lunchCost = mealSummary.LunchCount * Constants.DefaultLunchRate;
-        var dinnerCost = mealSummary.DinnerCount * Constants.DefaultDinnerRate;
+        var startDate = new DateTime(year, month, 1);
+        var endDate = startDate.AddMonths(1).AddDays(-1);
+
+        // Get attendance for actual price calculation
+        var attendances = await _context.Attendances
+            .Where(a => a.MemberId == memberId && a.Date >= startDate && a.Date <= endDate)
+            .ToListAsync();
+
+        // Get menus
+        var specificMenus = await _context.WeeklyMenus
+            .Where(m => m.MenuDate != null && m.MenuDate >= startDate && m.MenuDate <= endDate)
+            .ToListAsync();
+        var templateMenus = await _context.WeeklyMenus
+            .Where(m => m.MenuDate == null)
+            .ToListAsync();
+
+        // Calculate actual meal costs from menu prices
+        decimal breakfastCost = 0, lunchCost = 0, dinnerCost = 0;
+        foreach (var att in attendances)
+        {
+            var menuForDate = specificMenus.Where(m => m.MenuDate!.Value.Date == att.Date.Date).ToList();
+            if (!menuForDate.Any())
+            {
+                menuForDate = templateMenus.Where(m => m.DayOfWeek == att.Date.DayOfWeek).ToList();
+            }
+
+            if (att.BreakfastPresent)
+                breakfastCost += menuForDate.FirstOrDefault(m => m.MealType == Models.MealType.Breakfast)?.Price ?? Constants.DefaultBreakfastRate;
+            if (att.LunchPresent)
+                lunchCost += menuForDate.FirstOrDefault(m => m.MealType == Models.MealType.Lunch)?.Price ?? Constants.DefaultLunchRate;
+            if (att.DinnerPresent)
+                dinnerCost += menuForDate.FirstOrDefault(m => m.MealType == Models.MealType.Dinner)?.Price ?? Constants.DefaultDinnerRate;
+        }
+
         var totalMealCost = breakfastCost + lunchCost + dinnerCost;
 
         // Water & Tea are auto-included with every meal
@@ -157,6 +212,14 @@ public class ReportService : IReportService
             .Where(p => p.Date >= startDate && p.Date <= endDate && p.Status == Models.PaymentStatus.Completed)
             .ToListAsync();
 
+        // Get all menus for the month
+        var specificMenus = await _context.WeeklyMenus
+            .Where(m => m.MenuDate != null && m.MenuDate >= startDate && m.MenuDate <= endDate)
+            .ToListAsync();
+        var templateMenus = await _context.WeeklyMenus
+            .Where(m => m.MenuDate == null)
+            .ToListAsync();
+
         var breakdowns = activeMembers.Select(member =>
         {
             var memberAttendances = allAttendances.Where(a => a.MemberId == member.MemberId).ToList();
@@ -167,10 +230,24 @@ public class ReportService : IReportService
             var dinnerCount = memberAttendances.Count(a => a.DinnerPresent);
             var totalMeals = breakfastCount + lunchCount + dinnerCount;
             
-            // Calculate meal costs
-            var breakfastCost = breakfastCount * Constants.DefaultBreakfastRate;
-            var lunchCost = lunchCount * Constants.DefaultLunchRate;
-            var dinnerCost = dinnerCount * Constants.DefaultDinnerRate;
+            // Calculate actual meal costs from menu prices
+            decimal breakfastCost = 0, lunchCost = 0, dinnerCost = 0;
+            foreach (var att in memberAttendances)
+            {
+                var menuForDate = specificMenus.Where(m => m.MenuDate!.Value.Date == att.Date.Date).ToList();
+                if (!menuForDate.Any())
+                {
+                    menuForDate = templateMenus.Where(m => m.DayOfWeek == att.Date.DayOfWeek).ToList();
+                }
+
+                if (att.BreakfastPresent)
+                    breakfastCost += menuForDate.FirstOrDefault(m => m.MealType == Models.MealType.Breakfast)?.Price ?? Constants.DefaultBreakfastRate;
+                if (att.LunchPresent)
+                    lunchCost += menuForDate.FirstOrDefault(m => m.MealType == Models.MealType.Lunch)?.Price ?? Constants.DefaultLunchRate;
+                if (att.DinnerPresent)
+                    dinnerCost += menuForDate.FirstOrDefault(m => m.MealType == Models.MealType.Dinner)?.Price ?? Constants.DefaultDinnerRate;
+            }
+            
             var mealCost = breakfastCost + lunchCost + dinnerCost;
             
             // Water & Tea are auto-included with every meal
@@ -240,33 +317,40 @@ public class ReportService : IReportService
         var today = DateTime.UtcNow.Date;
         var currentMonth = today.Month;
         var currentYear = today.Year;
-
-        var todayAttendance = await _attendanceService.GetAttendanceForDateAsync(today);
-        var monthlyReport = await GetMonthlyReportAsync(currentMonth, currentYear);
-        var todayList = todayAttendance.ToList();
-
-        // Get last 7 days attendance and revenue
         var weekStart = today.AddDays(-6);
+
+        // Optimized: Fetch all week's attendance in a single query
+        var weekAttendanceData = await _attendanceService.GetAttendanceByDateRangeAsync(weekStart, today);
+        var weekAttendanceList = weekAttendanceData.ToList();
+        
+        var todayList = weekAttendanceList.Where(a => a.Date.Date == today).ToList();
+        
+        // Optimized: Fetch all week's payments in a single query
+        var weekPaymentsData = await _paymentService.GetPaymentsByDateRangeAsync(weekStart, today.AddDays(1).AddSeconds(-1));
+        var weekPaymentsList = weekPaymentsData.ToList();
+
+        var monthlyReport = await GetMonthlyReportAsync(currentMonth, currentYear);
+
+        // Build weekly stats from cached data
         var weeklyAttendance = new List<DailyAttendanceStat>();
         var weeklyRevenue = new List<DailyRevenueStat>();
 
         for (var date = weekStart; date <= today; date = date.AddDays(1))
         {
-            var dayAttendance = await _attendanceService.GetAttendanceForDateAsync(date);
-            var dayPayments = await _paymentService.GetPaymentsByDateRangeAsync(date, date.AddDays(1).AddSeconds(-1));
-            var dayList = dayAttendance.ToList();
+            var dayAttendanceList = weekAttendanceList.Where(a => a.Date.Date == date.Date).ToList();
+            var dayPaymentsList = weekPaymentsList.Where(p => p.Date.Date == date.Date).ToList();
             
             weeklyAttendance.Add(new DailyAttendanceStat
             {
                 Day = date.ToString("ddd"),
-                Present = dayList.Count(a => a.BreakfastPresent || a.LunchPresent || a.DinnerPresent),
-                Absent = dayList.Count(a => !a.BreakfastPresent && !a.LunchPresent && !a.DinnerPresent)
+                Present = dayAttendanceList.Count(a => a.BreakfastPresent || a.LunchPresent || a.DinnerPresent),
+                Absent = dayAttendanceList.Count(a => !a.BreakfastPresent && !a.LunchPresent && !a.DinnerPresent)
             });
             
             weeklyRevenue.Add(new DailyRevenueStat
             {
                 Day = date.ToString("ddd"),
-                Amount = dayPayments.Sum(p => p.Amount)
+                Amount = dayPaymentsList.Sum(p => p.Amount)
             });
         }
 

@@ -42,6 +42,17 @@ public class AttendanceService : IAttendanceService
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<Attendance>> GetAttendanceByDateRangeAsync(DateTime startDate, DateTime endDate)
+    {
+        return await _context.Attendances
+            .Include(a => a.Member)
+            .Include(a => a.MarkedByUser)
+            .Where(a => a.Date.Date >= startDate.Date && a.Date.Date <= endDate.Date)
+            .OrderBy(a => a.Date)
+            .ThenBy(a => a.Member.FullName)
+            .ToListAsync();
+    }
+
     public async Task<Attendance?> GetAttendanceByIdAsync(int id)
     {
         return await _context.Attendances

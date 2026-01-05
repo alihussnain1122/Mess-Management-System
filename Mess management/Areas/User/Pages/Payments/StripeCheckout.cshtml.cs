@@ -123,11 +123,21 @@ public class StripeCheckoutModel : PageModel
         MemberName = member.FullName;
         var now = DateTime.Now;
         
-        var presentDays = await _attendanceService.GetPresentCountForMemberAsync(member.MemberId, now.Month, now.Year);
+        // Get meal-wise attendance counts for accurate billing
+        var mealCounts = await _attendanceService.GetMealCountsForMemberAsync(member.MemberId, now.Month, now.Year);
         var payments = await _paymentService.GetPaymentsForMemberAsync(member.MemberId);
 
+        // Calculate charges based on meal-wise attendance
+        var breakfastCharges = mealCounts.BreakfastCount * Helpers.Constants.DefaultBreakfastRate;
+        var lunchCharges = mealCounts.LunchCount * Helpers.Constants.DefaultLunchRate;
+        var dinnerCharges = mealCounts.DinnerCount * Helpers.Constants.DefaultDinnerRate;
+        var mealCharges = breakfastCharges + lunchCharges + dinnerCharges;
+        
+        // Tea is auto-included with every meal (Rs.100 per meal)
+        var teaCharges = mealCounts.TotalMeals * Helpers.Constants.DefaultTeaCost;
+
         TotalPaid = payments.Where(p => p.Date.Month == now.Month && p.Date.Year == now.Year && p.Status == PaymentStatus.Completed).Sum(p => p.Amount);
-        MonthCost = presentDays * 150m;
+        MonthCost = mealCharges + teaCharges;
         BalanceDue = Math.Max(0, MonthCost - TotalPaid);
     }
 }
